@@ -1,6 +1,6 @@
 const presets = {
 	"default": {
-		img: "img.webp",
+		img: "pool-background.png",
 		waveSpeed: 0.997,
 		damping: 0.996,
 		propagationSpeed: 10,
@@ -52,7 +52,7 @@ const presets = {
 		velocityReflectionFactor: 0.15
 	},
 	"clear": {
-		img: "img.webp",
+		img: "pool-background.png",
 		waveSpeed: 0.998,
 		damping: 0.985,
 		propagationSpeed: 14,
@@ -90,7 +90,7 @@ const presets = {
 		velocityReflectionFactor: 4.15
 	},
 	"thick": {
-		img: "img.webp",
+		img: "pool-background.png",
 		waveSpeed: 0.984,
 		damping: 0.997,
 		propagationSpeed: 6,
@@ -128,7 +128,7 @@ const presets = {
 		velocityReflectionFactor: 0.2
 	},
 	"storm": {
-		img: "img.webp",
+		img: "pool-background.png",
 		waveSpeed: 0.997,
 		damping: 0.992,
 		propagationSpeed: 14,
@@ -166,7 +166,7 @@ const presets = {
 		velocityReflectionFactor: 0.4
 	},
 	"pool": {
-		img: "pool.webp",
+		img: "pool-background.png",
 		waveSpeed: 0.997,
 		damping: 0.996,
 		propagationSpeed: 12,

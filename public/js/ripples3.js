@@ -23,6 +23,176 @@ const lazy = (cb, ms = 256) =>
 		ms + Math.round(Math.random() * ms)
 	);
 
+const getCustomizer = () =>
+	window.MONGLEDUM_RIPPLES_CUSTOMIZER || {};
+
+const HASH_PARAM_MAP = {
+	wsp: "waveSpeed",
+	dmp: "damping",
+	pgs: "propagationSpeed",
+	rft: "refraction",
+	wth: "waterHue",
+	tnt: "tintStrength",
+	sps: "specularStrength",
+	rgs: "roughness",
+	fre: "fresnelEffect",
+	frp: "fresnelPower",
+	frr: "reflectionFresnel",
+	blr: "reflectionBlur",
+	dst: "reflectionDistortion",
+	skh: "skyHue",
+	dpt: "depthFactor",
+	sct: "atmosphericScatter",
+	env: "envMapIntensity",
+	trd: "touchRadius",
+	tmp: "initialImpact",
+	ttr: "trailStrength",
+	tsp: "trailSpread",
+	css: "causticStrength",
+	csc: "causticScale",
+	csp: "causticSpeed",
+	csb: "causticBrightness",
+	csd: "causticDetail",
+	sun: "sunIntensity",
+	snh: "sunHue",
+	sth: "sunAngle",
+	sph: "sunHeight",
+	lht: "lightIntensity",
+	lih: "lightHue",
+	lth: "lightAngle",
+	lph: "lightHeight",
+	rfs: "waveReflectionStrength",
+	rfm: "mirrorReflectionStrength",
+	rfv: "velocityReflectionFactor"
+};
+
+class StaticControls {
+
+	constructor(liquid) {
+
+		this.liquid = liquid;
+		this.pop = false;
+		this.bnd = { x: 0, y: 0, w: 0, h: 0 };
+
+	}
+
+	hashParams() {
+
+		const hash = window.location.hash.slice(1);
+
+		if(!hash.length)
+			return {};
+
+		try {
+
+			const params = {};
+
+			hash.split("&")
+			.map(entry => entry.split("="))
+			.forEach(([key, rawValue]) => {
+
+				if(key === "img") {
+					params.img = rawValue;
+					return;
+				}
+
+				const paramKey = HASH_PARAM_MAP[key];
+
+				if(!paramKey)
+					return;
+
+				params[paramKey] = JSON.parse(rawValue);
+
+			});
+
+			return params;
+		
+		}
+		catch(err) {
+
+			this.liquid.renderText("bad url");
+			console.error(err);
+			return {};
+		
+		}
+	
+	}
+
+	hueToRGB(hue) {
+
+		hue = hue % 1;
+
+		if(hue < 0)
+			hue += 1;
+
+		const h = hue * 6;
+		const i = Math.floor(h);
+		const f = h - i;
+		const p = 0;
+		const q = 1 - f;
+		const t = f;
+
+		switch(i % 6) {
+			case 0: return [1, t, p];
+			case 1: return [q, 1, p];
+			case 2: return [p, 1, t];
+			case 3: return [p, q, 1];
+			case 4: return [t, p, 1];
+			case 5: return [1, p, q];
+			default: return [0, 0, 0];
+		}
+	
+	}
+
+	degToRad(deg) {
+
+		return deg * Math.PI / 180;
+	
+	}
+
+	sphericalToCartesian(angleDeg, heightDeg) {
+
+		const theta = this.degToRad(angleDeg);
+		const phi = this.degToRad(90 - heightDeg);
+		const sinPhi = Math.sin(phi);
+		const x = sinPhi * Math.cos(theta);
+		const y = sinPhi * Math.sin(theta);
+		const z = Math.cos(phi);
+		const len = Math.sqrt(x * x + y * y + z * z);
+
+		return [x / len, y / len, z / len];
+	
+	}
+
+	updateSunLight() {
+
+		this.liquid.params.sunDirection = this.sphericalToCartesian(
+			this.liquid.params.sunAngle,
+			this.liquid.params.sunHeight
+		);
+		this.liquid.params.lightDirection = this.sphericalToCartesian(
+			this.liquid.params.lightAngle,
+			this.liquid.params.lightHeight
+		);
+		this.liquid.params.sunColor = this.hueToRGB(this.liquid.params.sunHue);
+		this.liquid.params.lightColor = this.hueToRGB(this.liquid.params.lightHue);
+	
+	}
+
+	updateColors() {
+
+		this.liquid.params.waterColor = this.hueToRGB(this.liquid.params.waterHue);
+		this.liquid.params.skyColor = this.hueToRGB(this.liquid.params.skyHue);
+	
+	}
+
+	updateBounds() {}
+	mask() {}
+	toggle() {}
+	liquified() {}
+
+}
+
 window.addEventListener(
 	"load",
 	() => {
@@ -54,7 +224,7 @@ window.addEventListener(
 			const rippler = document.querySelector("#ripples3");
 
 			const liquify = new Liquid(rippler);
-			const amplify = new Params(liquify);
+			const amplify = new StaticControls(liquify);
 
 			liquify
 			.flow(
@@ -188,7 +358,6 @@ class Liquid {
 		this.pops = new Map();
 		this.deltaTime = 1;
 		this.accumulatedTime = 0;
-		this.fish = [];
 		this.infos = null;
 
 		this.dirtyPhysics = true;
@@ -241,6 +410,9 @@ class Liquid {
 			...preset
 		};
 
+		if(getCustomizer().backgroundImage)
+			this.params.img = getCustomizer().backgroundImage;
+
 		this.syncUniforms();
 
 		this.amplify.updateSunLight();
@@ -261,6 +433,9 @@ class Liquid {
 			...params
 		};
 
+		if(getCustomizer().backgroundImage)
+			this.params.img = getCustomizer().backgroundImage;
+
 		this.img = this.params.img;
 
 		this.infos = document.querySelector("#fps");
@@ -270,7 +445,6 @@ class Liquid {
 
 		return [
 			this.loadBackground,
-			this.loadForeground,
 			this.initializeWebGL,
 			DEBUG ? this.initShaders : this.initShadersZip,
 			this.initUniforms,
@@ -324,27 +498,6 @@ class Liquid {
 		const imgUrl = (!this.img.startsWith("blob:") ? "assets/" : "") + this.img;
 
 		this.image = await this.loadImage(imgUrl);
-	
-	}
-
-	async loadForeground() {
-
-		if(DEBUG)
-			console.log("load foreground");
-
-		const imgSize = 36;
-		const imgOff = 6;
-
-		this.fish.push({
-			i: await this.loadImage("assets/github-mark-white.png"),
-			c: () =>
-				({
-					x: this.w - (imgSize + imgOff) * this.DISP_SCALE,
-					y: imgOff * this.DISP_SCALE,
-					w: imgSize * this.DISP_SCALE,
-					h: imgSize * this.DISP_SCALE
-				})
-		});
 	
 	}
 
@@ -1703,25 +1856,15 @@ void main() {
 			this.h
 		);
 
-		this.fish.forEach(fish => {
+		const customizer = getCustomizer();
 
-			const {
-				x, y, w, h
-			} = fish.c();
+		if(customizer.drawBackgroundOverlay) {
 
-			this.btx.globalAlpha = 0.55;
-			this.btx.shadowColor = "#000000";
-			this.btx.shadowBlur = 16;
-
-			this.btx.drawImage(
-				fish.i,
-				x,
-				y,
-				w,
-				h
-			);
+			this.btx.save();
+			customizer.drawBackgroundOverlay(this.btx, this);
+			this.btx.restore();
 		
-		});
+		}
 
 		this.btx.restore();
 

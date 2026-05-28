@@ -1,10 +1,20 @@
-export default function App() {
+import DummyPage from "./pages/Dummy";
+
+const routes = {
+  "/": DummyPage,
+};
+
+function NotFoundPage() {
   return (
     <div id="ripples3">
-      <a id="github" href="/README_LOCAL_RIPPLES3.txt" title="Local ripples3 source info">
-        <div />
-      </a>
-      <span id="fps">-- --</span>
+      <span id="fps">404</span>
     </div>
   );
+}
+
+export default function App() {
+  const pathname = window.location.pathname;
+  const Page = routes[pathname] || NotFoundPage;
+
+  return <Page />;
 }
