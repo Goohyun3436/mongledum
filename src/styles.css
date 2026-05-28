@@ -52,6 +52,27 @@ body {
   overflow: hidden;
 }
 
+#ripples3.ripples-fallback {
+  background-color: #000;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#ripples3.ripples-fallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.38)),
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.18), transparent 42%);
+  pointer-events: none;
+}
+
+#ripples3.ripples-fallback canvas {
+  display: none;
+}
+
 canvas {
   position: absolute;
   top: 0;

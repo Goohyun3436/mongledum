@@ -5,15 +5,67 @@
  * https://github.com/nicopowa/ripples3
  */
 
+const normalizeErrorMessage = err =>
+	err instanceof Error ? err.message : String(err || "unknown error");
+
+const isStaticFallbackError = err => {
+
+	const message = normalizeErrorMessage(err);
+
+	return [
+		"webgl2 not supported",
+		"floating-point framebuffers not supported on this device"
+	]
+	.some(text =>
+		message.includes(text));
+
+};
+
+const applyStaticFallback = () => {
+
+	const rippler = document.querySelector("#ripples3");
+
+	if(!rippler)
+		return false;
+
+	const backgroundImage = getCustomizer().backgroundImage || "pool-background.png";
+	const backgroundUrl = (!backgroundImage.startsWith("blob:") ? "assets/" : "") + backgroundImage;
+
+	rippler.classList.add("ripples-fallback");
+	rippler.style.backgroundImage = `url("${backgroundUrl}")`;
+
+	rippler.querySelectorAll("canvas")
+	.forEach(canvas =>
+		canvas.remove());
+
+	const fps = rippler.querySelector("#fps");
+
+	if(fps)
+		fps.hidden = true;
+
+	const errorDiv = document.querySelector(".err");
+
+	if(errorDiv)
+		errorDiv.remove();
+
+	return true;
+
+};
+
 const handleError = err => {
 
 	console.error(err);
 
-	const errorDiv = document.createElement("div");
+	if(isStaticFallbackError(err) && applyStaticFallback())
+		return;
+
+	const errorDiv = document.querySelector(".err") || document.createElement("div");
 
 	errorDiv.classList.add("err");
-	errorDiv.innerHTML = "<div>liquify fail</div>" + "<br/>" + err;
-	document.body.appendChild(errorDiv);
+	errorDiv.innerHTML = "<div>liquify fail</div>" + "<br/>" + normalizeErrorMessage(err);
+
+	if(!errorDiv.parentNode)
+		document.body.appendChild(errorDiv);
 
 };
 
