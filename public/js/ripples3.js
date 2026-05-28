@@ -375,6 +375,7 @@ class Liquid {
 
 		this.dirtyPhysics = true;
 		this.dirtyRenders = true;
+		this.waterTextureConfig = null;
 
 		this.bck = document.createElement("canvas");
 		this.btx = this.bck.getContext(
@@ -562,12 +563,9 @@ class Liquid {
 		if(!this.gl)
 			throw new Error("webgl2 not supported");
 
-		const ext = this.gl.getExtension("EXT_color_buffer_float");
-
-		if(!ext)
-			throw new Error("ext_color_buffer_float not supported");
-
+		this.gl.getExtension("EXT_color_buffer_float");
 		this.gl.getExtension("OES_texture_float_linear");
+		this.configureWaterTextureSupport();
 
 		const glInitErr = this.gl.getError();
 
@@ -577,6 +575,198 @@ class Liquid {
 		
 		}
 	
+	}
+
+	getWaterTextureCandidates() {
+
+		const gl = this.gl;
+
+		return [
+			{
+				name: "RGBA32F",
+				internalFormat: gl.RGBA32F,
+				format: gl.RGBA,
+				type: gl.FLOAT
+			},
+			{
+				name: "RGBA16F",
+				internalFormat: gl.RGBA16F,
+				format: gl.RGBA,
+				type: gl.HALF_FLOAT
+			}
+		];
+
+	}
+
+	supportsWaterTextureConfig(config) {
+
+		const gl = this.gl;
+		const texture = gl.createTexture();
+		const framebuffer = gl.createFramebuffer();
+
+		try {
+
+			gl.bindTexture(
+				gl.TEXTURE_2D,
+				texture
+			);
+			gl.texParameteri(
+				gl.TEXTURE_2D,
+				gl.TEXTURE_MIN_FILTER,
+				gl.NEAREST
+			);
+			gl.texParameteri(
+				gl.TEXTURE_2D,
+				gl.TEXTURE_MAG_FILTER,
+				gl.NEAREST
+			);
+			gl.texParameteri(
+				gl.TEXTURE_2D,
+				gl.TEXTURE_WRAP_S,
+				gl.CLAMP_TO_EDGE
+			);
+			gl.texParameteri(
+				gl.TEXTURE_2D,
+				gl.TEXTURE_WRAP_T,
+				gl.CLAMP_TO_EDGE
+			);
+			gl.texImage2D(
+				gl.TEXTURE_2D,
+				0,
+				config.internalFormat,
+				1,
+				1,
+				0,
+				config.format,
+				config.type,
+				null
+			);
+
+			if(gl.getError() !== gl.NO_ERROR)
+				return false;
+
+			gl.bindFramebuffer(
+				gl.FRAMEBUFFER,
+				framebuffer
+			);
+			gl.framebufferTexture2D(
+				gl.FRAMEBUFFER,
+				gl.COLOR_ATTACHMENT0,
+				gl.TEXTURE_2D,
+				texture,
+				0
+			);
+
+			return gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+
+		}
+		finally {
+
+			gl.bindFramebuffer(
+				gl.FRAMEBUFFER,
+				null
+			);
+			gl.bindTexture(
+				gl.TEXTURE_2D,
+				null
+			);
+
+			if(framebuffer)
+				gl.deleteFramebuffer(framebuffer);
+
+			if(texture)
+				gl.deleteTexture(texture);
+
+		}
+
+	}
+
+	configureWaterTextureSupport() {
+
+		this.waterTextureConfig = this.getWaterTextureCandidates()
+		.find(config =>
+			this.supportsWaterTextureConfig(config));
+
+		if(!this.waterTextureConfig)
+			throw new Error("floating-point framebuffers not supported on this device");
+
+		if(DEBUG)
+			console.log("water texture format", this.waterTextureConfig.name);
+
+	}
+
+	allocateWaterTexture(texture, width, height, data = null) {
+
+		const gl = this.gl;
+		const config = this.waterTextureConfig;
+
+		gl.bindTexture(
+			gl.TEXTURE_2D,
+			texture
+		);
+		gl.texImage2D(
+			gl.TEXTURE_2D,
+			0,
+			config.internalFormat,
+			width,
+			height,
+			0,
+			config.format,
+			config.type,
+			data
+		);
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_MIN_FILTER,
+			gl.NEAREST
+		);
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_MAG_FILTER,
+			gl.NEAREST
+		);
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_WRAP_S,
+			gl.CLAMP_TO_EDGE
+		);
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_WRAP_T,
+			gl.CLAMP_TO_EDGE
+		);
+
+	}
+
+	clearWaterTextures() {
+
+		const gl = this.gl;
+		const previousFramebuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+		const previousClearColor = gl.getParameter(gl.COLOR_CLEAR_VALUE);
+
+		gl.clearColor(0, 0, 0, 1);
+
+		[this.framebuffer1, this.framebuffer2].forEach(framebuffer => {
+
+			gl.bindFramebuffer(
+				gl.FRAMEBUFFER,
+				framebuffer
+			);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
+		});
+
+		gl.bindFramebuffer(
+			gl.FRAMEBUFFER,
+			previousFramebuffer
+		);
+		gl.clearColor(
+			previousClearColor[0],
+			previousClearColor[1],
+			previousClearColor[2],
+			previousClearColor[3]
+		);
+
 	}
 
 	async initShaders() {
@@ -1076,40 +1266,10 @@ void main() {
 		const gl = this.gl;
 		const texture = gl.createTexture();
 
-		gl.bindTexture(
-			gl.TEXTURE_2D,
-			texture
-		);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA32F,
+		this.allocateWaterTexture(
+			texture,
 			this.w,
-			this.h,
-			0,
-			gl.RGBA,
-			gl.FLOAT,
-			null
-		);
-		gl.texParameteri(
-			gl.TEXTURE_2D,
-			gl.TEXTURE_MIN_FILTER,
-			gl.NEAREST
-		);
-		gl.texParameteri(
-			gl.TEXTURE_2D,
-			gl.TEXTURE_MAG_FILTER,
-			gl.NEAREST
-		);
-		gl.texParameteri(
-			gl.TEXTURE_2D,
-			gl.TEXTURE_WRAP_S,
-			gl.CLAMP_TO_EDGE
-		);
-		gl.texParameteri(
-			gl.TEXTURE_2D,
-			gl.TEXTURE_WRAP_T,
-			gl.CLAMP_TO_EDGE
+			this.h
 		);
 
 		const waterError = gl.getError();
@@ -1260,20 +1420,10 @@ void main() {
 
 		[this.waterTexture1, this.waterTexture2].forEach(texture => {
 
-			gl.bindTexture(
-				gl.TEXTURE_2D,
-				texture
-			);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA32F,
+			this.allocateWaterTexture(
+				texture,
 				this.w,
-				this.h,
-				0,
-				gl.RGBA,
-				gl.FLOAT,
-				null
+				this.h
 			);
 		
 		});
@@ -2193,38 +2343,7 @@ void main() {
 		if(DEBUG)
 			console.log("reset water");
 
-		const gl = this.gl;
-		const flat = new Float32Array(this.w * this.h * 4);
-
-		for(let i = 0; i < flat.length; i += 4) {
-
-			flat[i] = 0.0; // height
-			flat[i + 1] = 0.0; // prev height
-			flat[i + 2] = 0.0; // velocity
-			flat[i + 3] = 1.0; // alpha
-		
-		}
-
-		[this.waterTexture1, this.waterTexture2].forEach(texture => {
-
-			gl.bindTexture(
-				gl.TEXTURE_2D,
-				texture
-			);
-
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA32F,
-				this.w,
-				this.h,
-				0,
-				gl.RGBA,
-				gl.FLOAT,
-				flat
-			);
-		
-		});
+		this.clearWaterTextures();
 
 		this.currentFramebuffer = this.framebuffer1;
 		this.currentTexture = this.waterTexture1;
