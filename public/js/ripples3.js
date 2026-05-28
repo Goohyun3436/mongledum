@@ -197,6 +197,60 @@ window.addEventListener(
 	"load",
 	() => {
 
+		const bootRipples = () => {
+
+			const rippler = document.querySelector("#ripples3");
+
+			if(!rippler) {
+
+				requestAnimationFrame(bootRipples);
+				return;
+
+			}
+
+			try {
+
+				const liquify = new Liquid(rippler);
+				const amplify = new StaticControls(liquify);
+
+				liquify
+				.flow(
+					amplify,
+					amplify.hashParams()
+				)
+				.then(() => {
+
+					if(DEBUG)
+						console.log("flowing");
+
+					lazy(
+						() => {
+							// liquify.snailIt();
+							// liquify.circleIt();
+							// if(!liquify.isTouched) liquify.dropIt();
+							/*lazy(
+								() => {
+									if(!liquify.isTouched) liquify.curveIt();
+								}, 
+								1000
+							);*/
+						},
+						500
+					);
+				
+				})
+				.catch(err =>
+					handleError(err));
+		
+			}
+			catch(err) {
+
+				handleError(err);
+		
+			}
+
+		};
+
 		window.addEventListener(
 			"error",
 			evt => {
@@ -219,48 +273,7 @@ window.addEventListener(
 			}
 		);
 
-		try {
-
-			const rippler = document.querySelector("#ripples3");
-
-			const liquify = new Liquid(rippler);
-			const amplify = new StaticControls(liquify);
-
-			liquify
-			.flow(
-				amplify,
-				amplify.hashParams()
-			)
-			.then(() => {
-
-				if(DEBUG)
-					console.log("flowing");
-
-				lazy(
-					() => {
-						// liquify.snailIt();
-						// liquify.circleIt();
-						// if(!liquify.isTouched) liquify.dropIt();
-						/*lazy(
-							() => {
-								if(!liquify.isTouched) liquify.curveIt();
-							}, 
-							1000
-						);*/
-					},
-					500
-				);
-			
-			})
-			.catch(err =>
-				handleError(err));
-	
-		}
-		catch(err) {
-
-			handleError(err);
-	
-		}
+		bootRipples();
 
 	}
 );
