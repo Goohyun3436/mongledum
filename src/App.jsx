@@ -15,11 +15,14 @@ function NotFoundPage() {
 
 function MousePointerTrail() {
   const imageAspectRatio = 408 / 468;
+  const releaseAnimationMs = 560;
   const trailRef = useRef(null);
   const pointerRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const releasePointRef = useRef(null);
   const pathRef = useRef([]);
   const frameRef = useRef(0);
   const isPressedRef = useRef(false);
+  const releaseTimeoutRef = useRef(0);
 
   useEffect(() => {
     const trailNode = trailRef.current;
@@ -27,6 +30,42 @@ function MousePointerTrail() {
     if (!trailNode) {
       return undefined;
     }
+
+    const clearReleaseAnimation = () => {
+      if (releaseTimeoutRef.current) {
+        window.clearTimeout(releaseTimeoutRef.current);
+        releaseTimeoutRef.current = 0;
+      }
+    };
+
+    const hideTrailImmediately = () => {
+      trailNode.classList.add("is-hidden");
+      trailNode.classList.remove("is-visible", "is-releasing");
+    };
+
+    const dispatchReleaseClick = () => {
+      const releasePoint = releasePointRef.current;
+
+      if (!releasePoint) {
+        return;
+      }
+
+      const target = document.elementFromPoint(releasePoint.x, releasePoint.y);
+
+      if (!target) {
+        return;
+      }
+
+      target.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          clientX: releasePoint.x,
+          clientY: releasePoint.y,
+          view: window,
+        })
+      );
+    };
 
     const pushPoint = (x, y) => {
       const nextPoint = { x, y, time: performance.now() };
@@ -48,7 +87,6 @@ function MousePointerTrail() {
       frameRef.current = 0;
 
       if (!isPressedRef.current) {
-        trailNode.classList.remove("is-visible");
         return;
       }
 
@@ -84,6 +122,8 @@ function MousePointerTrail() {
       const width = Math.max(18, distance / Math.hypot(1, imageAspectRatio));
       const angle = Math.atan2(deltaY, deltaX) - Math.atan2(imageAspectRatio, 1);
 
+      trailNode.classList.remove("is-releasing");
+      trailNode.classList.remove("is-hidden");
       trailNode.classList.add("is-visible");
       trailNode.style.transform = `translate(${x}px, ${y}px) rotate(${angle}rad)`;
       trailNode.style.width = `${width}px`;
@@ -102,20 +142,40 @@ function MousePointerTrail() {
     };
 
     const handlePointerDown = (event) => {
+      clearReleaseAnimation();
       isPressedRef.current = true;
+      trailNode.classList.remove("is-hidden");
+      trailNode.classList.remove("is-releasing");
+      trailNode.classList.add("is-visible");
       pointerRef.current = { x: event.clientX, y: event.clientY };
       pushPoint(event.clientX, event.clientY);
       requestUpdate();
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (event) => {
+      clearReleaseAnimation();
       isPressedRef.current = false;
-      trailNode.classList.remove("is-visible");
+      releasePointRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      if (!trailNode.classList.contains("is-visible")) {
+        return;
+      }
+
+      trailNode.classList.add("is-releasing");
+      releaseTimeoutRef.current = window.setTimeout(() => {
+        dispatchReleaseClick();
+        hideTrailImmediately();
+        releaseTimeoutRef.current = 0;
+      }, releaseAnimationMs);
     };
 
     const handlePointerLeave = () => {
+      clearReleaseAnimation();
       isPressedRef.current = false;
-      trailNode.classList.remove("is-visible");
+      hideTrailImmediately();
     };
 
     pushPoint(pointerRef.current.x, pointerRef.current.y);
@@ -127,6 +187,8 @@ function MousePointerTrail() {
     window.addEventListener("pointerleave", handlePointerLeave);
 
     return () => {
+      clearReleaseAnimation();
+
       if (frameRef.current) {
         window.cancelAnimationFrame(frameRef.current);
       }
