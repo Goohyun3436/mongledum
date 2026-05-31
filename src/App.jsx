@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { IoIosClose } from "react-icons/io";
 import DummyPage from "./pages/Dummy";
 
 const routes = {
@@ -7,7 +8,8 @@ const routes = {
 
 const GESTURE_POINT_COUNT = 32;
 const GESTURE_SQUARE_SIZE = 200;
-const HALF_DIAGONAL = 0.5 * Math.hypot(GESTURE_SQUARE_SIZE, GESTURE_SQUARE_SIZE);
+const HALF_DIAGONAL =
+  0.5 * Math.hypot(GESTURE_SQUARE_SIZE, GESTURE_SQUARE_SIZE);
 const ANGLE_RANGE = Math.PI / 4;
 const ANGLE_PRECISION = Math.PI / 90;
 const GOLDEN_RATIO = 0.5 * (-1 + Math.sqrt(5));
@@ -45,7 +47,7 @@ function getCentroid(points) {
       x: accumulator.x + point.x,
       y: accumulator.y + point.y,
     }),
-    { x: 0, y: 0 }
+    { x: 0, y: 0 },
   );
 
   return {
@@ -132,7 +134,7 @@ function scaleToSquare(points, size) {
       minY: Number.POSITIVE_INFINITY,
       maxX: Number.NEGATIVE_INFINITY,
       maxY: Number.NEGATIVE_INFINITY,
-    }
+    },
   );
 
   const width = Math.max(bounds.maxX - bounds.minX, 1);
@@ -154,7 +156,12 @@ function translateToOrigin(points) {
 }
 
 function normalizeGesture(points) {
-  return translateToOrigin(scaleToSquare(rotateToZero(resample(points, GESTURE_POINT_COUNT)), GESTURE_SQUARE_SIZE));
+  return translateToOrigin(
+    scaleToSquare(
+      rotateToZero(resample(points, GESTURE_POINT_COUNT)),
+      GESTURE_SQUARE_SIZE,
+    ),
+  );
 }
 
 function getPathDistance(pointsA, pointsB) {
@@ -171,7 +178,13 @@ function distanceAtAngle(points, template, angle) {
   return getPathDistance(rotateBy(points, angle), template);
 }
 
-function distanceAtBestAngle(points, template, angleStart, angleEnd, anglePrecision) {
+function distanceAtBestAngle(
+  points,
+  template,
+  angleStart,
+  angleEnd,
+  anglePrecision,
+) {
   let start = angleStart;
   let end = angleEnd;
   let angleA = GOLDEN_RATIO * start + (1 - GOLDEN_RATIO) * end;
@@ -202,7 +215,7 @@ const STAR_TEMPLATE = normalizeGesture(
   STAR_TEMPLATE_POINTS.map((point) => ({
     x: point.x * GESTURE_SQUARE_SIZE,
     y: point.y * GESTURE_SQUARE_SIZE,
-  }))
+  })),
 );
 
 function isStarGesture(points) {
@@ -222,7 +235,7 @@ function isStarGesture(points) {
       minY: Number.POSITIVE_INFINITY,
       maxX: Number.NEGATIVE_INFINITY,
       maxY: Number.NEGATIVE_INFINITY,
-    }
+    },
   );
 
   const width = bounds.maxX - bounds.minX;
@@ -234,7 +247,13 @@ function isStarGesture(points) {
   }
 
   const normalizedPoints = normalizeGesture(points);
-  const distance = distanceAtBestAngle(normalizedPoints, STAR_TEMPLATE, -ANGLE_RANGE, ANGLE_RANGE, ANGLE_PRECISION);
+  const distance = distanceAtBestAngle(
+    normalizedPoints,
+    STAR_TEMPLATE,
+    -ANGLE_RANGE,
+    ANGLE_RANGE,
+    ANGLE_PRECISION,
+  );
   const score = 1 - distance / HALF_DIAGONAL;
 
   return score > 0.48;
@@ -264,17 +283,73 @@ function EasterEggPopup({ onClose }) {
   }, [onClose]);
 
   return (
-    <div className="easter-egg-popup" role="dialog" aria-modal="true" aria-labelledby="easter-egg-title">
-      <button className="easter-egg-popup__backdrop" type="button" aria-label="팝업 닫기" onClick={onClose} />
+    <div
+      className="easter-egg-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="easter-egg-title"
+    >
+      <button
+        className="easter-egg-popup__backdrop"
+        type="button"
+        aria-label="팝업 닫기"
+        onClick={onClose}
+      />
       <div className="easter-egg-popup__card">
-        <button className="easter-egg-popup__close" type="button" aria-label="팝업 닫기" onClick={onClose}>
-          x
+        <button
+          className="easter-egg-popup__close"
+          type="button"
+          aria-label="팝업 닫기"
+          onClick={onClose}
+        >
+          <IoIosClose className="easter-egg-popup__close-icon" aria-hidden="true" />
         </button>
-        <p className="easter-egg-popup__eyebrow">secret easter egg</p>
+        <p className="easter-egg-popup__eyebrow">
+          별을 아주 잘 그려주신 당신에게..
+        </p>
         <h2 id="easter-egg-title" className="easter-egg-popup__title">
-          저희 굿즈를 구매해주신 당신에게 몽글덤 티켓 할인권을 드립니다!
+          NFC 키링 이스터에그 특별 콘텐츠
         </h2>
-        <img className="easter-egg-popup__ticket" src="/assets/ticket.png" alt="몽글덤 티켓 할인권 이미지" />
+        <div className="easter-egg-popup__content">
+          <section
+            className="easter-egg-popup__panel"
+            aria-labelledby="easter-egg-preview-title"
+          >
+            <h3
+              id="easter-egg-preview-title"
+              className="easter-egg-popup__panel-title"
+            >
+              제작과정 비하인드 영상
+            </h3>
+            <div className="easter-egg-popup__video-frame">
+              <iframe
+                className="easter-egg-popup__video"
+                src="https://www.youtube-nocookie.com/embed/jDTh3jdxxBw?rel=0"
+                title="몽글덤 MV 유튜브 미리보기"
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </section>
+          <section
+            className="easter-egg-popup__panel"
+            aria-labelledby="easter-egg-ticket-title"
+          >
+            <h3
+              id="easter-egg-ticket-title"
+              className="easter-egg-popup__panel-title"
+            >
+              후원해주신 분들께
+            </h3>
+            <img
+              className="easter-egg-popup__ticket"
+              src="/assets/ticket.png"
+              alt="몽글덤 티켓 할인권 이미지"
+            />
+          </section>
+        </div>
       </div>
     </div>
   );
@@ -284,7 +359,10 @@ function MousePointerTrail({ onStarGesture }) {
   const imageAspectRatio = 408 / 468;
   const releaseAnimationMs = 560;
   const trailRef = useRef(null);
-  const pointerRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const pointerRef = useRef({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  });
   const releasePointRef = useRef(null);
   const pathRef = useRef([]);
   const frameRef = useRef(0);
@@ -330,7 +408,7 @@ function MousePointerTrail({ onStarGesture }) {
           clientX: releasePoint.x,
           clientY: releasePoint.y,
           view: window,
-        })
+        }),
       );
     };
 
@@ -392,7 +470,8 @@ function MousePointerTrail({ onStarGesture }) {
       const deltaY = trailingPoint.y - y;
       const distance = Math.max(28, Math.hypot(deltaX, deltaY));
       const width = Math.max(18, distance / Math.hypot(1, imageAspectRatio));
-      const angle = Math.atan2(deltaY, deltaX) - Math.atan2(imageAspectRatio, 1);
+      const angle =
+        Math.atan2(deltaY, deltaX) - Math.atan2(imageAspectRatio, 1);
 
       trailNode.classList.remove("is-releasing");
       trailNode.classList.remove("is-hidden");
@@ -413,7 +492,9 @@ function MousePointerTrail({ onStarGesture }) {
       if (isPressedRef.current) {
         pushPoint(event.clientX, event.clientY);
       } else {
-        pathRef.current = [{ x: event.clientX, y: event.clientY, time: performance.now() }];
+        pathRef.current = [
+          { x: event.clientX, y: event.clientY, time: performance.now() },
+        ];
       }
 
       requestUpdate();
@@ -466,10 +547,16 @@ function MousePointerTrail({ onStarGesture }) {
 
     pushPoint(pointerRef.current.x, pointerRef.current.y);
 
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handlePointerDown, {
+      passive: true,
+    });
     window.addEventListener("pointerup", handlePointerUp, { passive: true });
-    window.addEventListener("pointercancel", handlePointerUp, { passive: true });
+    window.addEventListener("pointercancel", handlePointerUp, {
+      passive: true,
+    });
     window.addEventListener("pointerleave", handlePointerLeave);
 
     return () => {
@@ -490,7 +577,12 @@ function MousePointerTrail({ onStarGesture }) {
 
   return (
     <div ref={trailRef} className="mouse-pointer-trail" aria-hidden="true">
-      <img src="/assets/mouse-point.png" alt="" className="mouse-pointer-trail__image" draggable="false" />
+      <img
+        src="/assets/mouse-point.png"
+        alt=""
+        className="mouse-pointer-trail__image"
+        draggable="false"
+      />
     </div>
   );
 }
@@ -507,7 +599,9 @@ export default function App() {
     <>
       <Page />
       <MousePointerTrail onStarGesture={handleStarGesture} />
-      {isEasterEggOpen ? <EasterEggPopup onClose={() => setIsEasterEggOpen(false)} /> : null}
+      {isEasterEggOpen ? (
+        <EasterEggPopup onClose={() => setIsEasterEggOpen(false)} />
+      ) : null}
     </>
   );
 }

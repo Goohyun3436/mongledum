@@ -28,11 +28,18 @@ const applyStaticFallback = () => {
 	if(!rippler)
 		return false;
 
-	const backgroundImage = getCustomizer().backgroundImage || "pool-background.png";
+	const customizer = getCustomizer();
+	const backgroundImage = customizer.backgroundImage || "pool-background.png";
 	const backgroundUrl = (!backgroundImage.startsWith("blob:") ? "assets/" : "") + backgroundImage;
+	const backgroundColor = customizer.backgroundColor || "#c1dafd";
+	const backgroundPosition = customizer.backgroundPosition === "center" ? "center center" : "top center";
 
 	rippler.classList.add("ripples-fallback");
+	rippler.style.backgroundColor = backgroundColor;
 	rippler.style.backgroundImage = `url("${backgroundUrl}")`;
+	rippler.style.backgroundPosition = backgroundPosition;
+	rippler.style.backgroundSize = "100% auto";
+	rippler.style.backgroundRepeat = "no-repeat";
 
 	rippler.querySelectorAll("canvas")
 	.forEach(canvas =>
@@ -2014,7 +2021,12 @@ void main() {
 		if(!this.image?.complete)
 			return;
 	
-		this.btx.fillStyle = "#000000";
+		const customizer = getCustomizer();
+		const backgroundSizing = customizer.backgroundSizing || "cover";
+		const backgroundColor = customizer.backgroundColor || "#c1dafd";
+		const backgroundPosition = customizer.backgroundPosition || "center";
+
+		this.btx.fillStyle = backgroundColor;
 		this.btx.fillRect(
 			0,
 			0,
@@ -2040,38 +2052,63 @@ void main() {
 		const screenAspect = this.w / this.h;
 		const imageAspect = imgW / imgH;
 
-		let sx, sy, sw, sh;
+		if(backgroundSizing === "width") {
 
-		if(screenAspect > imageAspect) {
+			const drawHeight = Math.round(this.w / imageAspect);
+			let drawY = 0;
 
-			sw = imgW;
-			sh = Math.round(imgW / screenAspect);
-			sx = 0;
-			sy = Math.round((imgH - sh) / 2);
+			if(backgroundPosition === "center")
+				drawY = Math.round((this.h - drawHeight) / 2);
+			else if(backgroundPosition === "bottom")
+				drawY = this.h - drawHeight;
+
+			this.btx.drawImage(
+				this.image,
+				0,
+				0,
+				imgW,
+				imgH,
+				0,
+				drawY,
+				this.w,
+				drawHeight
+			);
 		
 		}
 		else {
 
-			sh = imgH;
-			sw = Math.round(imgH * screenAspect);
-			sy = 0;
-			sx = Math.round((imgW - sw) / 2);
+			let sx, sy, sw, sh;
+
+			if(screenAspect > imageAspect) {
+
+				sw = imgW;
+				sh = Math.round(imgW / screenAspect);
+				sx = 0;
+				sy = Math.round((imgH - sh) / 2);
+			
+			}
+			else {
+
+				sh = imgH;
+				sw = Math.round(imgH * screenAspect);
+				sy = 0;
+				sx = Math.round((imgW - sw) / 2);
+			
+			}
+
+			this.btx.drawImage(
+				this.image,
+				sx,
+				sy,
+				sw,
+				sh,
+				0,
+				0,
+				this.w,
+				this.h
+			);
 		
 		}
-
-		this.btx.drawImage(
-			this.image,
-			sx,
-			sy,
-			sw,
-			sh,
-			0,
-			0,
-			this.w,
-			this.h
-		);
-
-		const customizer = getCustomizer();
 
 		if(customizer.drawBackgroundOverlay) {
 

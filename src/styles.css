@@ -213,11 +213,15 @@ body {
   z-index: 1;
   display: grid;
   gap: 16px;
-  width: min(100%, 420px);
+  width: min(100%, 40vw);
   padding: 24px 24px 26px;
-  border-radius: 28px;
+  border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(246, 251, 255, 0.9)),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(246, 251, 255, 0.9)
+    ),
     rgba(255, 255, 255, 0.9);
   box-shadow:
     0 28px 60px rgba(10, 25, 41, 0.3),
@@ -229,16 +233,26 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 34px;
   height: 34px;
   padding: 0;
   color: #476779;
   font: inherit;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  line-height: 1;
   border: 0;
   border-radius: 999px;
   background: rgba(229, 241, 248, 0.96);
   cursor: pointer;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.easter-egg-popup__close-icon {
+  flex: 0 0 auto;
+  font-size: 1.8rem;
 }
 
 .easter-egg-popup__eyebrow {
@@ -258,11 +272,45 @@ body {
   line-height: 1.45;
 }
 
+.easter-egg-popup__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.easter-egg-popup__panel {
+  display: grid;
+  gap: 10px;
+}
+
+.easter-egg-popup__panel-title {
+  margin: 0;
+  color: #31566a;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.easter-egg-popup__video-frame {
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(229, 241, 248, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.easter-egg-popup__video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
 .easter-egg-popup__ticket {
   display: block;
-  width: min(100%, 300px);
+  width: 100%;
   margin: 0 auto;
-  border-radius: 20px;
+  border-radius: 8px;
   box-shadow: 0 18px 36px rgba(30, 66, 86, 0.18);
 }
 
@@ -340,19 +388,31 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: #c7e0ff;
+}
+
+#ripples3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--ripples-background-image);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  opacity: 0.96;
+  pointer-events: none;
 }
 
 #ripples3.ripples-fallback {
-  background-color: #000;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: #c7e0ff;
 }
 
 #ripples3.ripples-fallback::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   background:
     linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.38)),
     radial-gradient(
@@ -437,8 +497,13 @@ canvas {
   }
 
   .easter-egg-popup__card {
+    width: min(100%, 420px);
     padding: 22px 18px 22px;
     border-radius: 24px;
+  }
+
+  .easter-egg-popup__content {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

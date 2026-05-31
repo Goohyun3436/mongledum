@@ -25,11 +25,19 @@ const externalLinks = [
 
 window.MONGLEDUM_RIPPLES_CUSTOMIZER = {
   backgroundImage: ripplesContent.backgroundImage,
+  backgroundSizing: "width",
+  backgroundColor: "#c7e0ff",
+  backgroundPosition: "center",
 };
 
 export default function DummyPage() {
   return (
-    <div id="ripples3">
+    <div
+      id="ripples3"
+      style={{
+        "--ripples-background-image": `url("/assets/${ripplesContent.backgroundImage}")`,
+      }}
+    >
       <aside className="floating-links" aria-label="몽글덤 외부 링크">
         <div className="floating-links__card">
           <p className="floating-links__eyebrow">mongledum official</p>
