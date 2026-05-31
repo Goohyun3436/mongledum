@@ -367,6 +367,7 @@ function MousePointerTrail({ onStarGesture }) {
   const pathRef = useRef([]);
   const frameRef = useRef(0);
   const isPressedRef = useRef(false);
+  const isReleasingRef = useRef(false);
   const releaseTimeoutRef = useRef(0);
 
   useEffect(() => {
@@ -381,9 +382,12 @@ function MousePointerTrail({ onStarGesture }) {
         window.clearTimeout(releaseTimeoutRef.current);
         releaseTimeoutRef.current = 0;
       }
+
+      isReleasingRef.current = false;
     };
 
     const hideTrailImmediately = () => {
+      isReleasingRef.current = false;
       trailNode.classList.add("is-hidden");
       trailNode.classList.remove("is-visible", "is-releasing");
     };
@@ -431,6 +435,10 @@ function MousePointerTrail({ onStarGesture }) {
     const updateImage = () => {
       frameRef.current = 0;
       const { x, y } = pointerRef.current;
+
+      if (isReleasingRef.current) {
+        return;
+      }
 
       if (!isPressedRef.current) {
         trailNode.classList.remove("is-releasing");
@@ -531,6 +539,12 @@ function MousePointerTrail({ onStarGesture }) {
         return;
       }
 
+      if (frameRef.current) {
+        window.cancelAnimationFrame(frameRef.current);
+        frameRef.current = 0;
+      }
+
+      isReleasingRef.current = true;
       trailNode.classList.add("is-releasing");
       releaseTimeoutRef.current = window.setTimeout(() => {
         dispatchReleaseClick();
