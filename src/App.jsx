@@ -1,9 +1,244 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import DummyPage from "./pages/Dummy";
 
 const routes = {
   "/": DummyPage,
 };
+
+const GESTURE_POINT_COUNT = 32;
+const GESTURE_SQUARE_SIZE = 200;
+const HALF_DIAGONAL = 0.5 * Math.hypot(GESTURE_SQUARE_SIZE, GESTURE_SQUARE_SIZE);
+const ANGLE_RANGE = Math.PI / 4;
+const ANGLE_PRECISION = Math.PI / 90;
+const GOLDEN_RATIO = 0.5 * (-1 + Math.sqrt(5));
+const STAR_TEMPLATE_POINTS = [
+  { x: 0.5, y: 0.04 },
+  { x: 0.62, y: 0.36 },
+  { x: 0.96, y: 0.36 },
+  { x: 0.68, y: 0.56 },
+  { x: 0.8, y: 0.92 },
+  { x: 0.5, y: 0.68 },
+  { x: 0.2, y: 0.92 },
+  { x: 0.32, y: 0.56 },
+  { x: 0.04, y: 0.36 },
+  { x: 0.38, y: 0.36 },
+  { x: 0.5, y: 0.04 },
+];
+
+function getDistance(pointA, pointB) {
+  return Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+}
+
+function getPathLength(points) {
+  let length = 0;
+
+  for (let index = 1; index < points.length; index += 1) {
+    length += getDistance(points[index - 1], points[index]);
+  }
+
+  return length;
+}
+
+function getCentroid(points) {
+  const total = points.reduce(
+    (accumulator, point) => ({
+      x: accumulator.x + point.x,
+      y: accumulator.y + point.y,
+    }),
+    { x: 0, y: 0 }
+  );
+
+  return {
+    x: total.x / points.length,
+    y: total.y / points.length,
+  };
+}
+
+function resample(points, targetCount) {
+  if (points.length === 0) {
+    return [];
+  }
+
+  const interval = getPathLength(points) / (targetCount - 1);
+  const sampledPoints = [points[0]];
+  const mutablePoints = points.map((point) => ({ ...point }));
+  let accumulatedDistance = 0;
+  let previousPoint = mutablePoints[0];
+
+  for (let index = 1; index < mutablePoints.length; index += 1) {
+    const currentPoint = mutablePoints[index];
+    const segmentLength = getDistance(previousPoint, currentPoint);
+
+    if (segmentLength === 0) {
+      continue;
+    }
+
+    if (accumulatedDistance + segmentLength >= interval) {
+      const ratio = (interval - accumulatedDistance) / segmentLength;
+      const interpolatedPoint = {
+        x: previousPoint.x + ratio * (currentPoint.x - previousPoint.x),
+        y: previousPoint.y + ratio * (currentPoint.y - previousPoint.y),
+      };
+
+      sampledPoints.push(interpolatedPoint);
+      previousPoint = interpolatedPoint;
+      accumulatedDistance = 0;
+    } else {
+      accumulatedDistance += segmentLength;
+      previousPoint = currentPoint;
+    }
+  }
+
+  while (sampledPoints.length < targetCount) {
+    sampledPoints.push(mutablePoints[mutablePoints.length - 1]);
+  }
+
+  return sampledPoints;
+}
+
+function rotateBy(points, angle) {
+  const centroid = getCentroid(points);
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+
+  return points.map((point) => {
+    const translatedX = point.x - centroid.x;
+    const translatedY = point.y - centroid.y;
+
+    return {
+      x: translatedX * cosine - translatedY * sine + centroid.x,
+      y: translatedX * sine + translatedY * cosine + centroid.y,
+    };
+  });
+}
+
+function rotateToZero(points) {
+  const centroid = getCentroid(points);
+  const angle = Math.atan2(points[0].y - centroid.y, points[0].x - centroid.x);
+
+  return rotateBy(points, -angle);
+}
+
+function scaleToSquare(points, size) {
+  const bounds = points.reduce(
+    (accumulator, point) => ({
+      minX: Math.min(accumulator.minX, point.x),
+      minY: Math.min(accumulator.minY, point.y),
+      maxX: Math.max(accumulator.maxX, point.x),
+      maxY: Math.max(accumulator.maxY, point.y),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    }
+  );
+
+  const width = Math.max(bounds.maxX - bounds.minX, 1);
+  const height = Math.max(bounds.maxY - bounds.minY, 1);
+
+  return points.map((point) => ({
+    x: (point.x * size) / width,
+    y: (point.y * size) / height,
+  }));
+}
+
+function translateToOrigin(points) {
+  const centroid = getCentroid(points);
+
+  return points.map((point) => ({
+    x: point.x - centroid.x,
+    y: point.y - centroid.y,
+  }));
+}
+
+function normalizeGesture(points) {
+  return translateToOrigin(scaleToSquare(rotateToZero(resample(points, GESTURE_POINT_COUNT)), GESTURE_SQUARE_SIZE));
+}
+
+function getPathDistance(pointsA, pointsB) {
+  let distance = 0;
+
+  for (let index = 0; index < pointsA.length; index += 1) {
+    distance += getDistance(pointsA[index], pointsB[index]);
+  }
+
+  return distance / pointsA.length;
+}
+
+function distanceAtAngle(points, template, angle) {
+  return getPathDistance(rotateBy(points, angle), template);
+}
+
+function distanceAtBestAngle(points, template, angleStart, angleEnd, anglePrecision) {
+  let start = angleStart;
+  let end = angleEnd;
+  let angleA = GOLDEN_RATIO * start + (1 - GOLDEN_RATIO) * end;
+  let angleB = (1 - GOLDEN_RATIO) * start + GOLDEN_RATIO * end;
+  let distanceA = distanceAtAngle(points, template, angleA);
+  let distanceB = distanceAtAngle(points, template, angleB);
+
+  while (Math.abs(end - start) > anglePrecision) {
+    if (distanceA < distanceB) {
+      end = angleB;
+      angleB = angleA;
+      distanceB = distanceA;
+      angleA = GOLDEN_RATIO * start + (1 - GOLDEN_RATIO) * end;
+      distanceA = distanceAtAngle(points, template, angleA);
+    } else {
+      start = angleA;
+      angleA = angleB;
+      distanceA = distanceB;
+      angleB = (1 - GOLDEN_RATIO) * start + GOLDEN_RATIO * end;
+      distanceB = distanceAtAngle(points, template, angleB);
+    }
+  }
+
+  return Math.min(distanceA, distanceB);
+}
+
+const STAR_TEMPLATE = normalizeGesture(
+  STAR_TEMPLATE_POINTS.map((point) => ({
+    x: point.x * GESTURE_SQUARE_SIZE,
+    y: point.y * GESTURE_SQUARE_SIZE,
+  }))
+);
+
+function isStarGesture(points) {
+  if (points.length < 12) {
+    return false;
+  }
+
+  const bounds = points.reduce(
+    (accumulator, point) => ({
+      minX: Math.min(accumulator.minX, point.x),
+      minY: Math.min(accumulator.minY, point.y),
+      maxX: Math.max(accumulator.maxX, point.x),
+      maxY: Math.max(accumulator.maxY, point.y),
+    }),
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    }
+  );
+
+  const width = bounds.maxX - bounds.minX;
+  const height = bounds.maxY - bounds.minY;
+  const pathLength = getPathLength(points);
+
+  if (width < 48 || height < 48 || pathLength < 150) {
+    return false;
+  }
+
+  const normalizedPoints = normalizeGesture(points);
+  const distance = distanceAtBestAngle(normalizedPoints, STAR_TEMPLATE, -ANGLE_RANGE, ANGLE_RANGE, ANGLE_PRECISION);
+  const score = 1 - distance / HALF_DIAGONAL;
+
+  return score > 0.48;
+}
 
 function NotFoundPage() {
   return (
@@ -13,7 +248,39 @@ function NotFoundPage() {
   );
 }
 
-function MousePointerTrail() {
+function EasterEggPopup({ onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="easter-egg-popup" role="dialog" aria-modal="true" aria-labelledby="easter-egg-title">
+      <button className="easter-egg-popup__backdrop" type="button" aria-label="팝업 닫기" onClick={onClose} />
+      <div className="easter-egg-popup__card">
+        <button className="easter-egg-popup__close" type="button" aria-label="팝업 닫기" onClick={onClose}>
+          x
+        </button>
+        <p className="easter-egg-popup__eyebrow">secret easter egg</p>
+        <h2 id="easter-egg-title" className="easter-egg-popup__title">
+          저희 굿즈를 구매해주신 당신에게 몽글덤 티켓 할인권을 드립니다!
+        </h2>
+        <img className="easter-egg-popup__ticket" src="/assets/ticket.png" alt="몽글덤 티켓 할인권 이미지" />
+      </div>
+    </div>
+  );
+}
+
+function MousePointerTrail({ onStarGesture }) {
   const imageAspectRatio = 408 / 468;
   const releaseAnimationMs = 560;
   const trailRef = useRef(null);
@@ -85,12 +352,17 @@ function MousePointerTrail() {
 
     const updateImage = () => {
       frameRef.current = 0;
+      const { x, y } = pointerRef.current;
 
       if (!isPressedRef.current) {
+        trailNode.classList.remove("is-releasing");
+        trailNode.classList.remove("is-hidden");
+        trailNode.classList.add("is-visible");
+        trailNode.style.transform = `translate(${x}px, ${y}px) rotate(0rad)`;
+        trailNode.style.width = "24px";
         return;
       }
 
-      const { x, y } = pointerRef.current;
       const path = pathRef.current;
       const targetDistance = 72;
 
@@ -137,13 +409,20 @@ function MousePointerTrail() {
 
     const handlePointerMove = (event) => {
       pointerRef.current = { x: event.clientX, y: event.clientY };
-      pushPoint(event.clientX, event.clientY);
+
+      if (isPressedRef.current) {
+        pushPoint(event.clientX, event.clientY);
+      } else {
+        pathRef.current = [{ x: event.clientX, y: event.clientY, time: performance.now() }];
+      }
+
       requestUpdate();
     };
 
     const handlePointerDown = (event) => {
       clearReleaseAnimation();
       isPressedRef.current = true;
+      pathRef.current = [];
       trailNode.classList.remove("is-hidden");
       trailNode.classList.remove("is-releasing");
       trailNode.classList.add("is-visible");
@@ -155,12 +434,19 @@ function MousePointerTrail() {
     const handlePointerUp = (event) => {
       clearReleaseAnimation();
       isPressedRef.current = false;
+      const gesturePath = pathRef.current.slice();
       releasePointRef.current = {
         x: event.clientX,
         y: event.clientY,
       };
 
       if (!trailNode.classList.contains("is-visible")) {
+        return;
+      }
+
+      if (isStarGesture(gesturePath)) {
+        hideTrailImmediately();
+        onStarGesture();
         return;
       }
 
@@ -191,6 +477,7 @@ function MousePointerTrail() {
 
       if (frameRef.current) {
         window.cancelAnimationFrame(frameRef.current);
+        frameRef.current = 0;
       }
 
       window.removeEventListener("pointermove", handlePointerMove);
@@ -199,7 +486,7 @@ function MousePointerTrail() {
       window.removeEventListener("pointercancel", handlePointerUp);
       window.removeEventListener("pointerleave", handlePointerLeave);
     };
-  }, []);
+  }, [onStarGesture]);
 
   return (
     <div ref={trailRef} className="mouse-pointer-trail" aria-hidden="true">
@@ -209,13 +496,18 @@ function MousePointerTrail() {
 }
 
 export default function App() {
+  const [isEasterEggOpen, setIsEasterEggOpen] = useState(false);
+  const handleStarGesture = useCallback(() => {
+    setIsEasterEggOpen(true);
+  }, []);
   const pathname = window.location.pathname;
   const Page = routes[pathname] || NotFoundPage;
 
   return (
     <>
       <Page />
-      <MousePointerTrail />
+      <MousePointerTrail onStarGesture={handleStarGesture} />
+      {isEasterEggOpen ? <EasterEggPopup onClose={() => setIsEasterEggOpen(false)} /> : null}
     </>
   );
 }

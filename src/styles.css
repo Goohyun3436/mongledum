@@ -189,12 +189,89 @@ body {
   font-size: 0.84rem;
 }
 
+.easter-egg-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.easter-egg-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background:
+    radial-gradient(circle at top, rgba(255, 240, 197, 0.22), transparent 36%),
+    rgba(9, 20, 35, 0.52);
+  backdrop-filter: blur(10px);
+}
+
+.easter-egg-popup__card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  width: min(100%, 420px);
+  padding: 24px 24px 26px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(246, 251, 255, 0.9)),
+    rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 28px 60px rgba(10, 25, 41, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  text-align: center;
+}
+
+.easter-egg-popup__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: #476779;
+  font: inherit;
+  font-size: 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(229, 241, 248, 0.96);
+  cursor: pointer;
+}
+
+.easter-egg-popup__eyebrow {
+  margin: 0;
+  color: rgba(71, 103, 121, 0.76);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.easter-egg-popup__title {
+  margin: 0;
+  color: #173848;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-size: clamp(1.2rem, 1rem + 0.8vw, 1.65rem);
+  line-height: 1.45;
+}
+
+.easter-egg-popup__ticket {
+  display: block;
+  width: min(100%, 300px);
+  margin: 0 auto;
+  border-radius: 20px;
+  box-shadow: 0 18px 36px rgba(30, 66, 86, 0.18);
+}
+
 .mouse-pointer-trail {
   --pointer-scale: 0.76;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 2000;
+  z-index: 4000;
   width: 56px;
   aspect-ratio: 468 / 408;
   pointer-events: none;
@@ -357,6 +434,11 @@ canvas {
 
   .floating-links__qr-image {
     width: min(100%, 96px);
+  }
+
+  .easter-egg-popup__card {
+    padding: 22px 18px 22px;
+    border-radius: 24px;
   }
 }
 
