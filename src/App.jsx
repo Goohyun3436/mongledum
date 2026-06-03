@@ -256,7 +256,7 @@ function isStarGesture(points) {
   );
   const score = 1 - distance / HALF_DIAGONAL;
 
-  return score > 0.48;
+  return score > 0.5;
 }
 
 function NotFoundPage() {
@@ -302,7 +302,10 @@ function EasterEggPopup({ onClose }) {
           aria-label="팝업 닫기"
           onClick={onClose}
         >
-          <IoIosClose className="easter-egg-popup__close-icon" aria-hidden="true" />
+          <IoIosClose
+            className="easter-egg-popup__close-icon"
+            aria-hidden="true"
+          />
         </button>
         <p className="easter-egg-popup__eyebrow">
           별을 아주 잘 그려주신 당신에게..
