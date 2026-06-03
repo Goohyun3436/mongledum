@@ -10,7 +10,23 @@ const playerOverlayState =
   (window.MONGLEDUM_PLAYER_OVERLAY = {
     visible: false,
     image: null,
+    isLoaded: false,
   });
+const playerOverlayImage = playerOverlayState.image || new Image();
+
+if (!playerOverlayState.image) {
+  playerOverlayState.image = playerOverlayImage;
+  playerOverlayImage.addEventListener("load", () => {
+    playerOverlayState.isLoaded = true;
+
+    if (playerOverlayState.visible) {
+      window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
+    }
+  });
+  playerOverlayImage.src = "/assets/player.png";
+} else if (playerOverlayImage.complete) {
+  playerOverlayState.isLoaded = true;
+}
 
 const externalLinks = [
   {
@@ -38,23 +54,32 @@ window.MONGLEDUM_RIPPLES_CUSTOMIZER = {
   drawBackgroundOverlay(context, liquid) {
     const overlayImage = playerOverlayState.image;
     const viewportWidth = window.innerWidth || liquid.wrap?.clientWidth || liquid.w;
+    const viewportHeight =
+      window.innerHeight || liquid.wrap?.clientHeight || liquid.h;
     const isMobileViewport = viewportWidth <= 720;
+    const scaleX = liquid.w / viewportWidth;
+    const scaleY = liquid.h / viewportHeight;
 
-    if (!playerOverlayState.visible || !overlayImage?.complete) {
+    if (!playerOverlayState.visible || !playerOverlayState.isLoaded) {
       return;
     }
 
-    const maxWidth = isMobileViewport
-      ? Math.min(viewportWidth * 0.48, 360)
-      : Math.min(liquid.w * 0.8, 840);
-    const minWidth = isMobileViewport
-      ? Math.min(viewportWidth * 0.64, 256)
-      : Math.min(liquid.w * 1.08, 560);
-    const drawWidth = Math.max(minWidth, maxWidth);
-    const drawHeight =
-      drawWidth * (overlayImage.naturalHeight / overlayImage.naturalWidth);
-    const drawX = (liquid.w - drawWidth) / 2 + drawWidth * 0.16;
-    const drawY = (liquid.h - drawHeight) / 2 + drawHeight * 0.16;
+    const maxWidthCss = isMobileViewport
+      ? Math.min(viewportWidth * 0.28, 228)
+      : Math.min(viewportWidth * 0.36, 460);
+    const minWidthCss = isMobileViewport
+      ? Math.min(viewportWidth * 0.38, 152)
+      : Math.min(viewportWidth * 0.5, 320);
+    const drawWidthCss = Math.max(minWidthCss, maxWidthCss);
+    const drawHeightCss =
+      drawWidthCss * (overlayImage.naturalHeight / overlayImage.naturalWidth);
+    const drawXCss = (viewportWidth - drawWidthCss) / 2 + drawWidthCss * 0.16;
+    const drawYCss =
+      (viewportHeight - drawHeightCss) / 2 + drawHeightCss * 0.16;
+    const drawWidth = drawWidthCss * scaleX;
+    const drawHeight = drawHeightCss * scaleY;
+    const drawX = drawXCss * scaleX;
+    const drawY = drawYCss * scaleY;
 
     context.drawImage(overlayImage, drawX, drawY, drawWidth, drawHeight);
   },
@@ -67,17 +92,10 @@ export default function DummyPage() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    const overlayImage = new Image();
 
     if (!audio) {
       return undefined;
     }
-
-    overlayImage.src = "/assets/player.png";
-    overlayImage.addEventListener("load", () => {
-      playerOverlayState.image = overlayImage;
-      window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
-    });
 
     const handleEnded = () => {
       setIsPlayerVisible(false);
@@ -87,6 +105,9 @@ export default function DummyPage() {
 
     return () => {
       playerOverlayState.visible = false;
+      if (window.MONGLEDUM_RIPPLES_INSTANCE) {
+        window.MONGLEDUM_RIPPLES_INSTANCE.freezeAutoScale = false;
+      }
       audio.pause();
       audio.removeEventListener("ended", handleEnded);
     };
@@ -94,7 +115,13 @@ export default function DummyPage() {
 
   useEffect(() => {
     playerOverlayState.visible = isPlayerVisible;
-    window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
+    if (window.MONGLEDUM_RIPPLES_INSTANCE) {
+      window.MONGLEDUM_RIPPLES_INSTANCE.freezeAutoScale = isPlayerVisible;
+    }
+
+    if (playerOverlayState.isLoaded) {
+      window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
+    }
   }, [isPlayerVisible]);
 
   const handlePlayerHotspotClick = async () => {

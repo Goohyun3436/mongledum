@@ -421,6 +421,7 @@ class Liquid {
 		this.isTouched = false;
 		this.isAuto = false;
 		this.isTest = false;
+		this.freezeAutoScale = false;
 		this.testLoop = null;
 		this.isRaining = false;
 		this.lastRainDrop = 0;
@@ -1431,7 +1432,6 @@ void main() {
 	handleResize() {
 
 		clearTimeout(this.sizing);
-		this.fadeCanvas(0);
 		this.sizing = setTimeout(
 			() =>
 				this.doResize(),
@@ -1453,7 +1453,7 @@ void main() {
 
 			this.amplify.updateBounds();
 			this.syncLiquid();
-			this.fadeCanvas(1);
+			this.cvs.style.opacity = "1";
 			this.amplify.mask(false);
 			this.startPerfCheck(2000);
 		
@@ -2275,7 +2275,7 @@ void main() {
 		
 		}
 	
-		if(!this.PERF_CHECK || currentTime < this.notBefore)
+		if(!this.PERF_CHECK || this.freezeAutoScale || currentTime < this.notBefore)
 			return;
 	
 		if(currentTime - this.lastScaleCheck >= this.SCALE_TIME) {
