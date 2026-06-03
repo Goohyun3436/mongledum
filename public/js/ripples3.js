@@ -270,6 +270,7 @@ window.addEventListener(
 			try {
 
 				const liquify = new Liquid(rippler);
+				window.MONGLEDUM_RIPPLES_INSTANCE = liquify;
 				const amplify = new StaticControls(liquify);
 
 				liquify

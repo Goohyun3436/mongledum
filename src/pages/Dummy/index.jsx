@@ -1,9 +1,16 @@
+import { useEffect, useRef, useState } from "react";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
 import { MdMovieFilter } from "react-icons/md";
 
 const ripplesContent = {
   backgroundImage: "pool-background.png",
 };
+const playerOverlayState =
+  window.MONGLEDUM_PLAYER_OVERLAY ||
+  (window.MONGLEDUM_PLAYER_OVERLAY = {
+    visible: false,
+    image: null,
+  });
 
 const externalLinks = [
   {
@@ -28,12 +35,122 @@ window.MONGLEDUM_RIPPLES_CUSTOMIZER = {
   backgroundSizing: "width",
   backgroundColor: "#c7e0ff",
   backgroundPosition: "center",
+  drawBackgroundOverlay(context, liquid) {
+    const overlayImage = playerOverlayState.image;
+
+    if (!playerOverlayState.visible || !overlayImage?.complete) {
+      return;
+    }
+
+    const maxWidth = Math.min(liquid.w * 0.51, 540);
+    const minWidth = Math.min(liquid.w * 0.84, 270);
+    const drawWidth = Math.max(minWidth, maxWidth);
+    const drawHeight = drawWidth * (overlayImage.naturalHeight / overlayImage.naturalWidth);
+    const drawX = (liquid.w - drawWidth) / 2;
+    const drawY = liquid.h - drawHeight - 30;
+
+    context.drawImage(overlayImage, drawX, drawY, drawWidth, drawHeight);
+  },
 };
 
 export default function DummyPage() {
+  const audioRef = useRef(null);
+  const openedAtRef = useRef(0);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    const overlayImage = new Image();
+
+    if (!audio) {
+      return undefined;
+    }
+
+    overlayImage.src = "/assets/player.png";
+    overlayImage.addEventListener("load", () => {
+      playerOverlayState.image = overlayImage;
+      window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
+    });
+
+    const handleEnded = () => {
+      setIsPlayerVisible(false);
+    };
+
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      playerOverlayState.visible = false;
+      audio.pause();
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  useEffect(() => {
+    playerOverlayState.visible = isPlayerVisible;
+    window.MONGLEDUM_RIPPLES_INSTANCE?.updateBackgroundTexture();
+  }, [isPlayerVisible]);
+
+  const handlePlayerHotspotClick = async () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+      openedAtRef.current = performance.now();
+      setIsPlayerVisible(true);
+    } catch {
+      setIsPlayerVisible(false);
+    }
+  };
+
+  const handleBackgroundClick = (event) => {
+    const { innerWidth, innerHeight } = window;
+    const hotspotWidth = innerWidth * 0.5;
+    const hotspotHeight = innerHeight * 0.5;
+    const hotspotLeft = (innerWidth - hotspotWidth) / 2;
+    const hotspotTop = (innerHeight - hotspotHeight) / 2;
+    const isInsideHotspot =
+      event.clientX >= hotspotLeft &&
+      event.clientX <= hotspotLeft + hotspotWidth &&
+      event.clientY >= hotspotTop &&
+      event.clientY <= hotspotTop + hotspotHeight;
+
+    if (!isInsideHotspot) {
+      return;
+    }
+
+    if (isPlayerVisible) {
+      if (performance.now() - openedAtRef.current < 1200) {
+        return;
+      }
+
+      handlePlayerOverlayClick();
+      return;
+    }
+
+    handlePlayerHotspotClick();
+  };
+
+  const handlePlayerOverlayClick = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlayerVisible(false);
+  };
+
   return (
     <div
       id="ripples3"
+      onClick={handleBackgroundClick}
       style={{
         "--ripples-background-image": `url("/assets/${ripplesContent.backgroundImage}")`,
       }}
@@ -75,6 +192,7 @@ export default function DummyPage() {
       <span id="fps" hidden aria-hidden="true">
         -- --
       </span>
+      <audio ref={audioRef} src="/assets/player.mp3" preload="auto" />
     </div>
   );
 }
