@@ -37,17 +37,24 @@ window.MONGLEDUM_RIPPLES_CUSTOMIZER = {
   backgroundPosition: "center",
   drawBackgroundOverlay(context, liquid) {
     const overlayImage = playerOverlayState.image;
+    const viewportWidth = window.innerWidth || liquid.wrap?.clientWidth || liquid.w;
+    const isMobileViewport = viewportWidth <= 720;
 
     if (!playerOverlayState.visible || !overlayImage?.complete) {
       return;
     }
 
-    const maxWidth = Math.min(liquid.w * 0.51, 540);
-    const minWidth = Math.min(liquid.w * 0.84, 270);
+    const maxWidth = isMobileViewport
+      ? Math.min(viewportWidth * 0.48, 360)
+      : Math.min(liquid.w * 0.8, 840);
+    const minWidth = isMobileViewport
+      ? Math.min(viewportWidth * 0.64, 256)
+      : Math.min(liquid.w * 1.08, 560);
     const drawWidth = Math.max(minWidth, maxWidth);
-    const drawHeight = drawWidth * (overlayImage.naturalHeight / overlayImage.naturalWidth);
-    const drawX = (liquid.w - drawWidth) / 2;
-    const drawY = liquid.h - drawHeight - 30;
+    const drawHeight =
+      drawWidth * (overlayImage.naturalHeight / overlayImage.naturalWidth);
+    const drawX = (liquid.w - drawWidth) / 2 + drawWidth * 0.16;
+    const drawY = (liquid.h - drawHeight) / 2 + drawHeight * 0.16;
 
     context.drawImage(overlayImage, drawX, drawY, drawWidth, drawHeight);
   },
