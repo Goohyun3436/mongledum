@@ -29,7 +29,7 @@ const applyStaticFallback = () => {
 		return false;
 
 	const customizer = getCustomizer();
-	const backgroundImage = customizer.backgroundImage || "pool-background.png";
+	const backgroundImage = customizer.backgroundImage || "ep/001/pool-background.png";
 	const backgroundUrl = (!backgroundImage.startsWith("blob:") ? "assets/" : "") + backgroundImage;
 	const backgroundColor = customizer.backgroundColor || "#c1dafd";
 	const backgroundPosition = customizer.backgroundPosition === "center" ? "center center" : "top center";

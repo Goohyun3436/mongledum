@@ -34,7 +34,8 @@ export default function PoolSection() {
         onPointerEnter={showFishCursor}
         onPointerLeave={hideFishCursor}
         style={{
-          "--ripples-background-image": 'url("/assets/pool-background.png")',
+          "--ripples-background-image":
+            'url("/assets/ep/001/pool-background.png")',
         }}
       >
         <span id="fps" hidden aria-hidden="true">
