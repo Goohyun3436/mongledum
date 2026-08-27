@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { MousePointerTrail } from "../../pages/Preparing";
+import {
+  MousePointerTrail,
+  PreparingGlobalStyles,
+} from "../../pages/Preparing";
 
 const ignoreStarGesture = () => {};
 
@@ -20,6 +23,7 @@ export default function PoolSection() {
 
   return (
     <section className="pool-scene" aria-labelledby="pool-scene-title">
+      <PreparingGlobalStyles />
       <h2 id="pool-scene-title" className="visually-hidden">
         수영장 밖으로 나온 날치
       </h2>
