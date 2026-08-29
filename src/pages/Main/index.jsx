@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import HomeContentSections from "../../components/HomeContentSections";
 import PoolSection from "../../components/PoolSection";
+import playDigAnimation from "../../utils/playDigAnimation";
 
 const staffSentence =
   "그러니까 예를 들면 이렇게나 작은 글씨로 한 줄 별로 각자의 문장을 적어두는 것이에요";
@@ -17,8 +18,10 @@ export default function MainPage() {
     }
 
     cursor.classList.add("is-visible");
-    cursor.style.transform = `translate3d(${event.clientX - 6}px, ${event.clientY - 63}px, 0)`;
+    cursor.style.transform = `translate3d(${event.clientX - 8}px, ${event.clientY - 74}px, 0)`;
   };
+
+  const dig = (event) => playDigAnimation(cursorRef.current, event);
 
   return (
     <main
@@ -26,6 +29,7 @@ export default function MainPage() {
       onPointerEnter={() => cursorRef.current?.classList.add("is-visible")}
       onPointerLeave={() => cursorRef.current?.classList.remove("is-visible")}
       onPointerMove={moveCursor}
+      onPointerDown={dig}
     >
       <section className="home-page__hero">
         <div className="home-page__statement" aria-labelledby="home-title">
@@ -40,7 +44,7 @@ export default function MainPage() {
           <div className="home-score__lines">
             <img
               className="home-score__clef"
-              src="/assets/home/treble-clef.png"
+              src="/assets/home/treble-clef-pixel.png"
               alt=""
               aria-hidden="true"
             />
