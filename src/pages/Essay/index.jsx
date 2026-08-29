@@ -1,25 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import playDigAnimation from "../../utils/playDigAnimation";
+import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
-const ESSAY_ROOT = "/docs/essay";
-
-function parseEssay(source) {
-  const [metadataBlock = "", ...bodyParts] = source.replace(/\r\n/g, "\n").split("\n---\n");
-  const metadata = {};
-
-  metadataBlock.split("\n").forEach((line) => {
-    const separator = line.indexOf(":");
-    if (separator === -1) return;
-    const key = line.slice(0, separator).trim();
-    const value = line.slice(separator + 1).trim();
-    if (key) metadata[key] = value;
-  });
-
-  return {
-    ...metadata,
-    paragraphs: bodyParts.join("\n---\n").split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean),
-  };
-}
+const ESSAY_ROOT = "/docs";
 
 function renderInlineText(text, keyPrefix) {
   const normalizedText = text.replace(/\\\*/g, "*");
@@ -64,32 +47,34 @@ export default function EssayPage() {
   useEffect(() => {
     const controller = new AbortController();
     setStatus("loading");
-    Promise.all([
-      fetch(`${ESSAY_ROOT}/index.json`, { signal: controller.signal }),
-      fetch(`${ESSAY_ROOT}/files.json`, { signal: controller.signal }),
-    ])
-      .then(async ([archiveResponse, filesResponse]) => {
-        if (!archiveResponse.ok || !filesResponse.ok) throw new Error("아카이브를 불러오지 못했습니다.");
-        const data = await archiveResponse.json();
-        const fileManifest = await filesResponse.json();
-
+    fetch(`${ESSAY_ROOT}/files.json`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("아카이브를 불러오지 못했습니다.");
+        const data = await response.json();
         await Promise.all(
           (data.years ?? []).flatMap((year) =>
             (year.albums ?? []).map(async (album) => {
-              const files = fileManifest[`${year.year}/${album.id}`] ?? [];
               album.people = await Promise.all(
-                files.map((file) =>
-                  fetch(`${ESSAY_ROOT}/${year.year}/${album.id}/${encodeURIComponent(file)}`, { signal: controller.signal })
-                    .then((response) => {
-                      if (!response.ok) throw new Error("멤버 정보를 불러오지 못했습니다.");
-                      return response.text();
-                    })
-                    .then((source) => ({ file, ...parseEssay(source) })),
-                ),
+                (album.items ?? []).filter((item) => item.hasEssay).map(async (item) => {
+                  const essayResponse = await fetch(getContentUrl(year.year, album.directory, item.directory, "essay.txt"), { signal: controller.signal });
+                  if (!essayResponse.ok) throw new Error("멤버 정보를 불러오지 못했습니다.");
+                  const info = parseContentFile(await essayResponse.text());
+                  let musicTitle = "";
+
+                  if (item.hasMusic) {
+                    const musicResponse = await fetch(getContentUrl(year.year, album.directory, item.directory, "music.txt"), { signal: controller.signal });
+                    if (musicResponse.ok) musicTitle = parseContentFile(await musicResponse.text()).title || item.title;
+                  }
+
+                  return { file: item.directory, item, ...info, title: info.title || item.title, musicTitle };
+                }),
               );
             }),
           ),
         );
+        data.years = (data.years ?? [])
+          .map((year) => ({ ...year, albums: (year.albums ?? []).filter((album) => album.people.length > 0) }))
+          .filter((year) => year.albums.length > 0);
         return data;
       })
       .then((data) => {
@@ -98,7 +83,7 @@ export default function EssayPage() {
         const firstPerson = firstAlbum?.people?.[0];
         setArchive(data);
         setSelectedYear(firstYear?.year ?? "");
-        setSelectedAlbum(firstAlbum?.id ?? "");
+        setSelectedAlbum(firstAlbum?.directory ?? "");
         setSelectedFile(firstPerson?.file ?? "");
         setEssay(firstPerson ?? null);
         setStatus("ready");
@@ -111,13 +96,13 @@ export default function EssayPage() {
 
   const years = archive?.years ?? [];
   const albums = years.find((item) => item.year === selectedYear)?.albums ?? [];
-  const activeAlbum = albums.find((item) => item.id === selectedAlbum);
+  const activeAlbum = albums.find((item) => item.directory === selectedAlbum);
   const activePerson = activeAlbum?.people?.find((item) => item.file === selectedFile);
-  const essayPathLabel = [selectedAlbum, activeAlbum?.title, activePerson?.name].filter(Boolean).join(" · ");
+  const essayPathLabel = [activeAlbum?.index, activeAlbum?.title, activePerson?.name].filter(Boolean).join(" · ");
 
   const selectPerson = (year, album, person) => {
     setSelectedYear(year);
-    setSelectedAlbum(album.id);
+    setSelectedAlbum(album.directory);
     setSelectedFile(person.file);
     setEssay(person);
     setStatus("ready");
@@ -130,6 +115,14 @@ export default function EssayPage() {
   };
 
   const dig = (event) => playDigAnimation(cursorRef.current, event);
+
+  const openMusic = () => {
+    if (!activePerson?.musicTitle) return;
+    const params = new URLSearchParams({ year: selectedYear, album: selectedAlbum, track: selectedFile });
+    window.history.pushState({}, "", `/music?${params.toString()}`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    window.scrollTo(0, 0);
+  };
 
   return (
     <main className="essay-page" onPointerEnter={() => cursorRef.current?.classList.add("is-visible")} onPointerLeave={() => cursorRef.current?.classList.remove("is-visible")} onPointerMove={moveCursor} onPointerDown={dig}>
@@ -145,16 +138,16 @@ export default function EssayPage() {
             <div className="essay-archive__tree">
               {years.flatMap((year) =>
                 (year.albums ?? []).map((album, albumIndex) => [
-                  <div className="essay-archive__year-cell" key={`${year.year}-${album.id}-year`}>
+                  <div className="essay-archive__year-cell" key={`${year.year}-${album.directory}-year`}>
                     {albumIndex === 0 && <span className={`essay-archive__year${year.year === selectedYear ? " is-active" : ""}`}>{year.year}</span>}
                   </div>,
-                  <div className="essay-archive__albums" key={`${year.year}-${album.id}-album`} title={album.title}>
-                    <span className={year.year === selectedYear && album.id === selectedAlbum ? "is-active" : ""}>{album.title}</span>
+                  <div className="essay-archive__albums" key={`${year.year}-${album.directory}-album`} title={album.title}>
+                    <span className={year.year === selectedYear && album.directory === selectedAlbum ? "is-active" : ""}>{album.title}</span>
                   </div>,
-                  <div className="essay-archive__people" key={`${year.year}-${album.id}-people`}>
+                  <div className="essay-archive__people" key={`${year.year}-${album.directory}-people`}>
                     {(album.people ?? []).map((person) => (
                       <div className="essay-archive__person" key={person.file} onClick={() => selectPerson(year.year, album, person)}>
-                        <button type="button" className={year.year === selectedYear && album.id === selectedAlbum && person.file === selectedFile ? "is-active" : ""}><span>{person.name}</span></button>
+                        <button type="button" className={year.year === selectedYear && album.directory === selectedAlbum && person.file === selectedFile ? "is-active" : ""}><span>{person.name}</span></button>
                       </div>
                     ))}
                   </div>,
@@ -170,7 +163,13 @@ export default function EssayPage() {
           {status === "ready" && essay && (
             <>
               <header className="essay-reader__header">
-                <div><p className="essay-reader__eyebrow">{essayPathLabel}</p><h2>{essay.title}</h2></div>
+                <div>
+                  <p className="essay-reader__eyebrow">{essayPathLabel}</p>
+                  <div className="essay-reader__title-row">
+                    <h2>{essay.title}</h2>
+                    {activePerson?.musicTitle && <button className="essay-reader__music-link" type="button" onClick={openMusic}>[{activePerson.musicTitle}] 들으러 가기</button>}
+                  </div>
+                </div>
               </header>
               <div className="essay-reader__body">
                 {essay.paragraphs.map((paragraph, index) => (
