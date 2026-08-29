@@ -1,0 +1,8 @@
+title: 구름 카드
+year: 2026
+album: 2026/001-욕망
+type: card
+status: 1
+link:
+---
+잠깐의 마음을 적어 보내는 파란 카드입니다.

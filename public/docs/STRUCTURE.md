@@ -2,7 +2,7 @@
 
 ```txt
 public/docs/
-└── 2026/
+├── 2026/
     ├── 001-욕망/
     │   ├── album.txt
     │   ├── cover.png
@@ -17,9 +17,16 @@ public/docs/
     │   └── 003-비빕/
     │       ├── music.txt
     │       └── cover.png
-    └── 002-앨범명/
+│   └── 002-앨범명/
         ├── album.txt
         └── cover.png
+└── objects/
+    └── 001-파란 부적/
+        ├── object.txt
+        ├── cover.png
+        └── images/
+            ├── 001.jpg
+            └── 002.jpg
 ```
 
 `index.json`은 사용하지 않습니다. 연도, 앨범, 콘텐츠는 폴더명으로 자동 인식합니다.
@@ -78,3 +85,29 @@ name: 박재욱
 - 콘텐츠 cover.png가 있으면 곡 커버로 사용
 - 콘텐츠 커버가 없으면 앨범의 cover.png 사용
 - 새 연도, 앨범, 콘텐츠는 폴더 추가만으로 자동 인식
+
+<br />
+
+사물 정보 `objects/{순서}-{사물명}/object.txt`
+
+```txt
+title: 파란 부적
+year: 2026
+album: 2026/001-욕망
+type: charm
+status: 1
+link: https://example.com
+---
+사물에 대한 설명입니다.
+```
+
+- 사물은 앨범과 별개로 `objects` 아래에서 관리
+- 앨범과 연결할 때만 `album`에 `{연도}/{앨범 폴더명}` 작성
+- 독립 사물은 `album`을 비워둠
+- `status: 1`이면 Objects 페이지에 노출
+- `status: 0`이면 자료는 유지하되 Objects 페이지에서 숨김
+- `link`가 있을 때만 상세 페이지에 외부 사이트 버튼 표시
+- 대표 이미지는 사물 폴더의 `cover.png`, `cover.jpg`, `cover.webp`, `cover.svg` 중 하나 사용
+- 실제 사용하는 모습은 `images` 폴더에 여러 장 추가
+- 파일명 순서대로 상세 페이지의 일상 사진 갤러리에 표시
+- 사물 폴더만 추가하면 Objects 목록과 상세 페이지에 자동 반영

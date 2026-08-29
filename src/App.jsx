@@ -55,7 +55,7 @@ export default function App() {
     }
   };
 
-  const Page = routes[pathname] || MainPage;
+  const Page = routes[pathname] || (pathname.startsWith("/objects/") ? ObjectsPage : MainPage);
 
   if (pathname === "/preparing") {
     return <PreparingPage />;

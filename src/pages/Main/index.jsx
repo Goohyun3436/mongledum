@@ -18,7 +18,7 @@ export default function MainPage() {
     }
 
     cursor.classList.add("is-visible");
-    cursor.style.transform = `translate3d(${event.clientX - 8}px, ${event.clientY - 74}px, 0)`;
+    cursor.style.transform = `translate3d(${event.clientX - 8}px, ${event.clientY - 69}px, 0)`;
   };
 
   const dig = (event) => playDigAnimation(cursorRef.current, event);

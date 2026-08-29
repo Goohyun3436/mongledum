@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620">
+  <rect width="900" height="620" fill="#e8eef0"/><rect y="390" width="900" height="230" fill="#c9b395"/>
+  <path d="M0 410c180-80 390-65 520 5s260 60 380 4v201H0Z" fill="#b79c7a" opacity=".45"/>
+  <circle cx="690" cy="150" r="92" fill="#fff5d6"/><path d="M640 620V312c0-80 135-80 135 0v308" fill="#758a92"/>
+  <path d="M673 302c0-86 72-86 72 0" fill="none" stroke="#e7c970" stroke-width="12"/>
+  <path d="M650 311h118l-12 170-47 23-48-23Z" fill="#6aa6d0" stroke="#dff5ff" stroke-width="7"/>
+  <text x="42" y="70" fill="#677b84" font-family="sans-serif" font-size="25">ON THE WAY HOME</text>
+</svg>

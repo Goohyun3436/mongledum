@@ -42,7 +42,7 @@ export default function Header({ currentPath, onNavigate }) {
             key={item.href}
             className="site-header__navigation-link"
             href={item.href}
-            aria-current={currentPath === item.href ? "page" : undefined}
+            aria-current={currentPath === item.href || currentPath.startsWith(`${item.href}/`) ? "page" : undefined}
             onClick={(event) => onNavigate(event, item.href)}
           >
             {item.label}

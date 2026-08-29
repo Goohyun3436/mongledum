@@ -13,7 +13,7 @@ function createDirtBurst(clientX, clientY) {
   const burst = document.createElement("span");
   burst.className = "cursor-dirt-burst";
   burst.style.left = `${clientX - 4}px`;
-  burst.style.top = `${clientY + 4}px`;
+  burst.style.top = `${clientY + 7}px`;
 
   const mound = document.createElement("span");
   mound.className = "cursor-dirt-mound";

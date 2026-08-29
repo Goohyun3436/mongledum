@@ -13,6 +13,7 @@ function byIndex(left, right) {
 async function createContentManifest() {
   const yearEntries = await readdir(docsRoot, { withFileTypes: true });
   const years = [];
+  const objects = [];
 
   for (const yearEntry of yearEntries.filter((entry) => entry.isDirectory() && /^\d{4}$/.test(entry.name))) {
     const albumEntries = await readdir(path.join(docsRoot, yearEntry.name), { withFileTypes: true });
@@ -56,8 +57,36 @@ async function createContentManifest() {
     years.push({ year: yearEntry.name, albums: albums.sort(byIndex) });
   }
 
+  const objectsRoot = path.join(docsRoot, "objects");
+  const objectEntries = await readdir(objectsRoot, { withFileTypes: true }).catch(() => []);
+
+  for (const objectEntry of objectEntries.filter((entry) => entry.isDirectory())) {
+    const objectMatch = objectEntry.name.match(indexedDirectoryPattern);
+    if (!objectMatch) continue;
+
+    const objectPath = path.join(objectsRoot, objectEntry.name);
+    const objectContents = await readdir(objectPath, { withFileTypes: true });
+    const fileNames = new Set(objectContents.filter((entry) => entry.isFile()).map((entry) => entry.name));
+    const imagesEntry = objectContents.find((entry) => entry.isDirectory() && entry.name === "images");
+    const gallery = imagesEntry
+      ? (await readdir(path.join(objectPath, "images"), { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && /\.(png|jpe?g|webp|svg)$/i.test(entry.name))
+        .map((entry) => entry.name)
+        .sort((left, right) => left.localeCompare(right, "ko", { numeric: true }))
+      : [];
+
+    objects.push({
+      index: objectMatch[1],
+      title: objectMatch[2],
+      directory: objectEntry.name,
+      objectFile: fileNames.has("object.txt") ? "object.txt" : null,
+      cover: ["cover.png", "cover.jpg", "cover.jpeg", "cover.webp", "cover.svg"].find((file) => fileNames.has(file)) ?? null,
+      gallery,
+    });
+  }
+
   years.sort((left, right) => left.year.localeCompare(right.year, "ko", { numeric: true }));
-  return JSON.stringify({ years }, null, 2);
+  return JSON.stringify({ years, objects: objects.sort(byIndex) }, null, 2);
 }
 
 function contentManifestPlugin() {

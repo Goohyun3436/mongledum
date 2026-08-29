@@ -111,7 +111,7 @@ export default function EssayPage() {
   const moveCursor = (event) => {
     if (!cursorRef.current) return;
     cursorRef.current.classList.add("is-visible");
-    cursorRef.current.style.transform = `translate3d(${event.clientX - 8}px, ${event.clientY - 74}px, 0)`;
+    cursorRef.current.style.transform = `translate3d(${event.clientX - 8}px, ${event.clientY - 69}px, 0)`;
   };
 
   const dig = (event) => playDigAnimation(cursorRef.current, event);

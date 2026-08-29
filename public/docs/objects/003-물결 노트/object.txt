@@ -1,0 +1,8 @@
+title: 물결 노트
+year: 2026
+album:
+type: notebook
+status: 1
+link:
+---
+쉽게 사라지는 생각을 붙잡아두는 작은 노트입니다.
