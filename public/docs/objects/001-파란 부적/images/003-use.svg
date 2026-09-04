@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620">
-  <rect width="900" height="620" fill="#c9dae5"/><circle cx="155" cy="125" r="76" fill="#fff7d5"/>
-  <path d="M0 466c190-132 325-139 482-49 152 87 248 58 418-40v243H0Z" fill="#718d7c"/>
-  <path d="M0 520c220-106 403-70 545-5 145 67 251 22 355-31v136H0Z" fill="#516f63"/>
-  <path d="M585 620V265c0-94 144-94 144 0v355" fill="#f0c7ae"/>
-  <path d="M618 263c0-104 79-104 79 0" fill="none" stroke="#e7c970" stroke-width="11"/>
-  <path d="M594 273h128l-13 186-51 24-52-24Z" fill="#5799c9" stroke="#e8f8ff" stroke-width="7"/>
-  <text x="45" y="70" fill="#4c6878" font-family="sans-serif" font-size="25">A DAY OUTSIDE</text>
-</svg>

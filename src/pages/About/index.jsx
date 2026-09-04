@@ -164,19 +164,6 @@ export default function AboutPage() {
         </section>
       </article>
 
-      <aside className="word-gallery" aria-labelledby="word-gallery-title">
-        <h2 id="word-gallery-title">image 1</h2>
-        <div className="word-gallery__placeholder" role="img" aria-label="추후 추가될 몽글덤 이미지">
-          <span>photo</span>
-          <small>coming soon</small>
-        </div>
-        <p>
-          mongledum <span>[동사]</span>
-        </p>
-        <p className="word-gallery__meaning">
-          언어를 음악으로 발굴하는 행위.
-        </p>
-      </aside>
     </AboutPageLayout>
   );
 }
@@ -184,7 +171,7 @@ export default function AboutPage() {
 const AboutPageLayout = styled.main`
   & {
     display: grid;
-    grid-template-columns: minmax(0, 2.25fr) minmax(270px, 0.85fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: clamp(32px, 6vw, 100px);
     width: min(100%, 1500px);

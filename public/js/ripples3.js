@@ -14,7 +14,8 @@ const isStaticFallbackError = err => {
 
 	return [
 		"webgl2 not supported",
-		"floating-point framebuffers not supported on this device"
+		"floating-point framebuffers not supported on this device",
+		"render step error 1286"
 	]
 	.some(text =>
 		message.includes(text));
@@ -63,8 +64,17 @@ const handleError = err => {
 
 	console.error(err);
 
-	if(isStaticFallbackError(err) && applyStaticFallback())
-		return;
+	if(isStaticFallbackError(err)) {
+
+		const activeLiquid = window.MONGLEDUM_RIPPLES_INSTANCE;
+
+		if(activeLiquid && typeof activeLiquid.stopRender === "function")
+			activeLiquid.stopRender();
+
+		if(applyStaticFallback())
+			return;
+
+	}
 
 	const errorDiv = document.querySelector(".err") || document.createElement("div");
 
@@ -315,7 +325,11 @@ window.addEventListener(
 			"error",
 			evt => {
 
-				handleError(evt.error);
+				const source = String(evt.filename || "");
+				const message = normalizeErrorMessage(evt.error || evt.message);
+
+				if(source.includes("ripples3.js") || message.includes("render step error"))
+					handleError(evt.error || evt.message);
 
 				return false;
 	
@@ -326,7 +340,11 @@ window.addEventListener(
 			"unhandledrejection",
 			evt => {
 
-				handleError(evt.reason);
+				const message = normalizeErrorMessage(evt.reason);
+				const stack = evt.reason instanceof Error ? String(evt.reason.stack || "") : "";
+
+				if(stack.includes("ripples3.js") || message.includes("render step error"))
+					handleError(evt.reason);
 
 				return false;
 	

@@ -11,6 +11,7 @@ const navigationItems = [
 
 export default function Header({ currentPath, onNavigate }) {
   const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
@@ -20,8 +21,19 @@ export default function Header({ currentPath, onNavigate }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => setIsMenuOpen(false), [currentPath]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setIsMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isMenuOpen]);
+
   return (
-    <header className={`site-header${isScrolled ? " is-scrolled" : ""}`}>
+    <header className={`site-header${isScrolled ? " is-scrolled" : ""}${isMenuOpen ? " is-menu-open" : ""}`}>
       <a
         className="site-header__logo-link"
         href="/"
@@ -36,14 +48,29 @@ export default function Header({ currentPath, onNavigate }) {
         />
       </a>
 
-      <nav className="site-header__navigation" aria-label="주요 메뉴">
+      <button
+        className="site-header__menu-button"
+        type="button"
+        aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
+        aria-expanded={isMenuOpen}
+        aria-controls="site-navigation"
+        onClick={() => setIsMenuOpen((open) => !open)}
+      >
+        <span />
+        <span />
+      </button>
+
+      <nav id="site-navigation" className="site-header__navigation" aria-label="주요 메뉴">
         {navigationItems.map((item) => (
           <a
             key={item.href}
             className="site-header__navigation-link"
             href={item.href}
             aria-current={currentPath === item.href || currentPath.startsWith(`${item.href}/`) ? "page" : undefined}
-            onClick={(event) => onNavigate(event, item.href)}
+            onClick={(event) => {
+              setIsMenuOpen(false);
+              onNavigate(event, item.href);
+            }}
           >
             {item.label}
           </a>

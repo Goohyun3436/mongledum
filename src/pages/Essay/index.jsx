@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PiDiscFill } from "react-icons/pi";
 import playDigAnimation from "../../utils/playDigAnimation";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
@@ -167,7 +168,7 @@ export default function EssayPage() {
                   <p className="essay-reader__eyebrow">{essayPathLabel}</p>
                   <div className="essay-reader__title-row">
                     <h2>{essay.title}</h2>
-                    {activePerson?.musicTitle && <button className="essay-reader__music-link" type="button" onClick={openMusic}>[{activePerson.musicTitle}] 들으러 가기</button>}
+                    {activePerson?.musicTitle && <button className="essay-reader__music-link" type="button" onClick={openMusic}><PiDiscFill aria-hidden="true" />[{activePerson.musicTitle}] 들으러 가기</button>}
                   </div>
                 </div>
               </header>
