@@ -28,15 +28,18 @@ export default function MusicPage() {
   }, []);
 
   useEffect(() => {
+    const innerScroller = document.querySelector(".music-page");
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 0;
+      const isScrolled = window.scrollY > 0 || (innerScroller?.scrollTop ?? 0) > 0;
       setIsAlbumHeaderScrolled(isScrolled);
       document.body.classList.toggle("is-music-header-scrolled", isScrolled);
     };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
+    innerScroller?.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      innerScroller?.removeEventListener("scroll", handleScroll);
       document.body.classList.remove("is-music-header-scrolled");
     };
   }, []);

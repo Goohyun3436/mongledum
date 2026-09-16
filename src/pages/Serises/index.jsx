@@ -192,6 +192,7 @@ export default function SerisesPage() {
 
   return (
     <main className="serises-focus">
+      <img className="serises-focus__background-preload" src="/assets/serises-pool-tiles.png" alt="" aria-hidden="true" />
       <header className="serises-focus__header"><p>{YEAR}</p><h1>mongledum 001 <small>(feat. 김먼지)</small></h1></header>
       <section className="serises-focus__wall" aria-label="mongledum 001 작업물">
         {works.map((work, index) => {

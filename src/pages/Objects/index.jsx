@@ -424,7 +424,7 @@ export default function ObjectsPage() {
 
   const closeObjects = () => {
     setIsPopping(false);
-    window.history.back();
+    navigate("/objects");
   };
 
   const moveBubble = (event) => {
@@ -476,7 +476,7 @@ export default function ObjectsPage() {
   if (isDetail) {
     return (
       <main className="object-detail">
-        <button className="object-detail__back" type="button" onClick={() => navigate(getAlbumRoute(detailObject))}>← objects</button>
+        <button className="object-detail__back" type="button" onClick={() => navigate(getAlbumRoute(detailObject))}>← {detailObject.albumTitle}</button>
         <header className="object-detail__hero">
           <div className="object-detail__cover">{detailObject.coverUrl && <img src={detailObject.coverUrl} alt={`${detailObject.title} 대표 이미지`} />}</div>
           <div className="object-detail__summary">
@@ -497,7 +497,6 @@ export default function ObjectsPage() {
 
   return (
     <main className="objects-page">
-      <h1 className="objects-page__title">objects</h1>
       <section className="objects-playground" aria-label="오브젝트 비눗방울">
         {isAlbum && <button className="objects-playground__back" type="button" onClick={closeObjects}>← 뒤로가기</button>}
         {albumTitle && <p className={`objects-playground__hint is-album-title${isAlbum ? "" : " is-bubble-title"}`}>{albumTitle}</p>}
