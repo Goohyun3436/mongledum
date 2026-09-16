@@ -2376,8 +2376,8 @@ body.is-music-page.is-music-header-scrolled::before {
 .home-score__note--2 { --note-height: 15%; top: 49%; left: 38%; }
 .home-score__note--3 { --note-height: 16%; top: 62%; left: 61%; }
 .home-score__note--4 { --note-height: 25%; top: 50%; left: 67%; }
-.home-score__note--5 { --note-height: 24%; top: 47%; left: 89%; }
-.home-score__note--6 { --note-height: 19%; top: 84%; left: 80%; }
+.home-score__note--5 { --note-height: 21%; top: 47%; left: 89%; }
+.home-score__note--6 { --note-height: 13%; top: 80%; left: 80%; }
 
 .home-score__line {
   position: relative;
