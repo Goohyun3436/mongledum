@@ -1,17 +1,113 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
-function getCircularOffset(index, activeIndex, total) {
-  let offset = index - activeIndex;
-  if (offset > total / 2) offset -= total;
-  if (offset < -total / 2) offset += total;
-  return offset;
-}
+const BOOK_VIEWS = {
+  front: { angle: 14, label: "앞표지" },
+  spine: { angle: 40, label: "책등" },
+  back: { angle: 194, label: "뒤표지" },
+};
+const BOOK_VIEW_ORDER = ["front", "spine", "back"];
 
-function getCoverUrl(year, album, item) {
-  if (item?.cover) return getContentUrl(year, album.directory, item.directory, item.cover);
-  if (album.cover) return getContentUrl(year, album.directory, album.cover);
-  return null;
+function AlbumBook3D({ album }) {
+  const [view, setView] = useState("front");
+  const [angle, setAngle] = useState(BOOK_VIEWS.front.angle);
+  const pointerStartRef = useRef(null);
+  const introTimersRef = useRef([]);
+
+  const cancelIntro = () => {
+    introTimersRef.current.forEach(window.clearTimeout);
+    introTimersRef.current = [];
+  };
+
+  const showView = (nextView) => {
+    cancelIntro();
+    setView(nextView);
+    setAngle(BOOK_VIEWS[nextView].angle);
+  };
+
+  const stepView = (direction) => {
+    const currentIndex = BOOK_VIEW_ORDER.indexOf(view);
+    const nextIndex = Math.max(0, Math.min(BOOK_VIEW_ORDER.length - 1, currentIndex + direction));
+    showView(BOOK_VIEW_ORDER[nextIndex]);
+  };
+
+  useEffect(() => {
+    cancelIntro();
+    setView("front");
+    setAngle(BOOK_VIEWS.front.angle);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let readyTimer;
+    const startIntro = () => {
+      const pageGate = document.querySelector(".page-image-gate");
+      if (pageGate && !pageGate.classList.contains("is-ready")) {
+        readyTimer = window.setTimeout(startIntro, 100);
+        return;
+      }
+      introTimersRef.current = [
+        window.setTimeout(() => setAngle(BOOK_VIEWS.back.angle), 500),
+        window.setTimeout(() => {
+          setAngle(BOOK_VIEWS.front.angle);
+          introTimersRef.current = [];
+        }, 2400),
+      ];
+    };
+    if (!reducedMotion.matches) startIntro();
+    return () => {
+      window.clearTimeout(readyTimer);
+      cancelIntro();
+    };
+  }, [album.directory]);
+
+  const handleImageError = (event) => { event.currentTarget.hidden = true; };
+  const handleImageLoad = (event) => { event.currentTarget.hidden = false; };
+
+  return (
+    <section className="music-book3d" aria-label={`${album.title} 앨범 자켓 3D 미리보기`}>
+      <div
+        className="music-book3d__scene"
+        tabIndex="0"
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          event.preventDefault();
+          stepView(event.key === "ArrowRight" ? 1 : -1);
+        }}
+        onPointerDown={(event) => {
+          pointerStartRef.current = event.clientX;
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+        }}
+        onPointerUp={(event) => {
+          if (pointerStartRef.current === null) return;
+          const distance = event.clientX - pointerStartRef.current;
+          pointerStartRef.current = null;
+          if (Math.abs(distance) >= 35) stepView(distance < 0 ? 1 : -1);
+        }}
+        onPointerCancel={() => { pointerStartRef.current = null; }}
+      >
+        <div className="music-book3d__book" style={{ "--music-book-angle": `${angle}deg` }} aria-hidden="true">
+          <div className="music-book3d__face music-book3d__front">
+            <img src={album.frontCover} alt="" onLoad={handleImageLoad} onError={handleImageError} />
+          </div>
+          <div className="music-book3d__face music-book3d__spine">
+            <span><img src={album.frontCover} alt="" onLoad={handleImageLoad} onError={handleImageError} /></span>
+          </div>
+          <div className="music-book3d__edge music-book3d__fore-edge" />
+          <div className="music-book3d__edge music-book3d__top-edge" />
+          <div className="music-book3d__edge music-book3d__bottom-edge" />
+          <div className="music-book3d__face music-book3d__back">
+            <img src={album.backCover} alt="" onLoad={handleImageLoad} onError={handleImageError} />
+          </div>
+        </div>
+      </div>
+
+      <div className="music-book3d__controls" aria-label="앨범 자켓 방향 선택">
+        {BOOK_VIEW_ORDER.map((key) => (
+          <button type="button" aria-pressed={view === key} onClick={() => showView(key)} key={key}>{BOOK_VIEWS[key].label}</button>
+        ))}
+      </div>
+      <p className="music-book3d__status" role="status" aria-live="polite">{BOOK_VIEWS[view].label}</p>
+      <p className="music-book3d__hint">좌우로 밀거나 화살표 키를 눌러도 전환됩니다.</p>
+    </section>
+  );
 }
 
 export default function MusicPage() {
@@ -20,7 +116,6 @@ export default function MusicPage() {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [status, setStatus] = useState("loading");
   const [isAlbumHeaderScrolled, setIsAlbumHeaderScrolled] = useState(false);
-  const albumMetaRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.add("is-music-page");
@@ -46,42 +141,33 @@ export default function MusicPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-
     fetch("/docs/files.json", { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("음악 목록을 불러오지 못했습니다.");
         const manifest = await response.json();
-
-        const loadedAlbums = await Promise.all(
-          (manifest.years ?? []).flatMap((year) =>
-            (year.albums ?? []).filter((album) => album.items?.some((item) => item.hasMusic)).map(async (album) => {
-              const albumSource = album.albumFile
-                ? await fetch(getContentUrl(year.year, album.directory, album.albumFile), { signal: controller.signal }).then((result) => result.text())
-                : "";
-              const albumInfo = parseContentFile(albumSource);
-              const tracks = await Promise.all(
-                album.items.filter((item) => item.hasMusic).map(async (item) => {
-                  const source = await fetch(getContentUrl(year.year, album.directory, item.directory, "music.txt"), { signal: controller.signal }).then((result) => {
-                    if (!result.ok) throw new Error("곡 정보를 불러오지 못했습니다.");
-                    return result.text();
-                  });
-                  const info = parseContentFile(source);
-                  return {
-                    ...info,
-                    index: item.index,
-                    title: item.title,
-                    directory: item.directory,
-                    image: getCoverUrl(year.year, album, item),
-                  };
-                }),
-              );
-
-              return { ...album, ...albumInfo, year: year.year, tracks };
-            }),
-          ),
-        );
-
-        return loadedAlbums;
+        return Promise.all((manifest.years ?? []).flatMap((year) =>
+          (year.albums ?? []).filter((album) => album.items?.some((item) => item.hasMusic)).map(async (album) => {
+            const albumSource = album.albumFile
+              ? await fetch(getContentUrl(year.year, album.directory, album.albumFile), { signal: controller.signal }).then((result) => result.text())
+              : "";
+            const albumInfo = parseContentFile(albumSource);
+            const tracks = await Promise.all(album.items.filter((item) => item.hasMusic).map(async (item) => {
+              const source = await fetch(getContentUrl(year.year, album.directory, item.directory, "music.txt"), { signal: controller.signal }).then((result) => {
+                if (!result.ok) throw new Error("곡 정보를 불러오지 못했습니다.");
+                return result.text();
+              });
+              return { ...parseContentFile(source), index: item.index, title: item.title, directory: item.directory };
+            }));
+            return {
+              ...album,
+              ...albumInfo,
+              year: year.year,
+              tracks,
+              frontCover: getContentUrl(year.year, album.directory, album.cover || "cover.png"),
+              backCover: getContentUrl(year.year, album.directory, album.coverBack || "cover-back.png"),
+            };
+          }),
+        ));
       })
       .then((loadedAlbums) => {
         setAlbums(loadedAlbums);
@@ -101,10 +187,7 @@ export default function MusicPage() {
         setActiveTrackIndex(requestedTrackIndex >= 0 ? requestedTrackIndex : 0);
         setStatus("ready");
       })
-      .catch((error) => {
-        if (error.name !== "AbortError") setStatus("error");
-      });
-
+      .catch((error) => { if (error.name !== "AbortError") setStatus("error"); });
     return () => controller.abort();
   }, []);
 
@@ -112,46 +195,11 @@ export default function MusicPage() {
   const tracks = activeAlbum?.tracks ?? [];
   const activeTrack = tracks[activeTrackIndex];
 
-  useLayoutEffect(() => {
-    const albumMeta = albumMetaRef.current;
-    if (!albumMeta || !activeAlbum || !activeTrack) return undefined;
-
-    let frameId;
-    const updateHeight = () => {
-      cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(() => {
-        const documentTop = albumMeta.getBoundingClientRect().top + window.scrollY;
-        const remainingHeight = Math.max(0, window.innerHeight - documentTop - 60);
-        albumMeta.style.setProperty("--music-meta-height", `${remainingHeight}px`);
-      });
-    };
-
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
-    document.fonts?.ready.then(updateHeight);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", updateHeight);
-    };
-  }, [activeAlbum, activeTrack]);
-
   const selectAlbum = (index) => {
     setActiveAlbumIndex(index);
     setActiveTrackIndex(0);
   };
-
-  const move = (direction) => {
-    setActiveTrackIndex((current) => (current + direction + tracks.length) % tracks.length);
-  };
-
-  const selectTrack = (index) => {
-    if (index === activeTrackIndex) {
-      if (tracks[index].youtube) window.open(tracks[index].youtube, "_blank", "noopener,noreferrer");
-      return;
-    }
-    setActiveTrackIndex(index);
-  };
+  const moveTrack = (direction) => setActiveTrackIndex((current) => (current + direction + tracks.length) % tracks.length);
 
   if (status === "loading") return <main className="music-page"><p className="music-page__status">음악을 펼치는 중...</p></main>;
   if (status === "error" || !activeAlbum || !activeTrack) return <main className="music-page"><p className="music-page__status">음악을 불러오지 못했습니다.</p></main>;
@@ -160,56 +208,46 @@ export default function MusicPage() {
     <main className="music-page">
       <nav className={`music-project-tabs${isAlbumHeaderScrolled ? " is-scrolled" : ""}`} aria-label="앨범">
         {albums.map((album, index) => (
-          <button className={index === activeAlbumIndex ? "is-active" : ""} key={`${album.year}-${album.directory}`} type="button" onClick={() => selectAlbum(index)}>
-            {album.title}
-          </button>
+          <button className={index === activeAlbumIndex ? "is-active" : ""} key={`${album.year}-${album.directory}`} type="button" onClick={() => selectAlbum(index)}>{album.title}</button>
         ))}
       </nav>
 
-      <header className="music-intro">
-        <h1>{activeAlbum.title}</h1>
-        <p className="music-intro__subtitle">{activeAlbum.year} · {activeAlbum.index}</p>
-        <span className="music-intro__line" aria-hidden="true" />
-        <div className="music-intro__description">
-          {activeAlbum.paragraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}
-        </div>
-      </header>
+      <div className="music-album-layout">
+        <AlbumBook3D album={activeAlbum} />
+        <header className="music-intro music-intro--side">
+          <h1>{activeAlbum.title}</h1>
+          <p className="music-intro__subtitle">{activeAlbum.year} · {activeAlbum.index}</p>
+          <span className="music-intro__line" aria-hidden="true" />
+          <div className="music-intro__description">{(activeAlbum.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+        </header>
+      </div>
 
-      <section className="music-carousel" aria-roledescription="carousel" aria-label={`${activeAlbum.title} 수록곡`}>
-        <div className="music-carousel__stage">
-          {tracks.map((track, index) => {
-            const offset = getCircularOffset(index, activeTrackIndex, tracks.length);
-            const isVisible = Math.abs(offset) <= 2;
-            return (
-              <button key={track.directory} type="button" className={`music-album-card${offset === 0 ? " is-active" : ""}`} data-offset={Math.max(-2, Math.min(2, offset))} aria-label={offset === 0 ? `${track.title} 듣기` : `${track.title} 선택`} aria-hidden={!isVisible} tabIndex={isVisible ? 0 : -1} onClick={() => selectTrack(index)}>
-                {track.image && <img src={track.image} alt={`${track.title} 커버`} />}
-                {track.youtube && <span className="music-album-card__play" aria-hidden="true">▶</span>}
+      <section className="music-track-panel music-track-panel--below" aria-label={`${activeAlbum.title} 수록곡`}>
+          <div className="music-track-panel__list" role="tablist" aria-label="곡 선택">
+            {tracks.map((track, index) => (
+              <button type="button" role="tab" aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
+                <span>{track.index}</span>{track.title}
               </button>
-            );
-          })}
-          {tracks.length > 1 && (
-            <>
-              <button className="music-carousel__arrow music-carousel__arrow--prev" type="button" aria-label="이전 곡" onClick={() => move(-1)}><span aria-hidden="true">‹</span></button>
-              <button className="music-carousel__arrow music-carousel__arrow--next" type="button" aria-label="다음 곡" onClick={() => move(1)}><span aria-hidden="true">›</span></button>
-            </>
-          )}
-        </div>
-
-        <div className="music-album-meta" ref={albumMetaRef} key={`${activeAlbum.directory}-${activeTrack.directory}`}>
-          <p className="music-album-meta__track-number">Track. {activeTrack.index}</p>
-          <h2>{activeTrack.title}</h2>
-          {activeTrack.date && <p className="music-album-meta__date">{activeTrack.date}</p>}
-          {activeTrack.composition && <p className="music-album-meta__credit"><span>작곡</span>{activeTrack.composition}</p>}
-          {activeTrack.lyrics && <p className="music-album-meta__credit"><span>작사</span>{activeTrack.lyrics}</p>}
-          <div className="music-album-meta__description">
-            {activeTrack.paragraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}
+            ))}
           </div>
-        </div>
-        <p className="music-album-meta__index">
-          <span>{activeTrackIndex + 1}</span>
-          <span aria-hidden="true">/</span>
-          <span>{tracks.length}</span>
-        </p>
+
+          <article className="music-track-copy" key={`${activeAlbum.directory}-${activeTrack.directory}`}>
+            <p className="music-track-copy__number">Track. {activeTrack.index}</p>
+            <h2>{activeTrack.title}</h2>
+            {activeTrack.date && <p className="music-track-copy__date">{activeTrack.date}</p>}
+            {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
+            {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
+            <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+            {activeTrack.youtube && <a href={activeTrack.youtube} target="_blank" rel="noreferrer">{activeTrack.title} 들으러 가기 ↗</a>}
+          </article>
+
+          {tracks.length > 1 && (
+            <div className="music-track-panel__navigation">
+              <button type="button" onClick={() => moveTrack(-1)}>이전 곡</button>
+              <span>{activeTrackIndex + 1} / {tracks.length}</span>
+              <button type="button" onClick={() => moveTrack(1)}>다음 곡</button>
+            </div>
+          )}
       </section>
     </main>
   );

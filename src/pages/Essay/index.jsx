@@ -118,8 +118,9 @@ export default function EssayPage() {
     project: [...new Set(essays.map((essay) => essay.albumTitle))],
     song: [...new Set(essays.map((essay) => essay.musicTitle).filter(Boolean))],
     author: [...new Set(essays.map((essay) => essay.name))].sort((first, second) => {
-      if (first === "박서음") return -1;
-      if (second === "박서음") return 1;
+      const firstIncludesParkSeoeum = first.includes("박서음");
+      const secondIncludesParkSeoeum = second.includes("박서음");
+      if (firstIncludesParkSeoeum !== secondIncludesParkSeoeum) return firstIncludesParkSeoeum ? -1 : 1;
       return first.localeCompare(second, "ko");
     }),
     year: [...new Set(essays.map((essay) => essay.year))],
