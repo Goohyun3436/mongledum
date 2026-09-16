@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { PiDiscFill, PiX } from "react-icons/pi";
 import HTMLFlipBook from "react-pageflip";
-import playDigAnimation from "../../utils/playDigAnimation";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
 const ESSAY_ROOT = "/docs";
@@ -158,16 +157,18 @@ class DemoBook extends React.Component {
 }
 
 function EssayFilter({ id, label, value, options, isOpen, onToggle, onChange }) {
+  const selectedOption = options.find((option) => (typeof option === "string" ? option : option.value) === value);
+  const selectedLabel = typeof selectedOption === "string" ? selectedOption : selectedOption?.label;
   return (
     <div className={`essay-filter${isOpen ? " is-open" : ""}`}>
       <button className="essay-filter__trigger" type="button" aria-expanded={isOpen} aria-controls={`essay-filter-${id}`} onClick={onToggle}>
-        <span>{label}</span><strong>{value || "전체"}</strong><i aria-hidden="true" />
+        <span>{label}</span><strong>{selectedLabel || "전체"}</strong><i aria-hidden="true" />
       </button>
       {isOpen && (
         <div className="essay-filter__options" id={`essay-filter-${id}`} role="listbox" aria-label={`${label} 필터`}>
-          {["", ...options].map((option) => (
-            <button type="button" role="option" aria-selected={value === option} className={value === option ? "is-selected" : ""} key={option || "all"} onClick={() => onChange(option)}>
-              {option || "전체"}
+          {[{ value: "", label: "전체" }, ...options.map((option) => typeof option === "string" ? { value: option, label: option } : option)].map((option) => (
+            <button type="button" role="option" aria-selected={value === option.value} className={value === option.value ? "is-selected" : ""} key={option.value || "all"} onClick={() => onChange(option.value)}>
+              {option.label}
             </button>
           ))}
         </div>
@@ -179,14 +180,13 @@ function EssayFilter({ id, label, value, options, isOpen, onToggle, onChange }) 
 export default function EssayPage() {
   const [essays, setEssays] = useState([]);
   const [status, setStatus] = useState("loading");
-  const [filters, setFilters] = useState({ title: "", album: "", author: "", year: "" });
+  const [filters, setFilters] = useState({ topic: "", project: "", song: "", author: "", year: "" });
   const [openFilter, setOpenFilter] = useState("");
   const [activeEssay, setActiveEssay] = useState(null);
   const [readerPageLayout, setReaderPageLayout] = useState(() => {
     const width = typeof window !== "undefined" ? window.innerWidth : 1440;
     return getReaderPageLayout(width);
   });
-  const cursorRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.classList.add("is-essay-page");
@@ -220,11 +220,6 @@ export default function EssayPage() {
               const essayResponse = await fetch(getContentUrl(year.year, album.directory, item.directory, "essay.txt"), { signal: controller.signal });
               if (!essayResponse.ok) throw new Error("에세이를 불러오지 못했습니다.");
               const info = parseContentFile(await essayResponse.text());
-              let musicTitle = "";
-              if (item.hasMusic) {
-                const musicResponse = await fetch(getContentUrl(year.year, album.directory, item.directory, "music.txt"), { signal: controller.signal });
-                if (musicResponse.ok) musicTitle = parseContentFile(await musicResponse.text()).title || item.title;
-              }
               return {
                 ...info,
                 id: `${year.year}/${album.directory}/${item.directory}`,
@@ -234,7 +229,7 @@ export default function EssayPage() {
                 file: item.directory,
                 title: info.title || item.title,
                 name: info.name || "",
-                musicTitle,
+                musicTitle: item.hasMusic ? item.title : "",
                 coverUrl: getContentUrl(year.year, album.directory, item.directory, "cover-essay.png"),
               };
             }),
@@ -275,15 +270,17 @@ export default function EssayPage() {
   }, [activeEssay]);
 
   const filterOptions = useMemo(() => ({
-    title: [...new Set(essays.map((essay) => essay.title))],
-    album: [...new Set(essays.map((essay) => essay.albumTitle))],
+    topic: [...new Set(essays.map((essay) => essay.topic).filter(Boolean))],
+    project: [...new Set(essays.map((essay) => essay.albumTitle))],
+    song: [...new Set(essays.map((essay) => essay.musicTitle).filter(Boolean))],
     author: [...new Set(essays.map((essay) => essay.name))],
     year: [...new Set(essays.map((essay) => essay.year))],
   }), [essays]);
 
   const visibleEssays = useMemo(() => essays.filter((essay) =>
-    (!filters.title || essay.title === filters.title)
-    && (!filters.album || essay.albumTitle === filters.album)
+    (!filters.topic || essay.topic === filters.topic)
+    && (!filters.project || essay.albumTitle === filters.project)
+    && (!filters.song || essay.musicTitle === filters.song)
     && (!filters.author || essay.name === filters.author)
     && (!filters.year || essay.year === filters.year)
   ), [essays, filters]);
@@ -316,20 +313,33 @@ export default function EssayPage() {
     window.dispatchEvent(new PopStateEvent("popstate"));
     window.scrollTo(0, 0);
   };
-  const moveCursor = (event) => {
-    if (!cursorRef.current) return;
-    cursorRef.current.classList.add("is-visible");
-    cursorRef.current.style.transform = `translate3d(${event.clientX}px, ${event.clientY - 70}px, 0)`;
-  };
-
   return (
-    <main className="essay-catalog" onPointerEnter={() => cursorRef.current?.classList.add("is-visible")} onPointerLeave={() => cursorRef.current?.classList.remove("is-visible")} onPointerMove={moveCursor} onPointerDown={(event) => playDigAnimation(cursorRef.current, event)}>
+    <main className="essay-catalog">
+      <svg className="essay-noise-filter" aria-hidden="true">
+        <filter id="essay-blue-noise" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            in="SourceGraphic"
+            values="0 0 0 0 0.02  0 0 0 0 0.28  0 0 0 0 1  0 0 0 1 0"
+            result="blueImage"
+          />
+          <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="17" result="noise" />
+          <feColorMatrix
+            in="noise"
+            values="2.4 0 0 0 -0.7  0 2.4 0 0 -0.7  0 0 2.4 0 -0.7  0 0 0 1 0"
+            result="strongNoise"
+          />
+          <feBlend in="blueImage" in2="strongNoise" mode="hard-light" result="blueNoise" />
+          <feComposite in="SourceGraphic" in2="blueNoise" operator="arithmetic" k2="0.7" k3="0.3" result="softBlueNoise" />
+          <feComposite in="softBlueNoise" in2="SourceAlpha" operator="in" />
+        </filter>
+      </svg>
       <div className="essay-catalog__filters" aria-label="에세이 필터" onPointerDown={(event) => event.stopPropagation()}>
-        <EssayFilter id="title" label="제목" value={filters.title} options={filterOptions.title} isOpen={openFilter === "title"} onToggle={() => setOpenFilter((current) => current === "title" ? "" : "title")} onChange={(value) => updateFilter("title", value)} />
-        <EssayFilter id="album" label="앨범" value={filters.album} options={filterOptions.album} isOpen={openFilter === "album"} onToggle={() => setOpenFilter((current) => current === "album" ? "" : "album")} onChange={(value) => updateFilter("album", value)} />
-        <EssayFilter id="author" label="저작자" value={filters.author} options={filterOptions.author} isOpen={openFilter === "author"} onToggle={() => setOpenFilter((current) => current === "author" ? "" : "author")} onChange={(value) => updateFilter("author", value)} />
+        <EssayFilter id="topic" label="주제" value={filters.topic} options={filterOptions.topic} isOpen={openFilter === "topic"} onToggle={() => setOpenFilter((current) => current === "topic" ? "" : "topic")} onChange={(value) => updateFilter("topic", value)} />
+        <EssayFilter id="project" label="프로젝트" value={filters.project} options={filterOptions.project} isOpen={openFilter === "project"} onToggle={() => setOpenFilter((current) => current === "project" ? "" : "project")} onChange={(value) => updateFilter("project", value)} />
+        <EssayFilter id="song" label="노래" value={filters.song} options={filterOptions.song} isOpen={openFilter === "song"} onToggle={() => setOpenFilter((current) => current === "song" ? "" : "song")} onChange={(value) => updateFilter("song", value)} />
+        <EssayFilter id="author" label="글쓴덤" value={filters.author} options={filterOptions.author} isOpen={openFilter === "author"} onToggle={() => setOpenFilter((current) => current === "author" ? "" : "author")} onChange={(value) => updateFilter("author", value)} />
         <EssayFilter id="year" label="연도" value={filters.year} options={filterOptions.year} isOpen={openFilter === "year"} onToggle={() => setOpenFilter((current) => current === "year" ? "" : "year")} onChange={(value) => updateFilter("year", value)} />
-        <button className="essay-catalog__reset" type="button" onClick={() => { setFilters({ title: "", album: "", author: "", year: "" }); setOpenFilter(""); }}>필터 초기화</button>
+        <button className="essay-catalog__reset" type="button" onClick={() => { setFilters({ topic: "", project: "", song: "", author: "", year: "" }); setOpenFilter(""); }}>필터 초기화</button>
       </div>
 
       <section className="essay-catalog__scroll" aria-live="polite">
@@ -338,8 +348,28 @@ export default function EssayPage() {
         {status === "ready" && (
           <div className="essay-catalog__grid">
             {visibleEssays.map((essay) => (
-              <button className="essay-card" type="button" key={essay.id} onPointerDown={(event) => event.stopPropagation()} onClick={() => openEssay(essay)}>
-                <span className="essay-card__cover"><img src={essay.coverUrl} alt="" loading="lazy" draggable="false" /></span>
+              <button
+                className="essay-card"
+                type="button"
+                key={essay.id}
+                onPointerDown={(event) => event.stopPropagation()}
+                onPointerMove={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  const info = event.currentTarget.querySelector(".essay-card__hover-info");
+                  info?.style.setProperty("--hover-x", `${event.clientX - bounds.left}px`);
+                  info?.style.setProperty("--hover-y", `${event.clientY - bounds.top}px`);
+                }}
+                onClick={() => openEssay(essay)}
+              >
+                <span className="essay-card__cover">
+                  <img src={essay.coverUrl} alt="" loading="lazy" draggable="false" />
+                  <span className="essay-card__hover-info" aria-hidden="true">
+                    <em>{essay.title} / {essay.topic || "미분류"}</em>
+                    <em>{essay.albumTitle}</em>
+                    <em>{essay.musicTitle || "-"}</em>
+                    <em>{essay.name}</em>
+                  </span>
+                </span>
               </button>
             ))}
           </div>
@@ -355,7 +385,6 @@ export default function EssayPage() {
         </div>
       )}
 
-      <div ref={cursorRef} className="essay-cursor" aria-hidden="true"><img src="/assets/cursor/digging-pen.png" alt="" draggable="false" /></div>
     </main>
   );
 }

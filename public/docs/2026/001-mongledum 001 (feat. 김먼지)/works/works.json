@@ -1,0 +1,49 @@
+{
+  "works": [
+    {
+      "type": "cartoon",
+      "directory": "cartoon/001-그 순간에는 내가 있을게",
+      "title": "그 순간에는 내가 있을게",
+      "label": "중편 만화"
+    },
+    {
+      "type": "tumblbug",
+      "directory": "tumblbug",
+      "title": "tumblbug",
+      "label": "텀블벅",
+      "url": "https://airbridge.tumblbug.com/u3diz2j"
+    },
+    {
+      "type": "object",
+      "directory": "object",
+      "title": "오브젝트",
+      "label": "object",
+      "href": "/objects"
+    },
+    {
+      "type": "essay",
+      "directory": "essay",
+      "title": "에세이",
+      "label": "essay",
+      "href": "/essay"
+    },
+    {
+      "type": "music",
+      "directory": "music",
+      "label": "music",
+      "href": "/music?year=2026&album=001-mongledum%20001%20(feat.%20%EA%B9%80%EB%A8%BC%EC%A7%80)"
+    },
+    {
+      "type": "video",
+      "directory": "video",
+      "title": "물방울이 두근두근",
+      "label": "video · YouTube"
+    },
+    {
+      "type": "image",
+      "directory": "images",
+      "title": "사진들",
+      "label": "image"
+    }
+  ]
+}

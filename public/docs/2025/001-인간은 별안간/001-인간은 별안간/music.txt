@@ -1,3 +1,4 @@
+title: 1
 composition: 구진, 박서음, 이종훈, 이상훈
 lyrics: 박서음
 date: 2025-09-19
