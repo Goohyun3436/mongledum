@@ -43,7 +43,7 @@ export default function Header({ currentPath, onNavigate }) {
       >
         <img
           className="site-header__logo"
-          src="/assets/logo/white.png"
+          src="/assets/logo/theme.png"
           alt="mongledum"
         />
       </a>

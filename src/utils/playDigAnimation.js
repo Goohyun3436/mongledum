@@ -12,7 +12,7 @@ const dirtParticles = [
 function createDirtBurst(clientX, clientY) {
   const burst = document.createElement("span");
   burst.className = "cursor-dirt-burst";
-  burst.style.left = `${clientX - 4}px`;
+  burst.style.left = `${clientX - 3}px`;
   burst.style.top = `${clientY + 7}px`;
 
   const mound = document.createElement("span");
@@ -41,8 +41,8 @@ export default function playDigAnimation(cursor, event) {
   shovel.animate(
     [
       { transform: "translate(0, 0) rotate(0deg)" },
-      { transform: "translate(-9px, 14px) rotate(-12deg)", offset: 0.42 },
-      { transform: "translate(-9px, 14px) rotate(-12deg)", offset: 0.58 },
+      { transform: "translate(-9px, 8px) rotate(-12deg)", offset: 0.42 },
+      { transform: "translate(-9px, 8px) rotate(-12deg)", offset: 0.58 },
       { transform: "translate(2px, -3px) rotate(3deg)", offset: 0.8 },
       { transform: "translate(0, 0) rotate(0deg)" },
     ],

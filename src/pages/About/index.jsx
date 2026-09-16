@@ -175,7 +175,7 @@ const AboutPageLayout = styled.main`
     align-items: start;
     gap: clamp(32px, 6vw, 100px);
     width: min(100%, 1500px);
-    min-height: calc(100svh - 45px);
+    min-height: calc(100svh - var(--site-header-height));
     margin: 0 auto;
     padding: clamp(36px, 6vw, 92px) clamp(22px, 5vw, 84px);
     background: #ffffff;
