@@ -1,6 +1,5 @@
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { PiDiscFill, PiX } from "react-icons/pi";
-import HTMLFlipBook from "react-pageflip";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
 const ESSAY_ROOT = "/docs";
@@ -13,147 +12,6 @@ function renderInlineText(text, keyPrefix) {
     }
     return part;
   });
-}
-
-function paginateEssay(paragraphs, { charactersPerLine = 27, linesPerPage = 17 } = {}) {
-  const pages = [];
-  let page = [];
-  let usedLines = 0;
-  const paragraphSpacing = 0.55;
-  const maxChunkCharacters = Math.floor((linesPerPage - paragraphSpacing) * charactersPerLine);
-  paragraphs.forEach((paragraph) => {
-    const chunks = paragraph.length > maxChunkCharacters
-      ? paragraph.match(new RegExp(`.{1,${maxChunkCharacters}}(?:\\s|$)|.{1,${maxChunkCharacters}}`, "gs")) ?? [paragraph]
-      : [paragraph];
-    chunks.forEach((chunk) => {
-      const text = chunk.trim();
-      if (!text) return;
-      const textLines = Math.max(1, Math.ceil(text.length / charactersPerLine));
-      const visualLines = textLines + paragraphSpacing;
-      if (page.length && usedLines + visualLines > linesPerPage) {
-        pages.push(page);
-        page = [];
-        usedLines = 0;
-      }
-      page.push(text);
-      usedLines += visualLines;
-    });
-  });
-  if (page.length) pages.push(page);
-  return pages.length ? pages : [[]];
-}
-
-function getReaderPageLayout(width) {
-  if (width <= 760) return { charactersPerLine: 17, linesPerPage: 10 };
-  if (width <= 1000) return { charactersPerLine: 24, linesPerPage: 15 };
-  return { charactersPerLine: 27, linesPerPage: 17 };
-}
-
-const PageCover = forwardRef(function PageCover({ essay, onOpenMusic }, ref) {
-  return (
-    <div className="page page-cover" ref={ref} data-density="soft">
-      <div className="page-content">
-        <p className="page-cover__author">{essay.name}</p>
-        <div className="page-cover__title">
-          <h2>{essay.title}</h2>
-          <p>{essay.year} · {essay.albumTitle}</p>
-          {essay.musicTitle && (
-            <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={onOpenMusic}>
-              <PiDiscFill aria-hidden="true" />[{essay.musicTitle}] 들으러 가기
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-
-const Page = forwardRef(function Page({ children, number, title }, ref) {
-  return (
-    <div className="page" ref={ref} data-density="soft">
-      <div className="page-content">
-        <h2 className="page-header">{title}</h2>
-        <div className="page-image" />
-        <div className="page-text">{children}</div>
-        <div className="page-footer">{number + 1}</div>
-      </div>
-    </div>
-  );
-});
-
-class DemoBook extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { page: 0, totalPage: Math.max(1, props.pages.length + 1), orientation: "landscape", state: "read" };
-  }
-
-  nextButtonClick = () => this.flipBook.getPageFlip().flipNext();
-  prevButtonClick = () => this.flipBook.getPageFlip().flipPrev();
-  onPage = (event) => this.setState({ page: event.data });
-  onChangeOrientation = (event) => this.setState({ orientation: event.data });
-  onChangeState = (event) => this.setState({ state: event.data });
-
-  componentDidMount() {
-    this.setState({ totalPage: Math.max(1, this.props.pages.length + 1) });
-  }
-
-  render() {
-    const { essay, pages } = this.props;
-    const bookPages = [
-      <PageCover key="cover" essay={essay} onOpenMusic={this.props.onOpenMusic} />,
-      ...pages.map((paragraphs, index) => (
-        <Page number={index + 1} title={essay.title} key={`${essay.id}-${index}`}>
-          {paragraphs.map((paragraph, paragraphIndex) => (
-            <p key={`${index}-${paragraphIndex}-${paragraph.slice(0, 10)}`}>{renderInlineText(paragraph, `${index}-${paragraphIndex}`)}</p>
-          ))}
-        </Page>
-      )),
-    ];
-    if (bookPages.length % 2 !== 0) {
-      bookPages.push(<Page number={pages.length + 1} title={essay.title} key="blank-page"><span aria-hidden="true" /></Page>);
-    }
-    return (
-      <div className="essay-demo-book">
-        <HTMLFlipBook
-          width={450}
-          height={600}
-          size="stretch"
-          minWidth={260}
-          maxWidth={450}
-          minHeight={347}
-          maxHeight={600}
-          startPage={0}
-          drawShadow={true}
-          flippingTime={1000}
-          usePortrait={false}
-          startZIndex={0}
-          autoSize={true}
-          maxShadowOpacity={0.5}
-          showCover={false}
-          mobileScrollSupport={true}
-          clickEventForward={true}
-          useMouseEvents={pages.length > 1}
-          swipeDistance={30}
-          showPageCorners={true}
-          disableFlipByClick={false}
-          onFlip={this.onPage}
-          onChangeOrientation={this.onChangeOrientation}
-          onChangeState={this.onChangeState}
-          className="demo-book"
-          style={{}}
-          ref={(element) => { this.flipBook = element; }}
-        >
-          {bookPages}
-        </HTMLFlipBook>
-
-        <div className="essay-reading-modal__controls">
-          <button type="button" onClick={this.prevButtonClick}>이전</button>
-          <span>{Math.min(this.state.page + 1, this.state.totalPage)} / {this.state.totalPage}</span>
-          <button type="button" onClick={this.nextButtonClick}>다음</button>
-        </div>
-      </div>
-    );
-  }
 }
 
 function EssayFilter({ id, label, value, options, isOpen, onToggle, onChange }) {
@@ -183,26 +41,11 @@ export default function EssayPage() {
   const [filters, setFilters] = useState({ topic: "", project: "", song: "", author: "", year: "" });
   const [openFilter, setOpenFilter] = useState("");
   const [activeEssay, setActiveEssay] = useState(null);
-  const [readerPageLayout, setReaderPageLayout] = useState(() => {
-    const width = typeof window !== "undefined" ? window.innerWidth : 1440;
-    return getReaderPageLayout(width);
-  });
 
   useEffect(() => {
     document.documentElement.classList.add("is-essay-page");
     document.body.classList.add("is-essay-page");
-    const updateReaderPageSize = () => {
-      const nextLayout = getReaderPageLayout(window.innerWidth);
-      setReaderPageLayout((currentLayout) =>
-        currentLayout.charactersPerLine === nextLayout.charactersPerLine
-        && currentLayout.linesPerPage === nextLayout.linesPerPage
-          ? currentLayout
-          : nextLayout,
-      );
-    };
-    window.addEventListener("resize", updateReaderPageSize);
     return () => {
-      window.removeEventListener("resize", updateReaderPageSize);
       document.documentElement.classList.remove("is-essay-page");
       document.body.classList.remove("is-essay-page");
     };
@@ -231,6 +74,7 @@ export default function EssayPage() {
                 name: info.name || "",
                 musicTitle: item.hasMusic ? item.title : "",
                 coverUrl: getContentUrl(year.year, album.directory, item.directory, "cover-essay.png"),
+                detailCoverUrl: getContentUrl(year.year, album.directory, item.directory, "cover-essay-detail.png"),
               };
             }),
           ),
@@ -285,11 +129,6 @@ export default function EssayPage() {
     && (!filters.year || essay.year === filters.year)
   ), [essays, filters]);
 
-  const textPages = useMemo(
-    () => paginateEssay(activeEssay?.paragraphs ?? [], readerPageLayout),
-    [activeEssay, readerPageLayout],
-  );
-
   const updateFilter = (key, value) => {
     setFilters((current) => ({ ...current, [key]: value }));
     setOpenFilter("");
@@ -316,11 +155,11 @@ export default function EssayPage() {
   return (
     <main className="essay-catalog">
       <svg className="essay-noise-filter" aria-hidden="true">
-        <filter id="essay-blue-noise" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+        <filter id="essay-sudden-noise" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
           <feColorMatrix
             in="SourceGraphic"
-            values="0 0 0 0 0.02  0 0 0 0 0.28  0 0 0 0 1  0 0 0 1 0"
-            result="blueImage"
+            values="0 0 0 0 0.937  0 0 0 0 0.788  0 0 0 0 0.816  0 0 0 1 0"
+            result="tintedImage"
           />
           <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="17" result="noise" />
           <feColorMatrix
@@ -328,9 +167,25 @@ export default function EssayPage() {
             values="2.4 0 0 0 -0.7  0 2.4 0 0 -0.7  0 0 2.4 0 -0.7  0 0 0 1 0"
             result="strongNoise"
           />
-          <feBlend in="blueImage" in2="strongNoise" mode="hard-light" result="blueNoise" />
-          <feComposite in="SourceGraphic" in2="blueNoise" operator="arithmetic" k2="0.7" k3="0.3" result="softBlueNoise" />
-          <feComposite in="softBlueNoise" in2="SourceAlpha" operator="in" />
+          <feBlend in="tintedImage" in2="strongNoise" mode="hard-light" result="tintedNoise" />
+          <feComposite in="SourceGraphic" in2="tintedNoise" operator="arithmetic" k2="0.4" k3="0.6" result="softTintedNoise" />
+          <feComposite in="softTintedNoise" in2="SourceAlpha" operator="in" />
+        </filter>
+        <filter id="essay-mongledum-noise" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            in="SourceGraphic"
+            values="0 0 0 0 0.976  0 0 0 0 0.969  0 0 0 0 0.820  0 0 0 1 0"
+            result="tintedImage"
+          />
+          <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="17" result="noise" />
+          <feColorMatrix
+            in="noise"
+            values="2.4 0 0 0 -0.7  0 2.4 0 0 -0.7  0 0 2.4 0 -0.7  0 0 0 1 0"
+            result="strongNoise"
+          />
+          <feBlend in="tintedImage" in2="strongNoise" mode="hard-light" result="tintedNoise" />
+          <feComposite in="SourceGraphic" in2="tintedNoise" operator="arithmetic" k2="0.4" k3="0.6" result="softTintedNoise" />
+          <feComposite in="softTintedNoise" in2="SourceAlpha" operator="in" />
         </filter>
       </svg>
       <div className="essay-catalog__filters" aria-label="에세이 필터" onPointerDown={(event) => event.stopPropagation()}>
@@ -349,7 +204,7 @@ export default function EssayPage() {
           <div className="essay-catalog__grid">
             {visibleEssays.map((essay) => (
               <button
-                className="essay-card"
+                className={`essay-card ${essay.album.includes("인간은 별안간") ? "essay-card--sudden" : essay.album.includes("mongledum 001") ? "essay-card--mongledum" : ""}`}
                 type="button"
                 key={essay.id}
                 onPointerDown={(event) => event.stopPropagation()}
@@ -364,7 +219,7 @@ export default function EssayPage() {
                 <span className="essay-card__cover">
                   <img src={essay.coverUrl} alt="" loading="lazy" draggable="false" />
                   <span className="essay-card__hover-info" aria-hidden="true">
-                    <em>{essay.title} / {essay.topic || "미분류"}</em>
+                    <em>{essay.topic || "미분류"} 「{essay.title}」</em>
                     <em>{essay.albumTitle}</em>
                     <em>{essay.musicTitle || "-"}</em>
                     <em>{essay.name}</em>
@@ -379,9 +234,41 @@ export default function EssayPage() {
       {activeEssay && (
         <div className="essay-reading-modal" role="dialog" aria-modal="true" aria-label={`${activeEssay.title} 읽기`} onPointerDown={(event) => event.stopPropagation()}>
           <button className="essay-reading-modal__close" type="button" aria-label="책 닫기" onClick={closeEssay}><PiX aria-hidden="true" /></button>
-          <div className="essay-reading-modal__book">
-            <DemoBook key={`${activeEssay.id}-landscape-book-${textPages.length}`} essay={activeEssay} pages={textPages} onOpenMusic={openMusic} />
-          </div>
+          <article className="essay-detail">
+            <header className="essay-detail__header">
+              <div className="essay-detail__cover">
+                <img
+                  src={activeEssay.detailCoverUrl}
+                  alt={`${activeEssay.title} 표지`}
+                  draggable="false"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = activeEssay.coverUrl;
+                  }}
+                />
+              </div>
+              <div className="essay-detail__info">
+                {activeEssay.musicTitle && (
+                  <button className="essay-detail__music" type="button" onClick={openMusic}>
+                    <PiDiscFill aria-hidden="true" />[{activeEssay.musicTitle}] 들으러 가기
+                  </button>
+                )}
+                <h1>{activeEssay.topic || "미분류"} 「{activeEssay.title}」</h1>
+                <dl>
+                  <div><dt>프로젝트</dt><dd>{activeEssay.albumTitle}</dd></div>
+                  <div><dt>글쓴덤</dt><dd>{activeEssay.name}</dd></div>
+                  <div><dt>연도</dt><dd>{activeEssay.year}</dd></div>
+                  {activeEssay.musicTitle && <div><dt>노래</dt><dd>{activeEssay.musicTitle}</dd></div>}
+                </dl>
+              </div>
+            </header>
+            <div className="essay-detail__divider" aria-hidden="true" />
+            <div className="essay-detail__body">
+              {(activeEssay.paragraphs ?? []).map((paragraph, index) => (
+                <p key={`${index}-${paragraph.slice(0, 16)}`}>{renderInlineText(paragraph, `detail-${index}`)}</p>
+              ))}
+            </div>
+          </article>
         </div>
       )}
 
