@@ -1334,7 +1334,7 @@ body.is-music-page.is-music-header-scrolled::before {
 }
 
 .home-score__person { position: relative; z-index: 1; display: block; width: auto; height: 100%; pointer-events: none; }
-.home-score__hole { position: absolute; bottom: -10%; left: 50%; z-index: 0; display: block; width: 185%; height: auto; pointer-events: none; transform: translateX(-50%); }
+.home-score__hole { position: absolute; bottom: 0; left: 50%; z-index: 0; display: block; width: 185%; height: auto; pointer-events: none; transform: translateX(-50%); }
 .home-score__note:hover,
 .home-score__note:focus-visible { z-index: 2; filter: drop-shadow(0 1.1cqw 0.8cqw rgba(0, 0, 0, 0.18)); transform: translate(-50%, calc(-50% - 0.7cqw)) scale(1.045); }
 .home-score__note:focus-visible { outline: 2px solid #45c5d1; outline-offset: 4px; }
@@ -1428,12 +1428,12 @@ body.is-music-page.is-music-header-scrolled::before {
   75% { transform: translate(-0.45cqw, -0.75cqw) rotate(0deg); }
 }
 
-.home-score__note--1 { --note-height: 22%; top: 44%; left: 17%; }
+.home-score__note--1 { --note-height: 22%; top: 45%; left: 17%; }
 .home-score__note--2 { --note-height: 15%; top: 49%; left: 38%; }
 .home-score__note--3 { --note-height: 16%; top: 62%; left: 61%; }
 .home-score__note--4 { --note-height: 25%; top: 50%; left: 67%; }
-.home-score__note--5 { --note-height: 27%; top: 47%; left: 89%; }
-.home-score__note--6 { --note-height: 19%; top: 81%; left: 80%; }
+.home-score__note--5 { --note-height: 24%; top: 47%; left: 89%; }
+.home-score__note--6 { --note-height: 19%; top: 84%; left: 80%; }
 
 .home-score__line {
   position: relative;
@@ -1454,6 +1454,9 @@ body.is-music-page.is-music-header-scrolled::before {
 .home-score__line span {
   position: relative;
   z-index: 1;
+  display: block;
+  width: max-content;
+  flex: none;
   padding: 2px 0;
   opacity: 0.7;
   text-shadow:
@@ -1514,125 +1517,26 @@ body.is-music-page.is-music-header-scrolled::before {
   object-position: left bottom;
 }
 
-.home-page.is-pool-cursor .digging-cursor {
-  opacity: 0;
-}
-
 .pool-scene {
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
-  background: #eee0b7;
+  background: #000000 url("/assets/main/kimmeonji-beach.png") center / cover no-repeat;
 }
 
-.pool-scene__deck {
+.pool-scene::before {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-color: #eee0b7;
-  background-image:
-    linear-gradient(31deg, transparent 46%, rgba(255, 255, 255, 0.88) 47% 51%, transparent 52%),
-    linear-gradient(-31deg, transparent 46%, rgba(255, 255, 255, 0.88) 47% 51%, transparent 52%);
-  background-position: 0 0, 0 0;
-  background-size: clamp(74px, 8vw, 122px) clamp(42px, 5vw, 72px);
+  background: url("/assets/main/kimmeonji-beach-black.png") center / cover no-repeat;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
 }
 
-.pool-scene__wall {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background-color: #3993c5;
-  background-image:
-    linear-gradient(rgba(139, 224, 247, 0.72) 4px, transparent 4px),
-    linear-gradient(90deg, rgba(139, 224, 247, 0.72) 4px, transparent 4px);
-  background-size: clamp(68px, 8vw, 104px) clamp(58px, 8vh, 88px);
-  clip-path: polygon(0 0, 33% 0, 100% 58%, 100% 87%, 0 5%);
-}
-
-.pool-scene #ripples3.pool-scene__interior {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  clip-path: polygon(0 5%, 100% 87%, 100% 100%, 0 100%);
-}
-
-.pool-scene #ripples3.pool-scene__interior::before {
-  background-position: center;
-  background-size: cover;
-}
-
-.pool-scene__water-edge {
-  position: absolute;
-  top: 4.5%;
-  left: -4%;
-  z-index: 4;
-  width: 115%;
-  height: 9px;
-  background: #ffffff;
-  box-shadow:
-    0 -9px 0 rgba(47, 124, 178, 0.6),
-    0 9px 0 rgba(101, 178, 221, 0.68);
-  transform: rotate(25deg);
-  transform-origin: left center;
-}
-
-.pool-scene__ladder {
-  position: absolute;
-  top: 11%;
-  left: 57%;
-  z-index: 6;
-  width: clamp(116px, 13vw, 182px);
-  height: clamp(180px, 27vw, 310px);
-  transform: rotate(-1deg);
-}
-
-.pool-scene__ladder-rail {
-  position: absolute;
-  top: 0;
-  width: 43%;
-  height: 100%;
-  border: clamp(9px, 0.9vw, 14px) solid #ffffff;
-  border-bottom: 0;
-  border-radius: 999px 999px 0 0;
-  filter:
-    drop-shadow(3px 0 #000000)
-    drop-shadow(-3px 0 #000000)
-    drop-shadow(0 -3px #000000);
-}
-
-.pool-scene__ladder-rail--back {
-  left: 0;
-}
-
-.pool-scene__ladder-rail--front {
-  right: 0;
-  transform: translateY(12%);
-}
-
-.pool-scene__ladder-step {
-  position: absolute;
-  left: 16%;
-  z-index: 2;
-  width: 58%;
-  height: clamp(13px, 1.5vw, 21px);
-  background: #ffffff;
-  border: 3px solid #000000;
-  border-radius: 999px;
-  transform: rotate(31deg);
-}
-
-.pool-scene__ladder-step--one {
-  top: 51%;
-}
-
-.pool-scene__ladder-step--two {
-  top: 64%;
-}
-
-.pool-scene__ladder-step--three {
-  top: 77%;
+.pool-scene:has(.pool-scene__fish-link:is(:hover, :focus-visible))::before {
+  opacity: 1;
 }
 
 .pool-scene__fish-link {
@@ -1661,7 +1565,10 @@ body.is-music-page.is-music-header-scrolled::before {
 .pool-scene__fish-link span {
   padding: 3px 6px;
   background: rgba(255, 255, 255, 0.82);
+  border-radius: 8px;
+  font-size: clamp(0.82rem, 1vw, 1rem);
   opacity: 0;
+  white-space: nowrap;
   transition: opacity 180ms ease;
 }
 
@@ -1905,18 +1812,9 @@ body.is-music-page.is-music-header-scrolled::before {
     aspect-ratio: 16 / 10;
   }
 
-  .pool-scene__ladder {
-    top: 16%;
-    left: 49%;
-  }
-
   .pool-scene__fish-link {
     top: 11%;
     right: 5%;
-  }
-
-  .pool-scene__water-edge {
-    transform: rotate(30deg);
   }
 
   .essay-page { row-gap: 42px; padding: 30px 18px 0; overflow: hidden; }

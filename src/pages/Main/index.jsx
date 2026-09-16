@@ -3,9 +3,13 @@ import HomeContentSections from "../../components/HomeContentSections";
 import PoolSection from "../../components/PoolSection";
 import playDigAnimation from "../../utils/playDigAnimation";
 
-const staffSentence =
-  "그러니까 예를 들면 이렇게나 작은 글씨로 한 줄 별로 각자의 문장을 적어두는 것이에요";
-const staffLine = `${staffSentence} `.repeat(8);
+const staffLines = [
+  "사람은백년남짓살다죽는다왜그렇게들서로조금씩다른것가지고뭐라들하는지어짜피죽으면다부질없는걸너네는너네들이탄배에나는우리들이탄배에남의배부여잡고흔들지말고각자의노나열심히저었으면만약배에서떨어져도다시올라탈게난너에게돌아가는사람햇빛옆에나란하게놓이는바람마음의높이를맞춰한걸음만",
+  "오늘처음보지만영원을함께해주실래요날아다니는새소리바람과함께춤추는파도소리푸른파도에거품이이는모양과이글거리는태양그리고이제밑으로들어가자는목소리첨벙하는소리에실려있는두려움은곧차분해지는심호흡과함께빠져든다푸른공허속에선오직나의숨소리만들린다숨을쉴때마다보글보글떠오르는물방울",
+  "처음걷는길이다예쁘다조용하고햇빛도잘든다근데자꾸이길은길가에풀이부족하고사거리앞에심어진나무가한그루부족하고맨홀뚜껑이살짝틀어져무늬가뒤틀려맞지않고담장에누워하얀왼쪽앞발을핥다가갑자기나를쳐다보더니입질을멈추고야옹을두번울어주고다시앞발을핥아주어야하던검정고양이가없다길은아무잘못",
+  "뭐든하나만해보고싶다1년이든2년이든다른건신경끄고그것만일어나서자기전까지그생각만하며지내는시간잘하고싶은것보단분산되지않은채로온전히몰입한끝에남는것을보고싶다그런걸할수있었던긴시간동안엔생각도들지않던게바쁜지금에서야떠오르는건바빠서일까지금현실적으로그렇게지속할수있는건일뿐이라고",
+  "기도가아니라나자신의결핍이만들어낸풍경이었다누군가에게는계절을붙잡으려는노래일수도있고누군가에게는끝내놓지못한마음에대한노래일수도있다또누군가에게는아무말없이내리는눈처럼그저지나가는하나의풍경일수도있다눈은누구에게나같은모습으로내리지만그아래에무엇을감추고싶은지는사람마다다르다",
+];
 
 const scoreNotes = [
   { name: "jaewook", label: "재욱", src: "/assets/profile/jaewook/note.png" },
@@ -64,9 +68,9 @@ export default function MainPage() {
                 alt=""
                 aria-hidden="true"
               />
-              {Array.from({ length: 5 }, (_, index) => (
+              {staffLines.map((line, index) => (
                 <p className="home-score__line" key={index}>
-                  <span>{staffLine}</span>
+                  <span>{line.repeat(3)}</span>
                 </p>
               ))}
             </div>
