@@ -2142,10 +2142,10 @@ body.is-music-page.is-music-header-scrolled::before {
 .serises-comic__title { position: absolute; top: 20px; left: 24px; z-index: 30; margin: 0; color: #777; font-size: 0.8rem; font-weight: 400; }
 .serises-comic__close { position: absolute; top: 14px; right: 20px; z-index: 30; display: grid; width: 32px; height: 32px; padding: 0; place-items: center; background: transparent; border: 0; font: inherit; font-size: 1.55rem; font-weight: 300; line-height: 1; }
 .serises-comic__book-shell { display: grid; width: min(900px, calc(100vw - 40px), calc(140svh - 205px)); min-height: 0; gap: 14px; justify-self: center; }
-.serises-comic__book { margin: 0 auto; filter: drop-shadow(0 13px 18px rgba(0, 0, 0, 0.2)); }
+.serises-comic__book { position: relative; z-index: 2; margin: 0 auto; filter: drop-shadow(0 13px 18px rgba(0, 0, 0, 0.2)); }
 .serises-comic__page { overflow: hidden; background: #fff; user-select: none; -webkit-user-select: none; }
 .serises-comic__page img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.serises-comic__controls { position: relative; display: flex; justify-content: center; gap: 18px; font-size: 0.75rem; }
+.serises-comic__controls { position: relative; z-index: 1; display: flex; justify-content: center; gap: 18px; font-size: 0.75rem; }
 .serises-comic__controls button { padding: 2px 0; background: transparent; border: 0; border-bottom: 1px solid; font: inherit; }
 .serises-comic__controls .serises-comic__overview-open { position: absolute; right: 0; padding: 3px 8px; border: 1px solid #aeb4b8; border-radius: 3px; }
 .serises-comic__empty { text-align: center; }
