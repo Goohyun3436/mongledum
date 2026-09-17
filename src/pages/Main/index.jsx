@@ -45,10 +45,14 @@ export default function MainPage() {
                 alt=""
                 aria-hidden="true"
               />
-              {staffLines.map((line, index) => (
-                <p className="home-score__line" key={index}>
-                  <span>{line.repeat(3)}</span>
-                </p>
+              {[0, 1, 2, 3].map((staffIndex) => (
+                <div className="home-score__staff" aria-hidden={staffIndex > 0 ? "true" : undefined} key={staffIndex}>
+                  {staffLines.map((line, lineIndex) => (
+                    <p className="home-score__line" key={lineIndex}>
+                      <span>{line.repeat(3)}</span>
+                    </p>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
