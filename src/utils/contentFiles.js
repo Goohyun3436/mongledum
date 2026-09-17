@@ -10,11 +10,33 @@ export function parseContentFile(source) {
     if (key) metadata[key] = value;
   });
 
-  const body = bodyParts.join("\n---\n").trim();
+  const rawBody = bodyParts.join("\n---\n").trim();
+  const sections = { description: [] };
+  let activeSection = "description";
+
+  rawBody.split("\n").forEach((line) => {
+    const marker = line.trim().toLowerCase().match(/^\[(credits|lyrics)\]$/);
+    if (marker) {
+      activeSection = marker[1];
+      sections[activeSection] ??= [];
+      return;
+    }
+    sections[activeSection].push(line);
+  });
+
+  const body = sections.description.join("\n").trim();
+  const credits = (sections.credits ?? []).join("\n").trim();
+  const lyricsText = (sections.lyrics ?? []).join("\n").trim();
+  const toParagraphs = (value) => value.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+
   return {
     ...metadata,
     body,
-    paragraphs: body.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean),
+    paragraphs: toParagraphs(body),
+    credits,
+    creditParagraphs: toParagraphs(credits),
+    lyricsText,
+    lyricsParagraphs: toParagraphs(lyricsText),
   };
 }
 

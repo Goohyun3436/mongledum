@@ -6,6 +6,8 @@ public/docs/
     ├── 001-욕망/
     │   ├── album.txt
     │   ├── cover.png
+    │   ├── cover-spine.png
+    │   ├── cover-back.png
     │   ├── 001-곡명/
     │   │   ├── music.txt
     │   │   ├── essay.txt
@@ -38,7 +40,7 @@ public/docs/
 
 <br />
 
-앨범 정보 `album.txt` & 커버 이미지 `cover.png`
+앨범 정보 `album.txt` & 커버 이미지
 
 ```txt
 release_date: 2026-08-29
@@ -47,6 +49,11 @@ release_date: 2026-08-29
 
 서로 다른 목소리가 하나의 주제를 바라봅니다.
 ```
+
+- 앞표지: 앨범 폴더의 `cover.png`, `cover.jpg`, `cover.jpeg`, `cover.webp` 중 하나
+- 책등: 앨범 폴더의 `cover-spine.png`, `cover-spine.jpg`, `cover-spine.jpeg`, `cover-spine.webp` 중 하나
+- 뒷표지: 앨범 폴더의 `cover-back.png`, `cover-back.jpg`, `cover-back.jpeg`, `cover-back.webp` 중 하나
+- 책등 이미지가 없으면 앞표지를 대신 사용
 
 <br />
 
@@ -60,6 +67,16 @@ date: 2026-08-29
 youtube: https://youtu.be/example
 ---
 곡에 대한 설명입니다.
+
+[credits]
+프로듀싱 몽글덤
+레코딩 홍길동
+
+[lyrics]
+첫 번째 가사 줄
+두 번째 가사 줄
+
+다음 연의 첫 번째 줄
 ```
 
 <br />
@@ -82,6 +99,9 @@ name: 박재욱
 - music.txt의 title이 비어 있거나 없으면 콘텐츠 폴더명의 제목 사용
 - music.txt의 composition에는 작곡가를 쉼표(`,`)로 구분해 작성
 - music.txt의 lyrics에는 작사가를 쉼표(`,`)로 구분해 작성
+- 곡 설명 아래 `[credits]`를 적으면 이후 텍스트를 크레딧으로 표시
+- `[lyrics]`를 적으면 이후 텍스트를 가사로 표시하며, 빈 줄로 가사 문단을 구분
+- `[credits]`, `[lyrics]`는 필요한 항목만 작성할 수 있음
 - 콘텐츠 cover.png가 있으면 곡 커버로 사용
 - 콘텐츠 커버가 없으면 앨범의 cover.png 사용
 - 새 연도, 앨범, 콘텐츠는 폴더 추가만으로 자동 인식

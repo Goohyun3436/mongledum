@@ -18,18 +18,83 @@ function formatReleaseDate(value = "") {
 function AlbumBook3D({ album }) {
   const [view, setView] = useState("front");
   const [angle, setAngle] = useState(BOOK_VIEWS.front.angle);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isFreeRotating, setIsFreeRotating] = useState(false);
+  const angleRef = useRef(BOOK_VIEWS.front.angle);
   const pointerStartRef = useRef(null);
   const introTimersRef = useRef([]);
+  const idleTimerRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   const cancelIntro = () => {
     introTimersRef.current.forEach(window.clearTimeout);
     introTimersRef.current = [];
   };
 
+  const updateAngle = (nextAngle) => {
+    angleRef.current = nextAngle;
+    setAngle(nextAngle);
+  };
+
+  const cancelFreeRotation = () => {
+    window.clearTimeout(idleTimerRef.current);
+    window.cancelAnimationFrame(animationFrameRef.current);
+    idleTimerRef.current = null;
+    animationFrameRef.current = null;
+    setIsFreeRotating(false);
+  };
+
+  const startIdleRotation = () => {
+    cancelFreeRotation();
+    idleTimerRef.current = window.setTimeout(() => {
+      setIsFreeRotating(true);
+      let previousTime;
+      const rotate = (time) => {
+        if (previousTime !== undefined) updateAngle(angleRef.current + (time - previousTime) * 0.008);
+        previousTime = time;
+        animationFrameRef.current = window.requestAnimationFrame(rotate);
+      };
+      animationFrameRef.current = window.requestAnimationFrame(rotate);
+    }, 1800);
+  };
+
+  const startInertia = (initialVelocity) => {
+    cancelFreeRotation();
+    if (Math.abs(initialVelocity) < 0.00005) {
+      startIdleRotation();
+      return;
+    }
+    setIsFreeRotating(true);
+    let velocity = initialVelocity;
+    let previousTime;
+    const coast = (time) => {
+      if (previousTime !== undefined) {
+        const elapsed = Math.min(time - previousTime, 32);
+        updateAngle(angleRef.current + velocity * elapsed);
+        velocity *= Math.pow(0.97, elapsed / 16.67);
+      }
+      previousTime = time;
+      if (Math.abs(velocity) < 0.0002) {
+        animationFrameRef.current = null;
+        setIsFreeRotating(false);
+        startIdleRotation();
+        return;
+      }
+      animationFrameRef.current = window.requestAnimationFrame(coast);
+    };
+    animationFrameRef.current = window.requestAnimationFrame(coast);
+  };
+
+  const getNearestEquivalentAngle = (targetAngle) => (
+    targetAngle + Math.round((angleRef.current - targetAngle) / 360) * 360
+  );
+
   const showView = (nextView) => {
     cancelIntro();
+    cancelFreeRotation();
     setView(nextView);
-    setAngle(BOOK_VIEWS[nextView].angle);
+    updateAngle(getNearestEquivalentAngle(BOOK_VIEWS[nextView].angle));
+    startIdleRotation();
   };
 
   const stepView = (direction) => {
@@ -40,28 +105,20 @@ function AlbumBook3D({ album }) {
 
   useEffect(() => {
     cancelIntro();
+    cancelFreeRotation();
     setView("front");
-    setAngle(BOOK_VIEWS.front.angle);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let readyTimer;
-    const startIntro = () => {
-      const pageGate = document.querySelector(".page-image-gate");
-      if (pageGate && !pageGate.classList.contains("is-ready")) {
-        readyTimer = window.setTimeout(startIntro, 100);
-        return;
-      }
-      introTimersRef.current = [
-        window.setTimeout(() => setAngle(BOOK_VIEWS.back.angle), 500),
-        window.setTimeout(() => {
-          setAngle(BOOK_VIEWS.front.angle);
-          introTimersRef.current = [];
-        }, 2400),
-      ];
-    };
-    if (!reducedMotion.matches) startIntro();
+    updateAngle(getNearestEquivalentAngle(BOOK_VIEWS.front.angle));
+    introTimersRef.current = [
+      window.setTimeout(() => updateAngle(getNearestEquivalentAngle(BOOK_VIEWS.back.angle)), 650),
+      window.setTimeout(() => {
+        updateAngle(getNearestEquivalentAngle(BOOK_VIEWS.front.angle));
+        introTimersRef.current = [];
+        startIdleRotation();
+      }, 2500),
+    ];
     return () => {
-      window.clearTimeout(readyTimer);
       cancelIntro();
+      cancelFreeRotation();
     };
   }, [album.directory]);
 
@@ -71,7 +128,7 @@ function AlbumBook3D({ album }) {
   return (
     <section className="music-book3d" aria-label={`${album.title} 앨범 자켓 3D 미리보기`}>
       <div
-        className="music-book3d__scene"
+        className={`music-book3d__scene${isDragging ? " is-dragging" : ""}${isFreeRotating ? " is-free-rotating" : ""}`}
         tabIndex="0"
         onKeyDown={(event) => {
           if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -79,29 +136,54 @@ function AlbumBook3D({ album }) {
           stepView(event.key === "ArrowRight" ? 1 : -1);
         }}
         onPointerDown={(event) => {
-          pointerStartRef.current = event.clientX;
+          if (event.pointerType === "mouse" && event.button !== 0) return;
+          event.preventDefault();
+          cancelIntro();
+          cancelFreeRotation();
+          setIsDragging(true);
+          pointerStartRef.current = { x: event.clientX, angle: angleRef.current, lastX: event.clientX, lastTime: event.timeStamp, velocity: 0 };
           event.currentTarget.setPointerCapture?.(event.pointerId);
         }}
-        onPointerUp={(event) => {
-          if (pointerStartRef.current === null) return;
-          const distance = event.clientX - pointerStartRef.current;
-          pointerStartRef.current = null;
-          if (Math.abs(distance) >= 35) stepView(distance < 0 ? 1 : -1);
+        onPointerMove={(event) => {
+          if (!pointerStartRef.current) {
+            cancelFreeRotation();
+            startIdleRotation();
+            return;
+          }
+          const pointer = pointerStartRef.current;
+          const distance = event.clientX - pointer.x;
+          const elapsed = Math.max(event.timeStamp - pointer.lastTime, 1);
+          const instantVelocity = (event.clientX - pointer.lastX) * 0.55 / elapsed;
+          pointer.velocity = pointer.velocity * 0.35 + instantVelocity * 0.65;
+          pointer.lastX = event.clientX;
+          pointer.lastTime = event.timeStamp;
+          updateAngle(pointer.angle + distance * 0.55);
         }}
-        onPointerCancel={() => { pointerStartRef.current = null; }}
+        onPointerUp={() => {
+          if (pointerStartRef.current === null) return;
+          const velocity = pointerStartRef.current.velocity;
+          pointerStartRef.current = null;
+          setIsDragging(false);
+          startInertia(velocity * 1.8);
+        }}
+        onPointerCancel={() => {
+          pointerStartRef.current = null;
+          setIsDragging(false);
+          startIdleRotation();
+        }}
       >
         <div className="music-book3d__book" style={{ "--music-book-angle": `${angle}deg` }} aria-hidden="true">
           <div className="music-book3d__face music-book3d__front">
-            <img src={album.frontCover} alt="" onLoad={handleImageLoad} onError={handleImageError} />
+            <img src={album.frontCover} alt="" draggable="false" onLoad={handleImageLoad} onError={handleImageError} />
           </div>
           <div className="music-book3d__face music-book3d__spine">
-            <span><img src={album.frontCover} alt="" onLoad={handleImageLoad} onError={handleImageError} /></span>
+            <span><img src={album.spineCover} alt="" draggable="false" onLoad={handleImageLoad} onError={handleImageError} /></span>
           </div>
           <div className="music-book3d__edge music-book3d__fore-edge" />
           <div className="music-book3d__edge music-book3d__top-edge" />
           <div className="music-book3d__edge music-book3d__bottom-edge" />
           <div className="music-book3d__face music-book3d__back">
-            <img src={album.backCover} alt="" onLoad={handleImageLoad} onError={handleImageError} />
+            <img src={album.backCover} alt="" draggable="false" onLoad={handleImageLoad} onError={handleImageError} />
           </div>
         </div>
       </div>
@@ -111,8 +193,7 @@ function AlbumBook3D({ album }) {
           <button type="button" aria-pressed={view === key} onClick={() => showView(key)} key={key}>{BOOK_VIEWS[key].label}</button>
         ))}
       </div>
-      <p className="music-book3d__status" role="status" aria-live="polite">{BOOK_VIEWS[view].label}</p>
-      <p className="music-book3d__hint">좌우로 밀거나 화살표 키를 눌러도 전환됩니다.</p>
+      <p className="music-book3d__hint">좌우로 밀거나 버튼을 누르면 전환됩니다.</p>
     </section>
   );
 }
@@ -175,6 +256,7 @@ export default function MusicPage() {
               year: year.year,
               tracks,
               frontCover: getContentUrl(year.year, album.directory, album.cover || "cover.png"),
+              spineCover: getContentUrl(year.year, album.directory, album.coverSpine || album.cover || "cover.png"),
               backCover: getContentUrl(year.year, album.directory, album.coverBack || "cover-back.png"),
             };
           }),
@@ -246,7 +328,7 @@ export default function MusicPage() {
 
           {activeTrack ? (
             <article className="music-track-copy" key={`${activeAlbum.directory}-${activeTrack.directory}`}>
-              <p className="music-track-copy__number">Track. {activeTrack.index}</p>
+              <p className="music-track-copy__number">track. {activeTrack.index}</p>
               <div className="music-track-copy__heading">
                 <h2>{activeTrack.title}</h2>
                 {(activeTrack.url || activeTrack.youtube) && (
@@ -256,9 +338,19 @@ export default function MusicPage() {
                   </span>
                 )}
               </div>
-              {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
-              {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
               <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+              {activeTrack.credits && (
+                <section className="music-track-copy__section" aria-labelledby="track-credits-heading">
+                  <h3 id="track-credits-heading">credits</h3>
+                  <div>{activeTrack.creditParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+                </section>
+              )}
+              {activeTrack.lyricsText && (
+                <section className="music-track-copy__section music-track-copy__lyrics" aria-labelledby="track-lyrics-heading">
+                  <h3 id="track-lyrics-heading">lyrics</h3>
+                  <div>{activeTrack.lyricsParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+                </section>
+              )}
             </article>
           ) : (
             <article className="music-track-copy music-album-introduction" key={`${activeAlbum.directory}-introduction`}>

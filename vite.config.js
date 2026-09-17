@@ -50,6 +50,8 @@ async function createContentManifest() {
         directory: albumEntry.name,
         albumFile: albumFileNames.has("album.txt") ? "album.txt" : null,
         cover: ["cover.png", "cover.jpg", "cover.jpeg", "cover.webp"].find((file) => albumFileNames.has(file)) ?? null,
+        coverSpine: ["cover-spine.png", "cover-spine.jpg", "cover-spine.jpeg", "cover-spine.webp"].find((file) => albumFileNames.has(file)) ?? null,
+        coverBack: ["cover-back.png", "cover-back.jpg", "cover-back.jpeg", "cover-back.webp"].find((file) => albumFileNames.has(file)) ?? null,
         items: items.sort(byIndex),
       });
 
