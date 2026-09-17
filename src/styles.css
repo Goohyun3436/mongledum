@@ -270,6 +270,12 @@ body.is-music-page.is-music-header-scrolled::before {
   font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
 }
 
+.objects-page button,
+.object-detail button,
+.object-detail a {
+  cursor: pointer;
+}
+
 .objects-page__title {
   position: absolute;
   top: clamp(24px, 3.2vw, 52px);
@@ -2388,6 +2394,133 @@ body.is-music-page.is-music-header-scrolled::before {
   background: #ffffff;
 }
 
+.hall-of-fame {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  padding: clamp(16px, 4vw, 48px);
+  place-items: center;
+  background: rgba(19, 28, 34, 0.58);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.hall-of-fame__dialog {
+  position: relative;
+  display: flex;
+  width: min(680px, 100%);
+  height: min(760px, calc(100svh - clamp(32px, 8vw, 96px)));
+  overflow: hidden;
+  flex-direction: column;
+  color: #1d2b34;
+  background: #f5efe4 url("/assets/main/hall-of-fame-bg.png") center / 100% 100% no-repeat;
+  border: 1px solid rgba(52, 57, 60, 0.88);
+  border-radius: 14px;
+  box-shadow: 0 28px 80px rgba(8, 24, 34, 0.32);
+}
+
+.hall-of-fame__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: clamp(26px, 5vh, 52px) clamp(24px, 7vw, 68px) 12px;
+  overflow: hidden;
+  background: rgba(255, 252, 245, 0.12);
+  text-align: center;
+}
+
+.hall-of-fame__eyebrow {
+  margin: 0 0 8px;
+  color: #56849c;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+}
+
+.hall-of-fame__content h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 6vh, 3.15rem);
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+
+.hall-of-fame__message {
+  margin: clamp(10px, 2vh, 18px) auto 8px;
+  color: #68808e;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.hall-of-fame__tumblbug {
+  display: inline-flex;
+  margin: 0 0 clamp(14px, 2.5vh, 24px);
+  padding-bottom: 2px;
+  gap: 6px;
+  align-items: center;
+  color: #397b9d;
+  border-bottom: 1px solid currentColor;
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
+.hall-of-fame__tumblbug svg { flex: 0 0 auto; font-size: 0.92rem; }
+
+.hall-of-fame__tumblbug:hover,
+.hall-of-fame__tumblbug:focus-visible { color: #175f84; }
+
+.hall-of-fame__names {
+  margin: 0;
+  color: #273942;
+  font-family: "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-size: clamp(0.64rem, 1.55vh, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  line-height: 1.72;
+  word-break: keep-all;
+}
+
+@media (min-width: 761px) {
+  .hall-of-fame__names {
+    font-size: 1rem;
+    line-height: 1.68;
+  }
+}
+
+.hall-of-fame__actions {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 1fr 1fr;
+  background: transparent;
+}
+
+.hall-of-fame__actions button,
+.hall-of-fame__hide-today {
+  display: flex;
+  min-height: 48px;
+  padding: 10px 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.76rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
+}
+
+.hall-of-fame__actions input { width: 14px; height: 14px; margin: 0; accent-color: #4c8ba9; cursor: pointer; }
+.hall-of-fame__actions button { cursor: pointer; }
+.hall-of-fame__actions button { border-left: 0; }
+.hall-of-fame__actions input:focus-visible { outline: 2px solid #176f9d; outline-offset: 3px; }
+.hall-of-fame__actions button:focus,
+.hall-of-fame__actions button:focus-visible { outline: none !important; box-shadow: none !important; }
+
 .home-page__hero,
 .pool-scene {
   position: relative;
@@ -2726,7 +2859,7 @@ body.is-music-page.is-music-header-scrolled::before {
     left: 0;
     z-index: 2;
     width: 3px;
-    opacity: 0.8;
+    opacity: 0.58;
     background: #000000;
     box-shadow: 5px 0 0 #000000;
     content: "";

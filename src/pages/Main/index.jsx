@@ -1,5 +1,45 @@
+import { useEffect, useRef, useState } from "react";
+import { FaPeopleGroup } from "react-icons/fa6";
 import HomeContentSections from "../../components/HomeContentSections";
 import PoolSection from "../../components/PoolSection";
+
+const HALL_OF_FAME_STORAGE_KEY = "mongledum-hall-of-fame-hidden-date";
+const hallOfFameNames = '감희경 강민재 게토얼라이브 고선 공서연 권민식 규리 규찬 기리 기타루맨 김남규 김도겸 김민서 김민서 김민정 김석영 김수민 김언 김예림 김은섭 김주리 남상혁 더라우너 도레미 도움받는 기분 듀듀 리베라스튜디오 리얼가든 미르스 민주 밍이 박경욱 박상현 박선아 박채원 백가은 북아재 서준우 서혜린 송연조 수피 숙원 슌 스리 승민 승은책방초록 신영태 심연 심채연 안수연 안우정 영실 오가람 오양진 오은경 유윤선 유진 윤영 이동현 이엔 이영숙 이영우 이용직 이은지 이츠릿 장선영 재희 전상수 정계순 정소영 정용한 정우 정윤서 정준호 정지윤 조동희 조병기 조성덕 조하연 주수연 주원 주헤 지금처럼만 지우개 지원 채병헌 천새람 최지원 최형규 태관 풀꽃 하나린 하명희 한교원 해선 현서 후원너구리 흐이지니 희찬 307hsw Barnard dnam2357 iden**** jjinseo**** kbh94**** peace2951 wld**** "???"';
+
+function getLocalDateKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function HallOfFameModal({ onClose, onHideToday }) {
+  const closeButtonRef = useRef(null);
+  const [hideToday, setHideToday] = useState(false);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="hall-of-fame" role="presentation">
+      <section className="hall-of-fame__dialog" role="dialog" aria-modal="true" aria-labelledby="hall-of-fame-title">
+        <div className="hall-of-fame__content">
+          <p className="hall-of-fame__eyebrow">Thanks to</p>
+          <h2 id="hall-of-fame-title">명예의 전당</h2>
+          <p className="hall-of-fame__message">몽글덤의 곁에서 마음을 보태주신 모든 분께 감사드립니다.</p>
+          <a className="hall-of-fame__tumblbug" href="https://airbridge.tumblbug.com/9ls774" target="_blank" rel="noreferrer"><FaPeopleGroup aria-hidden="true" />텀블벅 ↗</a>
+          <p className="hall-of-fame__names">{hallOfFameNames}</p>
+        </div>
+        <div className="hall-of-fame__actions">
+          <div className="hall-of-fame__hide-today">
+            <input type="checkbox" checked={hideToday} aria-label="오늘 하루 보지 않기" onChange={(event) => setHideToday(event.target.checked)} />
+            <span>오늘 하루 보지 않기</span>
+          </div>
+          <button ref={closeButtonRef} type="button" onClick={hideToday ? onHideToday : onClose}>닫기</button>
+        </div>
+      </section>
+    </div>
+  );
+}
 
 const staffLines = [
   "사람은백년남짓살다죽는다왜그렇게들서로조금씩다른것가지고뭐라들하는지어짜피죽으면다부질없는걸너네는너네들이탄배에나는우리들이탄배에남의배부여잡고흔들지말고각자의노나열심히저었으면만약배에서떨어져도다시올라탈게난너에게돌아가는사람햇빛옆에나란하게놓이는바람마음의높이를맞춰한걸음만더내디디면눈부신자리모두사라질텐데너의곁에잠시머무는게왜그리힘들었나그래도우린안녕이란말을닮아서오래오래반가울거야이렇게볕이좋은날엔나의사랑을전부들키게될거야한밤만더자고나면",
@@ -19,6 +59,25 @@ const scoreNotes = [
 ];
 
 export default function MainPage() {
+  const [isHallOfFameOpen, setIsHallOfFameOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      setIsHallOfFameOpen(localStorage.getItem(HALL_OF_FAME_STORAGE_KEY) !== getLocalDateKey());
+    } catch {
+      setIsHallOfFameOpen(true);
+    }
+  }, []);
+
+  const hideHallOfFameToday = () => {
+    try {
+      localStorage.setItem(HALL_OF_FAME_STORAGE_KEY, getLocalDateKey());
+    } catch {
+      // The popup can still be closed when storage is unavailable.
+    }
+    setIsHallOfFameOpen(false);
+  };
+
   const openMember = (name) => {
     window.history.pushState({}, "", `/about?member=${name}`);
     window.dispatchEvent(new PopStateEvent("popstate"));
@@ -27,6 +86,7 @@ export default function MainPage() {
 
   return (
     <main className="home-page">
+      {isHallOfFameOpen && <HallOfFameModal onClose={() => setIsHallOfFameOpen(false)} onHideToday={hideHallOfFameToday} />}
       <section className="home-page__hero">
         <div className="home-stage">
           <div className="home-page__statement" aria-labelledby="home-title">
