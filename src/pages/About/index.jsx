@@ -4,11 +4,11 @@ import styled from "styled-components";
 
 const members = [
   { name: "구진", english: "Goo Jin", image: "/assets/profile/jin/main_001_zoom.jpg" },
-  { name: "박서음", english: "parkse0eum", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
-  { name: "이재균", english: "Lee Jaegyun", image: "/assets/profile/jeagyun/main_001_zoom.JPG" },
-  { name: "박재욱", english: "Park Jaewook", image: "/assets/profile/jaewook/main_001_zoom.jpg" },
-  { name: "전형우", english: "Jeon Hyeongwoo", image: "/assets/profile/hyeongu/main_001_zoom.jpg" },
   { name: "구현", english: "Goo Hyun", image: "/assets/profile/hyun/main_001_zoom.JPG" },
+  { name: "박서음", english: "parkse0eum", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
+  { name: "박재욱", english: "Park Jaewook", image: "/assets/profile/jaewook/main_001_zoom.jpg" },
+  { name: "이재균", english: "Lee Jaegyun", image: "/assets/profile/jeagyun/main_001_zoom.JPG" },
+  { name: "전형우", english: "Jeon Hyeongwoo", image: "/assets/profile/hyeongu/main_001_zoom.jpg" },
 ];
 
 function speakMongledum(member) {
@@ -452,23 +452,122 @@ const AboutPageLayout = styled.main`
 
   @media (max-width: 660px) {
     & {
-      padding: 24px 14px 52px;
+      padding: 12px 8px 36px;
     }
 
     .dictionary-entry {
-      padding: 24px 18px 32px;
+      padding: 16px 10px 24px;
+      box-shadow: 0 12px 28px rgba(35, 45, 55, 0.08);
+    }
+
+    .dictionary-entry__header h1 {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .dictionary-entry__part {
+      margin: 11px 0 4px;
+      font-size: 0.7rem;
+    }
+
+    .dictionary-entry__pronunciation {
+      gap: 7px;
+      font-size: 0.78rem;
+    }
+
+    .dictionary-entry__pronunciation button {
+      width: 28px;
+      height: 25px;
+      border-radius: 4px;
+    }
+
+    .pronunciation-list {
+      margin-top: 21px;
+    }
+
+    .pronunciation-list h2,
+    .dictionary-section h2 {
+      margin-bottom: 9px;
+      font-size: 0.7rem;
     }
 
     .pronunciation-list__items {
-      grid-template-columns: repeat(4, minmax(50px, 1fr));
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .pronunciation-list__items button {
+      gap: 4px;
+      font-size: 0.48rem;
+    }
+
+    .pronunciation-list__items button:first-child,
+    .pronunciation-list__portrait {
+      border-radius: 5px;
+    }
+
+    .pronunciation-list__items button:first-child svg {
+      font-size: 0.75rem;
+    }
+
+    .pronunciation-list__items button:not(:first-child) > span:last-child {
+      font-size: 0;
+    }
+
+    .pronunciation-list__items button > span:last-child strong {
+      font-size: 0.48rem;
+      line-height: 1.2;
+    }
+
+    .pronunciation-list__guide {
+      margin-top: 15px;
+      font-size: 0.65rem;
+      line-height: 1.55;
+    }
+
+    .dictionary-section {
+      margin-top: 22px;
+      padding-top: 16px;
     }
 
     .dictionary-forms dl {
       grid-template-columns: minmax(0, 1fr);
+      gap: 7px;
+      font-size: 0.67rem;
+    }
+
+    .dictionary-forms dl > div {
+      grid-template-columns: minmax(90px, 0.8fr) 1fr;
+      gap: 8px;
     }
 
     .dictionary-meaning li {
-      gap: 8px;
+      gap: 6px;
+    }
+
+    .dictionary-meaning ol {
+      gap: 20px;
+    }
+
+    .dictionary-meaning strong {
+      font-size: 0.74rem;
+    }
+
+    .dictionary-meaning p,
+    .dictionary-usage p,
+    .dictionary-etymology p {
+      margin-top: 4px;
+      font-size: 0.67rem;
+      line-height: 1.5;
+    }
+
+    .dictionary-meaning .dictionary-example {
+      margin-top: 10px;
+    }
+
+    .dictionary-usage p + p,
+    .dictionary-etymology p + p {
+      margin-top: 12px;
     }
   }
 `;
