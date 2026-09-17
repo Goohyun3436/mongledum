@@ -74,7 +74,7 @@ export default function EssayPage() {
                 name: info.name || "",
                 musicTitle: item.hasMusic ? item.title : "",
                 coverUrl: getContentUrl(year.year, album.directory, item.directory, "cover-essay.png"),
-                detailCoverUrl: getContentUrl(year.year, album.directory, item.directory, "cover-essay-detail.png"),
+                detailCoverUrl: getContentUrl(year.year, album.directory, item.directory, "cover.png"),
               };
             }),
           ),

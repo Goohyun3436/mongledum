@@ -2801,34 +2801,35 @@ body.is-music-page.is-music-header-scrolled::before {
 .contact-page__header { display: flex; justify-content: space-between; gap: 32px; align-items: flex-start; padding-bottom: clamp(54px, 8vw, 120px); }
 .contact-page__header h1 { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: clamp(2.35rem, 3.5vw, 4rem); font-weight: 900; letter-spacing: -0.06em; line-height: 1; text-transform: lowercase; }
 .contact-page__copy { max-width: 38rem; margin: 0; color: #747b80; font-size: clamp(0.82rem, 1vw, 1rem); line-height: 1.65; text-align: right; word-break: keep-all; }
-.contact-links { border-top: 1px solid #cfd4d7; }
-.contact-links > a { display: grid; grid-template-columns: 44px 34px minmax(180px, 1fr) 28px; gap: clamp(12px, 2vw, 30px); min-height: clamp(105px, 10vw, 150px); padding: 22px 0; align-items: center; color: inherit; border-bottom: 1px solid #cfd4d7; text-decoration: none; }
+.contact-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #cfd4d7; }
+.contact-links > a { display: grid; grid-template-columns: 34px minmax(0, 1fr) 28px; gap: clamp(10px, 1.3vw, 20px); min-height: clamp(78px, 7vw, 100px); padding: 16px 12px; align-items: center; color: inherit; border-bottom: 1px solid #cfd4d7; text-decoration: none; }
+.contact-links > a:nth-child(odd) { border-right: 1px solid #cfd4d7; }
 .contact-links > a { cursor: pointer; transition: padding 180ms ease, color 180ms ease, background 180ms ease; }
 .contact-links > a:hover,
 .contact-links > a:focus-visible { padding-inline: 18px; color: #247fae; background: #f3f9fb; }
-.contact-links__number { color: #939da3; font-size: 0.7rem; letter-spacing: 0.08em; }
 .contact-links__icon { width: 24px; height: 24px; }
 .contact-links__content { display: flex; min-width: 0; flex-direction: column; gap: 7px; }
-.contact-links__content strong { font-size: clamp(1.1rem, 1.5vw, 1.6rem); letter-spacing: -0.035em; line-height: 1; }
-.contact-links__content small { color: #7d888e; font-size: 0.72rem; }
+.contact-links__content strong { overflow: hidden; font-size: clamp(1.1rem, 1.5vw, 1.6rem); letter-spacing: -0.035em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+.contact-links__content small { overflow: hidden; color: #7d888e; font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
 .contact-links__arrow { width: 22px; height: 22px; transition: transform 180ms ease; }
 .contact-links > a:hover .contact-links__arrow,
 .contact-links > a:focus-visible .contact-links__arrow { transform: translate(3px, -3px); }
 
 @media (max-width: 760px) {
-  .contact-page { min-height: calc(100svh - var(--site-header-height)); padding: 24px 18px 64px; }
-  .contact-page__header { align-items: flex-start; flex-direction: column; gap: 24px; padding-bottom: 48px; }
-  .contact-page__header h1 { font-size: 2.35rem; }
-  .contact-page__copy { max-width: 21rem; font-size: 0.84rem; line-height: 1.85; text-align: left; }
-  .contact-links > a { grid-template-columns: 26px 24px minmax(0, 1fr) 20px; column-gap: 12px; min-height: 104px; padding: 24px 4px; align-items: center; }
-  .contact-links__number { padding-top: 4px; font-size: 0.64rem; }
-  .contact-links__icon { width: 21px; height: 21px; margin-top: 1px; }
-  .contact-links__content { gap: 6px; }
-  .contact-links__content strong { font-size: 1.15rem; }
-  .contact-links__content small { font-size: 0.68rem; }
-  .contact-links__arrow { width: 19px; height: 19px; justify-self: end; }
+  .contact-page { min-height: calc(100svh - var(--site-header-height)); padding: 18px 18px 48px; }
+  .contact-page__header { align-items: flex-start; flex-direction: column; gap: 14px; padding-bottom: 26px; }
+  .contact-page__header h1 { font-size: 1.85rem; }
+  .contact-page__copy { max-width: 21rem; font-size: 0.76rem; line-height: 1.75; text-align: left; }
+  .contact-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact-links > a { grid-template-columns: 17px minmax(0, 1fr) 12px; column-gap: 6px; min-height: 62px; padding: 9px 8px; align-items: center; }
+  .contact-links > a:nth-child(odd) { border-right: 1px solid #cfd4d7; }
+  .contact-links__icon { width: 17px; height: 17px; margin-top: 1px; }
+  .contact-links__content { gap: 2px; }
+  .contact-links__content strong { font-size: clamp(0.68rem, 3.2vw, 0.82rem); text-transform: lowercase; }
+  .contact-links__content small { font-size: clamp(0.5rem, 2.35vw, 0.58rem); text-transform: lowercase; }
+  .contact-links__arrow { width: 14px; height: 14px; justify-self: end; }
   .contact-links > a:hover,
-  .contact-links > a:focus-visible { padding-inline: 4px; }
+  .contact-links > a:focus-visible { padding-inline: 8px; }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -3079,7 +3080,7 @@ body.is-music-page.is-music-header-scrolled::before {
   .essay-card__meta small { font-size: 0.62rem; }
   .essay-reading-modal { padding: 0; }
   .essay-demo-book { width: calc(100vw - 16px); height: min(660px, calc(100vh - 16px)); gap: 7px; }
-  .essay-reading-modal__close { top: 10px; right: 12px; width: 38px; height: 38px; font-size: 1.25rem; }
+  .essay-reading-modal__close { top: 8px; right: 10px; width: 30px; height: 30px; font-size: 0.95rem; }
   .essay-open-book__title-inner { padding: 28px 24px; }
   .essay-open-book__title-inner h2 { font-size: clamp(1.8rem, 9vw, 3rem); }
   .essay-open-book__text-inner { padding: 26px 21px 40px; font-size: clamp(0.72rem, 3vw, 0.9rem); line-height: 1.72; }
@@ -3160,6 +3161,7 @@ body.is-music-page.is-music-header-scrolled::before {
   font: inherit;
   font-size: 0.82rem;
 }
+.essay-detail__music svg { flex: 0 0 auto; font-size: 1.3rem; }
 .essay-detail__divider { width: 100%; height: 1px; margin: clamp(50px, 8vh, 100px) 0; background: #d7d7d7; }
 .essay-detail__body {
   width: min(760px, 100%);
@@ -3182,7 +3184,7 @@ body.is-music-page.is-music-header-scrolled::before {
     gap: 38px;
   }
   .essay-detail__cover img { max-height: 58vh; }
-  .essay-detail__info h1 { font-size: clamp(1.7rem, 8vw, 2.8rem); }
+  .essay-detail__info h1 { font-size: clamp(1.3rem, 6vw, 1.8rem); }
   .essay-detail__info dl { margin-top: 28px; }
   .essay-detail__divider { margin: 56px 0; }
   .essay-detail__body { font-size: 1rem; line-height: 1.9; }
