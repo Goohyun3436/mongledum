@@ -26,6 +26,10 @@ function getPathname() {
   return pathname || "/";
 }
 
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 760px)").matches;
+}
+
 function PageImageGate({ routeKey, children }) {
   const gateRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
@@ -155,7 +159,7 @@ export default function App() {
   }, [hasFixedContentScroll]);
 
   const moveDiggingCursor = (event) => {
-    if (!hasDiggingCursor || !diggingCursorRef.current) return;
+    if (!hasDiggingCursor || !diggingCursorRef.current || isMobileViewport()) return;
     if (event.target.closest?.(".site-header")) {
       diggingCursorRef.current.classList.remove("is-visible");
       return;
@@ -171,10 +175,10 @@ export default function App() {
   return (
     <div
       className="site-shell"
-      onPointerEnter={(event) => hasDiggingCursor && !event.target.closest?.(".site-header") && diggingCursorRef.current?.classList.add("is-visible")}
+      onPointerEnter={(event) => hasDiggingCursor && !isMobileViewport() && !event.target.closest?.(".site-header") && diggingCursorRef.current?.classList.add("is-visible")}
       onPointerLeave={() => diggingCursorRef.current?.classList.remove("is-visible")}
       onPointerMove={moveDiggingCursor}
-      onPointerDownCapture={(event) => hasDiggingCursor && !event.target.closest?.(".site-header") && playDigAnimation(diggingCursorRef.current, event)}
+      onPointerDownCapture={(event) => hasDiggingCursor && !isMobileViewport() && !event.target.closest?.(".site-header") && playDigAnimation(diggingCursorRef.current, event)}
     >
       <Header currentPath={pathname} onNavigate={handleNavigate} />
       <PageImageGate key={pathname} routeKey={pathname}><Page /></PageImageGate>

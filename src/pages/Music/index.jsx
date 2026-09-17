@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PiDiscFill, PiYoutubeLogoFill } from "react-icons/pi";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
 const BOOK_VIEWS = {
@@ -7,6 +8,12 @@ const BOOK_VIEWS = {
   back: { angle: 194, label: "뒤표지" },
 };
 const BOOK_VIEW_ORDER = ["front", "spine", "back"];
+
+function formatReleaseDate(value = "") {
+  const match = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!match) return value;
+  return `${match[1]}년 ${match[2].padStart(2, "0")}월 ${match[3].padStart(2, "0")}일`;
+}
 
 function AlbumBook3D({ album }) {
   const [view, setView] = useState("front");
@@ -161,6 +168,10 @@ export default function MusicPage() {
             return {
               ...album,
               ...albumInfo,
+              title: album.title,
+              introductionTitle: albumInfo.title || "",
+              introductionAuthor: albumInfo.author || "",
+              introductionAuthorUrl: albumInfo.author_url || "",
               year: year.year,
               tracks,
               frontCover: getContentUrl(year.year, album.directory, album.cover || "cover.png"),
@@ -184,7 +195,7 @@ export default function MusicPage() {
         const requestedTrack = params.get("track");
         const requestedTrackIndex = loadedAlbums[initialAlbumIndex]?.tracks.findIndex((track) => track.directory === requestedTrack) ?? -1;
         setActiveAlbumIndex(initialAlbumIndex);
-        setActiveTrackIndex(requestedTrackIndex >= 0 ? requestedTrackIndex : 0);
+        setActiveTrackIndex(requestedTrackIndex >= 0 ? requestedTrackIndex : -1);
         setStatus("ready");
       })
       .catch((error) => { if (error.name !== "AbortError") setStatus("error"); });
@@ -194,15 +205,16 @@ export default function MusicPage() {
   const activeAlbum = albums[activeAlbumIndex];
   const tracks = activeAlbum?.tracks ?? [];
   const activeTrack = tracks[activeTrackIndex];
+  const displayedDate = formatReleaseDate(activeAlbum?.release_date ?? activeTrack?.date ?? tracks.find((track) => track.date)?.date);
 
   const selectAlbum = (index) => {
     setActiveAlbumIndex(index);
-    setActiveTrackIndex(0);
+    setActiveTrackIndex(-1);
   };
   const moveTrack = (direction) => setActiveTrackIndex((current) => (current + direction + tracks.length) % tracks.length);
 
   if (status === "loading") return <main className="music-page"><p className="music-page__status">음악을 펼치는 중...</p></main>;
-  if (status === "error" || !activeAlbum || !activeTrack) return <main className="music-page"><p className="music-page__status">음악을 불러오지 못했습니다.</p></main>;
+  if (status === "error" || !activeAlbum || tracks.length === 0) return <main className="music-page"><p className="music-page__status">음악을 불러오지 못했습니다.</p></main>;
 
   return (
     <main className="music-page">
@@ -214,41 +226,64 @@ export default function MusicPage() {
 
       <div className="music-album-layout">
         <AlbumBook3D album={activeAlbum} />
-        <header className="music-intro music-intro--side">
-          <h1>{activeAlbum.title}</h1>
-          <p className="music-intro__subtitle">{activeAlbum.year} · {activeAlbum.index}</p>
-          <span className="music-intro__line" aria-hidden="true" />
-          <div className="music-intro__description">{(activeAlbum.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
-        </header>
-      </div>
+        <div className="music-album-info">
+          <header className="music-intro music-intro--side">
+            <h1>{activeAlbum.title}</h1>
+            {displayedDate && <p className="music-intro__subtitle">{displayedDate}</p>}
+          </header>
 
-      <section className="music-track-panel music-track-panel--below" aria-label={`${activeAlbum.title} 수록곡`}>
+          <section className="music-track-panel" aria-label={`${activeAlbum.title} 수록곡`}>
           <div className="music-track-panel__list" role="tablist" aria-label="곡 선택">
+            <button type="button" role="tab" data-label="앨범소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
+              앨범소개글
+            </button>
             {tracks.map((track, index) => (
-              <button type="button" role="tab" aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
+              <button type="button" role="tab" data-label={`${track.index} ${track.title}`} aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
                 <span>{track.index}</span>{track.title}
               </button>
             ))}
           </div>
 
-          <article className="music-track-copy" key={`${activeAlbum.directory}-${activeTrack.directory}`}>
-            <p className="music-track-copy__number">Track. {activeTrack.index}</p>
-            <h2>{activeTrack.title}</h2>
-            {activeTrack.date && <p className="music-track-copy__date">{activeTrack.date}</p>}
-            {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
-            {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
-            <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
-            {activeTrack.youtube && <a href={activeTrack.youtube} target="_blank" rel="noreferrer">{activeTrack.title} 들으러 가기 ↗</a>}
-          </article>
+          {activeTrack ? (
+            <article className="music-track-copy" key={`${activeAlbum.directory}-${activeTrack.directory}`}>
+              <p className="music-track-copy__number">Track. {activeTrack.index}</p>
+              <div className="music-track-copy__heading">
+                <h2>{activeTrack.title}</h2>
+                {(activeTrack.url || activeTrack.youtube) && (
+                  <span className="music-track-copy__links">
+                    {activeTrack.url && <a className="music-track-copy__listen" href={activeTrack.url} target="_blank" rel="noreferrer"><PiDiscFill aria-hidden="true" />들으러 가기 ↗</a>}
+                    {activeTrack.youtube && <a className="music-track-copy__listen music-track-copy__listen--youtube" href={activeTrack.youtube} target="_blank" rel="noreferrer"><PiYoutubeLogoFill aria-hidden="true" />보러 가기 ↗</a>}
+                  </span>
+                )}
+              </div>
+              {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
+              {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
+              <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+            </article>
+          ) : (
+            <article className="music-track-copy music-album-introduction" key={`${activeAlbum.directory}-introduction`}>
+              {activeAlbum.introductionAuthor && (
+                <p className="music-album-introduction__author">
+                  {activeAlbum.introductionAuthorUrl ? (
+                    <a href={activeAlbum.introductionAuthorUrl} target="_blank" rel="noreferrer">{activeAlbum.introductionAuthor} ↗</a>
+                  ) : activeAlbum.introductionAuthor}
+                </p>
+              )}
+              {activeAlbum.introductionTitle && <h2>{activeAlbum.introductionTitle}</h2>}
+              <div className="music-track-copy__description">{(activeAlbum.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+            </article>
+          )}
 
-          {tracks.length > 1 && (
+          {activeTrack && tracks.length > 1 && (
             <div className="music-track-panel__navigation">
               <button type="button" onClick={() => moveTrack(-1)}>이전 곡</button>
               <span>{activeTrackIndex + 1} / {tracks.length}</span>
               <button type="button" onClick={() => moveTrack(1)}>다음 곡</button>
             </div>
           )}
-      </section>
+          </section>
+        </div>
+      </div>
     </main>
   );
 }
