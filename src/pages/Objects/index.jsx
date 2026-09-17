@@ -316,7 +316,12 @@ function MetaballBubbleMesh({ interactionRef }) {
 function BubbleCamera({ hostRef }) {
   useFrame(({ camera, size }) => {
     const hostHeight = hostRef.current?.offsetHeight || 500;
-    const nextZ = 3.55 * (size.height / hostHeight);
+    const hostWidth = hostRef.current?.offsetWidth || 500;
+    const isMobile = window.matchMedia("(max-width: 760px)").matches;
+    const bubbleDiameter = isMobile
+      ? Math.min(hostWidth, hostHeight)
+      : Math.min(Math.max(hostWidth * 0.38, 320), 560, Math.max(hostHeight - 120, 1));
+    const nextZ = 3.55 * (size.height / bubbleDiameter);
     if (Math.abs(camera.position.z - nextZ) < 0.001) return;
     camera.position.z = nextZ;
     camera.updateProjectionMatrix();
@@ -496,9 +501,9 @@ export default function ObjectsPage() {
   }
 
   return (
-    <main className="objects-page">
+    <main className={`objects-page${isAlbum ? "" : " objects-page--landing"}`}>
       <section className="objects-playground" aria-label="오브젝트 비눗방울">
-        {isAlbum && <button className="objects-playground__back" type="button" onClick={closeObjects}>← 뒤로가기</button>}
+        {isAlbum && <button className="objects-playground__back" type="button" aria-label="뒤로가기" onClick={closeObjects}>← <span>뒤로가기</span></button>}
         {albumTitle && <p className={`objects-playground__hint is-album-title${isAlbum ? "" : " is-bubble-title"}`}>{albumTitle}</p>}
         {!isAlbum ? (
           <button ref={bubbleButtonRef} className={`objects-bubble objects-bubble--collection${isPopping ? " is-popping" : ""}`} type="button" aria-label="비눗방울 터뜨리기" onClick={openBubble} onPointerMove={moveBubble} onPointerLeave={leaveBubble}>

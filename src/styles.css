@@ -54,6 +54,7 @@ body.has-fixed-content-scroll .home-page,
 body.has-fixed-content-scroll .about-page,
 body.has-fixed-content-scroll .music-page,
 body.has-fixed-content-scroll .contact-page,
+body.has-fixed-content-scroll .objects-page,
 body.has-fixed-content-scroll .object-detail {
   height: 100%;
   min-height: 0;
@@ -73,6 +74,20 @@ body.has-fixed-content-scroll .about-page {
 
 body.has-fixed-content-scroll .contact-page {
   padding-top: calc(var(--site-header-height) + clamp(30px, 3.2vw, 52px));
+}
+
+body.has-fixed-content-scroll .objects-page {
+  padding-top: calc(var(--site-header-height) + var(--objects-top-space));
+}
+
+body.has-fixed-content-scroll .objects-page--landing {
+  overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-gutter: auto;
+}
+
+body.has-fixed-content-scroll .objects-page--landing .objects-playground {
+  overflow: clip;
 }
 
 body.has-fixed-content-scroll .object-detail {
@@ -245,6 +260,7 @@ body.is-music-page.is-music-header-scrolled::before {
 
 .objects-page {
   --objects-top-space: clamp(18px, 2.4vw, 34px);
+  --objects-collection-size: min(clamp(320px, 38vw, 560px), calc(100svh - var(--site-header-height) - var(--objects-top-space) - 120px));
   position: relative;
   flex: 1;
   min-height: calc(100svh - var(--site-header-height));
@@ -278,6 +294,18 @@ body.is-music-page.is-music-header-scrolled::before {
   background: #ffffff;
   box-shadow: none;
   isolation: isolate;
+}
+
+.objects-page--landing {
+  height: 100svh;
+  min-height: 0;
+  padding-top: var(--objects-top-space);
+  overflow: hidden;
+}
+
+.objects-page--landing .objects-playground {
+  height: 100%;
+  min-height: 0;
 }
 
 .objects-playground::before {
@@ -320,7 +348,7 @@ body.is-music-page.is-music-header-scrolled::before {
 }
 
 .objects-playground__hint.is-bubble-title {
-  top: calc(51% - clamp(195px, 24vw, 340px) - 30px);
+  top: max(16px, calc(51% - var(--objects-collection-size) / 2 - 30px));
 }
 
 .objects-playground__back {
@@ -332,6 +360,7 @@ body.is-music-page.is-music-header-scrolled::before {
   height: 28px;
   padding: 0;
   align-items: center;
+  gap: 7px;
   color: #111111;
   background: transparent;
   border: 0;
@@ -385,9 +414,13 @@ body.is-music-page.is-music-header-scrolled::before {
 .objects-bubble--sm { --bubble-size: clamp(110px, 13vw, 200px); }
 .objects-bubble--lg { --bubble-size: clamp(160px, 20vw, 300px); }
 .objects-bubble--collection {
-  --bubble-size: clamp(390px, 48vw, 680px);
+  --bubble-size: var(--objects-collection-size);
   top: 51%;
   left: 50%;
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  aspect-ratio: auto;
   overflow: visible;
   background: transparent;
   border-radius: 50%;
@@ -453,12 +486,10 @@ body.is-music-page.is-music-header-scrolled::before {
 }
 
 .objects-bubble--collection > .objects-bubble__webgl {
-  inset: auto;
-  top: 50%;
-  left: 50%;
-  width: 100vw;
-  height: calc(100svh - var(--site-header-height));
-  transform: translate(-50%, -50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
 }
 
 .objects-bubble__webgl canvas { display: block; width: 100% !important; height: 100% !important; }
@@ -471,6 +502,15 @@ body.is-music-page.is-music-header-scrolled::before {
   opacity: 1;
   transform: rotate(var(--object-rotate, -5deg));
   animation: objects-contained-wobble 2.6s ease-in-out infinite alternate;
+}
+
+.objects-bubble--collection .objects-bubble__products {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: var(--objects-collection-size);
+  height: var(--objects-collection-size);
+  transform: translate(calc(-50% + var(--object-push-x, 0px)), calc(-50% + var(--object-push-y, 0px))) scaleX(1.015) scaleY(0.985);
 }
 
 .objects-bubble--collection .objects-bubble__products img:nth-child(even) { --object-rotate: 7deg; animation-delay: -1.15s; animation-duration: 3.1s; }
@@ -1013,6 +1053,19 @@ body.is-music-page.is-music-header-scrolled::before {
 
 @media (prefers-reduced-motion: reduce) {
   .music-track-copy { animation: none; }
+}
+
+@media (min-width: 761px) {
+  .objects-bubble--collection .objects-bubble__products {
+    width: min(28vw, 400px);
+    height: min(28vw, 400px);
+    gap: 1%;
+  }
+
+  .objects-bubble--collection .objects-bubble__products img {
+    width: 72%;
+    height: 72%;
+  }
 }
 
 .essay-page {
@@ -2877,6 +2930,8 @@ body.is-music-page.is-music-header-scrolled::before {
 @media (min-width: 761px) and (max-width: 1263px) {
   .objects-page { overflow-y: auto; }
   .objects-playground { height: auto; min-height: calc(100svh - var(--site-header-height)); }
+  .objects-page--landing { overflow: hidden; }
+  .objects-page--landing .objects-playground { height: 100%; min-height: 0; }
   .objects-revealed-list {
     --object-image-height: 190px;
     position: relative;
@@ -2919,20 +2974,43 @@ body.is-music-page.is-music-header-scrolled::before {
     height: calc(var(--site-header-height) + 72px);
   }
 
+  body.has-fixed-content-scroll .objects-page {
+    height: 100%;
+    padding-top: calc(var(--site-header-height) + var(--objects-top-space));
+  }
+
+  .objects-page--landing {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100svh;
+    min-height: 0;
+    padding-top: calc(var(--site-header-height) + var(--objects-top-space));
+    overscroll-behavior: none;
+  }
+
   .objects-page { overflow-y: auto; }
   .objects-playground { height: auto; min-height: 760px; }
+  .objects-page--landing { overflow: clip; }
+  .objects-page--landing .objects-playground { height: 100%; min-height: 0; overflow: clip; }
   .objects-page__title { top: 30px; left: 18px; font-size: 2.35rem; }
   .objects-playground__hint { top: 15%; width: 100%; text-align: center; }
-  .objects-playground__hint.is-bubble-title { top: calc(48% - min(44vw, 215px) - 28px); }
+  .objects-playground__hint.is-album-title { justify-content: center; text-align: center; }
+  .objects-playground__hint.is-bubble-title { top: max(12px, calc(48% - var(--objects-collection-size) / 2 - 28px)); }
   .objects-bubbles { inset: 17% 4% 25%; }
   .objects-bubble { --bubble-size: clamp(118px, 38vw, 170px); }
   .objects-bubble--sm { --bubble-size: clamp(94px, 29vw, 135px); }
   .objects-bubble--lg { --bubble-size: clamp(135px, 43vw, 190px); }
-  .objects-bubble--collection { --bubble-size: min(88vw, 430px); top: 48%; }
+  .objects-page { --objects-collection-size: min(104vw, 520px, calc(100svh - var(--site-header-height) - var(--objects-top-space) - 52px)); }
+  .objects-bubble--collection { top: 50%; width: 100vw; max-width: none; height: 100%; aspect-ratio: auto; }
+  .objects-bubble--collection > .objects-bubble__webgl { inset: 0; width: 100%; height: 100%; transform: none; }
   .objects-bubble__products { inset: 16%; }
+  .objects-bubble--collection .objects-bubble__products { inset: auto; top: 50%; left: 50%; width: min(76vw, 380px); height: min(76vw, 380px); gap: 1%; transform: translate(calc(-50% + var(--object-push-x, 0px)), calc(-50% + var(--object-push-y, 0px))) scaleX(1.015) scaleY(0.985); }
+  .objects-bubble--collection .objects-bubble__products img { width: 72%; height: 72%; }
   .objects-playground__back { top: calc(16px - var(--objects-top-space)); left: 18px; }
+  .objects-playground__back span { display: none; }
   .object-detail__back { top: calc(var(--site-header-height) + 16px); left: 18px; }
-  .objects-revealed-list { --object-image-height: 130px; position: relative; top: auto; left: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 30px; width: calc(100% - 36px); margin: 0 auto; padding: 170px 0 60px; overflow: visible; transform: none; animation: objects-mobile-list-in 240ms steps(4, end) both; }
+  .objects-revealed-list { --object-image-height: 130px; position: relative; top: auto; left: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 30px; width: calc(100% - 36px); margin: 0 auto; padding: 88px 0 60px; overflow: visible; transform: none; animation: objects-mobile-list-in 240ms steps(4, end) both; }
   .objects-revealed-list > button { grid-template-rows: auto var(--object-image-height) 3.2em auto; }
   .objects-revealed-list img { width: auto; max-width: none; height: var(--object-image-height); }
   .objects-revealed-list h2 { margin-top: 9px; font-size: 0.88rem; }

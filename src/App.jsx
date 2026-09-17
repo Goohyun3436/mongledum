@@ -138,7 +138,7 @@ export default function App() {
     || pathname === "/about"
     || pathname === "/music"
     || pathname === "/contact"
-    || (pathSegments[0] === "objects" && pathSegments.length >= 4);
+    || pathSegments[0] === "objects";
 
   useEffect(() => {
     document.documentElement.classList.toggle("has-digging-cursor", hasDiggingCursor);
