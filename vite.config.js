@@ -72,6 +72,13 @@ async function createContentManifest() {
             .map((entry) => entry.name)
             .sort((left, right) => left.localeCompare(right, "ko", { numeric: true }))
           : [];
+        const videosEntry = objectContents.find((entry) => entry.isDirectory() && entry.name === "videos");
+        const videos = videosEntry
+          ? (await readdir(path.join(objectPath, "videos"), { withFileTypes: true }))
+            .filter((entry) => entry.isFile() && /\.(mp4|webm|ogv)$/i.test(entry.name))
+            .map((entry) => entry.name)
+            .sort((left, right) => left.localeCompare(right, "ko", { numeric: true }))
+          : [];
 
         objects.push({
           index: objectMatch[1],
@@ -84,6 +91,7 @@ async function createContentManifest() {
           objectFile: fileNames.has("object.txt") ? "object.txt" : null,
           cover: ["cover.png", "cover.jpg", "cover.jpeg", "cover.webp", "cover.svg"].find((file) => fileNames.has(file)) ?? null,
           gallery,
+          videos,
         });
       }
     }

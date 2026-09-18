@@ -3,16 +3,16 @@ composition: 구진, 박서음, 이종훈, 이상훈
 lyrics: 박서음
 date: 2025-09-19
 url:
-youtube: https://youtu.be/jDTh3jdxxBw?si=blmUBHG3obdaiT_-
-youtube_music:
+youtube: https://www.youtube.com/watch?v=7B2TdQTgzAs
+youtube_music: 
 instagram:
-melon:
-apple_music:
-spotify:
-genie:
-bugs:
-vibe:
-flo:
+melon: https://www.melon.com/album/detail.htm?albumId=12124929
+apple_music: https://music.apple.com/kr/album/eternal-sunshine-single/1838861126
+spotify: https://open.spotify.com/album/5idGPo8JGlHX6u9RVaollf
+genie: https://www.genie.co.kr/detail/albumInfo?axnm=86734191
+bugs: https://music.bugs.co.kr/album/20756764
+vibe: https://vibe.naver.com/album/35272429
+flo: https://www.music-flo.com/detail/album/443438412/albumtrack
 ---
 [lyrics]
 난 너에게 돌아가는 사람

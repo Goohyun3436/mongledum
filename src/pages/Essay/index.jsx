@@ -6,7 +6,7 @@ const ESSAY_ROOT = "/docs";
 
 function renderInlineText(text, keyPrefix) {
   const normalizedText = text.replace(/\\\*/g, "*");
-  return normalizedText.split(/(\*\*.+?\*\*)/g).filter(Boolean).map((part, index) => {
+  return normalizedText.split(/(\*\*[\s\S]+?\*\*)/g).filter(Boolean).map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return <strong key={`${keyPrefix}-${index}`}>{part.slice(2, -2)}</strong>;
     }

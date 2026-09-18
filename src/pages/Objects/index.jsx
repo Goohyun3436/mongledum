@@ -6,6 +6,18 @@ import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
 import { PiDiscFill } from "react-icons/pi";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
+const POSTCARD_CAPTIONS = [
+  "날치의 꿈",
+  "거북이의 꿈",
+  "<그 순간에는 내가 있을게> 친구들",
+  "<그 순간에는 내가 있을게> 비하인드",
+  "물방울이 두근두근",
+  "같지 않은 것과 같잖은 것",
+  "diib",
+  "폭설 아래",
+  "네컷만화 <물방울의 꿈>",
+];
+
 function createBubbleEnvironment() {
   const palettes = [
     ["#f8fbff", "#8ec2de", "#ffd9ec"],
@@ -389,6 +401,7 @@ export default function ObjectsPage() {
             ...info,
             coverUrl: item.cover ? getObjectAsset(item, item.cover) : "",
             galleryUrls: item.gallery.map((image) => getObjectAsset(item, "images", image)),
+            videoUrls: (item.videos ?? []).map((video) => getObjectAsset(item, "videos", video)),
           };
         }));
       })
@@ -493,8 +506,22 @@ export default function ObjectsPage() {
           </div>
         </header>
 
-        {detailObject.galleryUrls.length > 0 && <section className="object-detail__life" aria-label={`${detailObject.title} 상세 이미지`}>
-          <div className="object-detail__gallery">{detailObject.galleryUrls.map((image, index) => <figure key={image}><img src={image} alt={`${detailObject.title} 사용 모습 ${index + 1}`} /></figure>)}</div>
+        {(detailObject.videoUrls.length > 0 || detailObject.galleryUrls.length > 0) && <section className="object-detail__life" aria-label={`${detailObject.title} 상세 미디어`}>
+          <div className="object-detail__gallery">
+            {detailObject.videoUrls.map((video, index) => (
+              <figure className="is-wide object-detail__video" key={video}>
+                <video src={video} autoPlay loop muted controls playsInline preload="auto" aria-label={`${detailObject.title} 영상 ${index + 1}`} />
+              </figure>
+            ))}
+            {detailObject.galleryUrls.map((image, index) => {
+            const caption = detailObject.type === "postcard-pack" ? POSTCARD_CAPTIONS[index] : "";
+            return (
+              <figure key={image}>
+                <img src={image} alt={caption || `${detailObject.title} 사용 모습 ${index + 1}`} />
+                {caption && <figcaption>{caption}</figcaption>}
+              </figure>
+            );
+          })}</div>
         </section>}
       </main>
     );
