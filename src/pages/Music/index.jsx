@@ -324,8 +324,8 @@ export default function MusicPage() {
           </header>
 
           <div className="music-track-panel__list" role="tablist" aria-label="곡 선택">
-            <button type="button" role="tab" data-label="앨범소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
-              앨범소개글
+            <button type="button" role="tab" data-label="앨범 소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
+              앨범 소개글
             </button>
             {tracks.map((track, index) => (
               <button type="button" role="tab" data-label={`${track.index} ${track.title}`} aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
@@ -354,10 +354,11 @@ export default function MusicPage() {
               <div className="music-track-copy__heading">
                 <h2>{activeTrack.title}</h2>
               </div>
-              {(activeTrack.composition || activeTrack.lyrics) && (
+              {(activeTrack.composition || activeTrack.lyrics || activeTrack.arrangement) && (
                 <div className="music-track-copy__credits-summary">
                   {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
                   {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
+                  {activeTrack.arrangement && <p className="music-track-copy__credit"><span>편곡</span>{activeTrack.arrangement}</p>}
                 </div>
               )}
               <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>

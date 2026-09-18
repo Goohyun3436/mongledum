@@ -1,6 +1,7 @@
 title: 1
 composition: 구진, 박서음, 이종훈, 이상훈
 lyrics: 박서음
+arrangement: mongledum
 date: 2025-09-19
 url:
 youtube: https://www.youtube.com/watch?v=7B2TdQTgzAs

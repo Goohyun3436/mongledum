@@ -1050,7 +1050,7 @@ body.is-music-page.is-music-header-scrolled::before {
 .music-track-copy__listen--youtube svg { transform: translateY(-1px); }
 .music-track-copy__date { margin: 0 0 20px; color: #888888; font-size: 0.72rem; }
 .music-track-copy__credits-summary { margin: 4px 0 0; }
-.music-track-copy__credit { display: grid; grid-template-columns: 34px minmax(0, 1fr); margin: 4px 0; color: #555555; font-size: 0.68rem; }
+.music-track-copy__credit { display: grid; grid-template-columns: 34px minmax(0, 1fr); margin: 4px 0; color: #555555; font-size: 0.74rem; }
 .music-track-copy__credit span { color: #999999; }
 .music-album-introduction__author { margin: 28px 0 0; color: #888888; font-size: 0.78rem; line-height: 1.2; text-align: right; }
 .music-album-introduction__author a { display: inline-block; padding-bottom: 3px; color: #247fae; border-bottom: 1px solid currentColor; font: inherit; text-decoration: none; }
@@ -1064,6 +1064,7 @@ body.is-music-page.is-music-header-scrolled::before {
 .music-track-copy__section p { margin: 0; }
 .music-track-copy__section p + p { margin-top: 14px; }
 .music-track-copy__lyrics div { font-size: clamp(1rem, 1.25vw, 1.22rem); line-height: 2; }
+.music-album-introduction .music-track-copy__description { font-size: clamp(1rem, 1.25vw, 1.22rem); }
 .music-track-panel__navigation { display: flex; padding-top: 18px; align-items: center; justify-content: space-between; border-top: 1px solid #d8d8d8; color: #777777; font-size: 0.7rem; }
 .music-track-panel__navigation button { padding: 3px 0; color: #111111; background: transparent; border: 0; border-bottom: 1px solid currentColor; font: inherit; cursor: pointer; }
 
@@ -1759,17 +1760,16 @@ body.is-music-page.is-music-header-scrolled::before {
 }
 
 .essay-catalog__grid {
-  display: flex;
+  display: grid;
   padding: 12px;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
-  justify-content: flex-start;
 }
 
 .essay-card {
   display: flex;
-  width: max-content;
+  width: 100%;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -1785,15 +1785,15 @@ body.is-music-page.is-music-header-scrolled::before {
 .essay-card__cover {
   position: relative;
   display: block;
-  width: auto;
-  height: clamp(220px, 26vw, 500px);
+  width: 100%;
+  height: auto;
   aspect-ratio: auto;
   overflow: visible;
   background: transparent;
   box-shadow: none;
   transition: transform 220ms ease;
 }
-.essay-card__cover img { display: block; width: auto; max-width: none; height: 100%; object-fit: contain; object-position: left top; }
+.essay-card__cover img { display: block; width: 100%; max-width: 100%; height: auto; object-fit: contain; object-position: left top; }
 .essay-noise-filter {
   position: absolute;
   width: 0;
@@ -2333,7 +2333,7 @@ body.is-music-page.is-music-header-scrolled::before {
   }
 
   .home-page__statement {
-    display: none;
+    display: block;
   }
 
   .serises-focus { height: auto; min-height: calc(100svh - var(--site-header-height)); overflow: visible; touch-action: pan-y; }
@@ -3036,22 +3036,32 @@ body.is-music-page.is-music-header-scrolled::before {
   }
 
   .home-stage {
+    --mobile-score-top: 12svh;
     width: 100%;
     height: 100%;
     aspect-ratio: auto;
   }
 
+  .home-page__statement {
+    top: clamp(18px, 3svh, 30px);
+    left: clamp(16px, 4.5vw, 22px);
+  }
+
+  .home-page__statement h1 {
+    font-size: clamp(0.85rem, 4.2vw, 1.05rem);
+  }
+
   .home-score {
     --score-inline-gutter: clamp(16px, 4.5vw, 22px);
     --staff-font-size: clamp(0.27rem, 1.15cqw, 0.34rem);
-    top: 3svh;
-    height: 74svh;
+    top: var(--mobile-score-top);
+    height: 68svh;
   }
 
   .home-score__lines {
     display: grid;
     grid-template-rows: repeat(4, 1fr);
-    row-gap: 7%;
+    row-gap: 3%;
   }
 
   .home-score__staff {
@@ -3092,11 +3102,11 @@ body.is-music-page.is-music-header-scrolled::before {
     height: 22%;
   }
 
-  .home-score__note--1 { --note-height: 14%; top: 67svh; left: 21%; }
-  .home-score__note--2 { --note-height: 11%; top: 29svh; left: 18%; }
-  .home-score__note--3 { --note-height: 10%; top: 48svh; left: 62%; }
-  .home-score__note--4 { --note-height: 16%; top: 44svh; left: 71%; }
-  .home-score__note--5 { --note-height: 15%; top: 10svh; left: 79%; }
+  .home-score__note--1 { --note-height: 14%; top: calc(var(--mobile-score-top) + 59svh); left: 21%; }
+  .home-score__note--2 { --note-height: 11%; top: calc(var(--mobile-score-top) + 24svh); left: 18%; }
+  .home-score__note--3 { --note-height: 10%; top: calc(var(--mobile-score-top) + 44svh); left: 60.5%; }
+  .home-score__note--4 { --note-height: 16%; top: calc(var(--mobile-score-top) + 38svh); left: 71%; }
+  .home-score__note--5 { --note-height: 15%; top: calc(var(--mobile-score-top) + 6svh); left: 79%; }
   .home-score__note--6 { --note-height: 8%; top: calc(93svh - var(--site-header-height)); left: 78%; }
 }
 
@@ -3657,7 +3667,7 @@ body.is-music-page.is-music-header-scrolled::before {
 }
 
 @media (max-width: 1100px) {
-  .essay-card__cover { height: clamp(190px, 32vw, 350px); }
+  .essay-card__cover { height: auto; }
 }
 
 @media (max-width: 760px) {
@@ -3671,9 +3681,10 @@ body.is-music-page.is-music-header-scrolled::before {
   .essay-filter__options button { padding: 9px 7px; font-size: 0.68rem; }
   .essay-catalog__reset { grid-column: 2; justify-self: end; }
   .essay-catalog__scroll { padding: 12px 8px 0; scroll-padding-top: 12px; }
-  .essay-catalog__grid { display: flex; gap: 20px; }
-  .essay-card__cover { height: clamp(150px, 48vw, 260px); }
-  .essay-card { gap: 0; }
+  .essay-catalog__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 8px; }
+  .essay-card { width: 100%; gap: 0; }
+  .essay-card__cover { width: 100%; height: auto; }
+  .essay-card__cover img { width: 100%; max-width: 100%; height: auto; }
   .essay-card__meta strong { font-size: 0.8rem; }
   .essay-card__meta small { font-size: 0.62rem; }
   .essay-reading-modal { padding: 0; }
