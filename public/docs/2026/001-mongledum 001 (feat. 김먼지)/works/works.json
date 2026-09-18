@@ -9,21 +9,21 @@
     {
       "type": "tumblbug",
       "directory": "tumblbug",
-      "title": "tumblbug",
+      "title": "dumblbug",
       "label": "텀블벅",
       "url": "https://airbridge.tumblbug.com/u3diz2j"
     },
     {
       "type": "object",
       "directory": "object",
-      "title": "오브젝트",
+      "title": "objects",
       "label": "object",
       "href": "/objects"
     },
     {
       "type": "essay",
       "directory": "essay",
-      "title": "에세이",
+      "title": "essay",
       "label": "essay",
       "href": "/essay"
     },
@@ -36,14 +36,26 @@
     {
       "type": "video",
       "directory": "video",
-      "title": "물방울이 두근두근",
-      "label": "video · YouTube"
+      "label": "decorative image",
+      "decorative": true
     },
     {
       "type": "image",
       "directory": "images",
-      "title": "사진들",
+      "title": "mongledump",
       "label": "image"
+    },
+    {
+      "type": "behind",
+      "directory": "behind",
+      "title": "behindum",
+      "label": "behind video"
+    },
+    {
+      "type": "decorative",
+      "directory": "decorative",
+      "label": "decorative image",
+      "decorative": true
     }
   ]
 }

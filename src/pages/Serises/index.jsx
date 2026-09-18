@@ -120,7 +120,7 @@ function ComicReader({ work, onBack }) {
             <button className="serises-comic__overview-open" type="button" onClick={() => setIsOverviewOpen(true)}>전체보기</button>
           </div>
         </div>
-      ) : <div className="serises-comic__empty"><p>만화 페이지 이미지를 준비 중입니다.</p><small>pages 폴더에 001.png부터 연속된 이름으로 추가하면 자동으로 표시됩니다.</small></div>}
+      ) : <div className="serises-comic__empty"><p>만화를 불러오는 중...</p></div>}
       {isOverviewOpen && (
         <section className="serises-comic-overview" aria-label="만화 전체 페이지">
           <header className="serises-comic-overview__header">
@@ -177,6 +177,13 @@ export default function SerisesPage() {
   const [works, setWorks] = useState([]);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [titleTrack, setTitleTrack] = useState(null);
+  const [behindConfig, setBehindConfig] = useState({ password: "", youtubeUrl: "" });
+  const [isBehindOpen, setIsBehindOpen] = useState(false);
+  const [behindPassword, setBehindPassword] = useState("");
+  const [behindError, setBehindError] = useState("");
+  const [isBehindUnlocked, setIsBehindUnlocked] = useState(false);
+  const decorativeClickCountRef = useRef(0);
+  const [isBehindRevealed, setIsBehindRevealed] = useState(false);
   const routeParts = decodeURIComponent(window.location.pathname).split("/").filter(Boolean);
   const activeType = routeParts[4] ?? "";
   const activeDirectoryName = routeParts[5] ?? "";
@@ -186,6 +193,7 @@ export default function SerisesPage() {
     Promise.all([
       fetch(`${WORKS_ROOT}/works.json`, { signal: controller.signal }).then((response) => response.json()),
       fetch(getContentUrl(YEAR, ALBUM, "001-물방울이 두근두근", "music.txt"), { signal: controller.signal }).then((response) => response.ok ? response.text() : "").then((source) => parseContentFile(source).youtube ?? ""),
+      fetch(`${WORKS_ROOT}/behind/config.json`, { signal: controller.signal }).then((response) => response.ok ? response.json() : ({ password: "", youtubeUrl: "" })),
       fetch("/docs/files.json", { signal: controller.signal })
         .then((response) => response.json())
         .then(async (manifest) => {
@@ -206,9 +214,10 @@ export default function SerisesPage() {
           if (error.name === "AbortError") throw error;
           return null;
         }),
-    ]).then(([manifest, video, selectedTitleTrack]) => {
+    ]).then(([manifest, video, behind, selectedTitleTrack]) => {
       setWorks(manifest.works ?? []);
       setYoutubeUrl(video);
+      setBehindConfig(behind);
       setTitleTrack(selectedTitleTrack);
     }).catch((error) => { if (error.name !== "AbortError") setWorks([]); });
     return () => controller.abort();
@@ -223,28 +232,84 @@ export default function SerisesPage() {
     if (work.type === "object") return navigate(work.href || "/objects");
     if (work.type === "essay") return navigate(work.href || "/essay");
     if (work.type === "music") return navigate(work.href || `/music?year=${YEAR}&album=${encodeURIComponent(ALBUM)}`);
-    if (work.type === "video") { if (youtubeUrl) window.open(youtubeUrl, "_blank", "noopener,noreferrer"); return; }
+    if (work.type === "behind") {
+      setBehindPassword("");
+      setBehindError("");
+      setIsBehindUnlocked(false);
+      setIsBehindOpen(true);
+      return;
+    }
+    if (work.decorative) return;
     navigate(getWorkRoute(work));
+  };
+
+  const unlockBehind = (event) => {
+    event.preventDefault();
+    if (!behindConfig.password || !behindConfig.youtubeUrl) {
+      setBehindError("비하인드 영상 설정이 아직 준비되지 않았습니다.");
+      return;
+    }
+    if (behindPassword !== behindConfig.password) {
+      setBehindError("암호가 맞지 않습니다.");
+      return;
+    }
+    setBehindError("");
+    setIsBehindUnlocked(true);
+  };
+
+  const behindYoutubeId = getYoutubeId(behindConfig.youtubeUrl);
+
+  const clickDecorative = () => {
+    decorativeClickCountRef.current += 1;
+    if (decorativeClickCountRef.current < 5) return;
+    decorativeClickCountRef.current = 0;
+    setIsBehindRevealed(true);
   };
 
   return (
     <main className="serises-focus">
-      <img className="serises-focus__background-preload" src="/assets/serises-pool-tiles.png" alt="" aria-hidden="true" />
-      <header className="serises-focus__header"><p>{YEAR}</p><h1>mongledum 001 <small>(feat. 김먼지)</small></h1></header>
-      <section className="serises-focus__wall" aria-label="mongledum 001 작업물">
+      <header className="serises-focus__header">
+        <img src={getContentUrl(YEAR, ALBUM, "project-title.png")} alt="mongledum 001 (feat. 김먼지)" />
+      </header>
+      <section className="serises-focus__wall" aria-label="mongledum 001 작업물" onClickCapture={(event) => {
+        if (!event.target.closest(".serises-work--decorative")) decorativeClickCountRef.current = 0;
+      }}>
         {works.map((work, index) => {
+          if (work.type === "behind" && !isBehindRevealed) return null;
           const youtubeId = work.type === "video" ? getYoutubeId(youtubeUrl) : "";
           const cover = work.type === "music" ? titleTrack?.coverUrl : youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : getWorkCover(work);
-          const title = work.type === "music" ? titleTrack?.title : work.title;
-          return <button className={`serises-work serises-work--${work.type} serises-work--position-${index + 1}`} type="button" key={work.directory} onClick={() => openWork(work)} aria-label={`${title || work.label} 열기`}>
+          const title = work.type === "music" || work.decorative ? "" : work.title;
+          const isSecretTrigger = work.type === "decorative";
+          const isInteractive = !work.decorative || isSecretTrigger;
+          const WorkTag = isInteractive ? "button" : "div";
+          const action = isSecretTrigger ? clickDecorative : () => openWork(work);
+          return <WorkTag className={`serises-work serises-work--${work.type} serises-work--position-${index + 1}${work.decorative ? " is-decorative" : ""}`} {...(isInteractive ? { type: "button", onClick: action, "aria-label": isSecretTrigger ? "장식 이미지" : `${title || work.label} 열기` } : { "aria-hidden": "true" })} key={work.directory}>
             <span className="serises-work__media">{cover && <img src={cover} alt="" draggable="false" onError={(event) => {
               if (work.type !== "music" && event.currentTarget.src.endsWith("/cover.png")) event.currentTarget.src = `${getWorkAssetRoot(work)}/cover.PNG`;
               else event.currentTarget.hidden = true;
             }} />}</span>
             {title && <strong>{title}</strong>}
-          </button>;
+          </WorkTag>;
         })}
       </section>
+      {isBehindOpen && (
+        <div className="serises-behind" role="dialog" aria-modal="true" aria-label="behindum">
+          <button className="serises-behind__close" type="button" onClick={() => setIsBehindOpen(false)} aria-label="닫기">×</button>
+          {isBehindUnlocked && behindYoutubeId ? (
+            <div className="serises-behind__video">
+              <iframe src={`https://www.youtube.com/embed/${behindYoutubeId}?autoplay=1&rel=0`} title="behindum" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+            </div>
+          ) : (
+            <form className="serises-behind__lock" onSubmit={unlockBehind}>
+              <h2>behindum</h2>
+              <label htmlFor="behind-password">암호</label>
+              <input id="behind-password" type="password" value={behindPassword} onChange={(event) => setBehindPassword(event.target.value)} autoFocus />
+              {behindError && <p role="alert">{behindError}</p>}
+              <button type="submit">입장</button>
+            </form>
+          )}
+        </div>
+      )}
     </main>
   );
 }
