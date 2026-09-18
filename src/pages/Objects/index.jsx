@@ -6,6 +6,18 @@ import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
 import { PiDiscFill } from "react-icons/pi";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
+const POSTCARD_CAPTIONS = [
+  "날치의 꿈",
+  "거북이의 꿈",
+  "<그 순간에는 내가 있을게> 친구들",
+  "<그 순간에는 내가 있을게> 비하인드",
+  "물방울이 두근두근",
+  "같지 않은 것과 같잖은 것",
+  "diib",
+  "폭설 아래",
+  "네컷만화 <물방울의 꿈>",
+];
+
 function createBubbleEnvironment() {
   const palettes = [
     ["#f8fbff", "#8ec2de", "#ffd9ec"],
@@ -316,7 +328,12 @@ function MetaballBubbleMesh({ interactionRef }) {
 function BubbleCamera({ hostRef }) {
   useFrame(({ camera, size }) => {
     const hostHeight = hostRef.current?.offsetHeight || 500;
-    const nextZ = 3.55 * (size.height / hostHeight);
+    const hostWidth = hostRef.current?.offsetWidth || 500;
+    const isMobile = window.matchMedia("(max-width: 760px)").matches;
+    const bubbleDiameter = isMobile
+      ? Math.min(hostWidth, hostHeight)
+      : Math.min(Math.max(hostWidth * 0.38, 320), 560, Math.max(hostHeight - 120, 1));
+    const nextZ = 3.55 * (size.height / bubbleDiameter);
     if (Math.abs(camera.position.z - nextZ) < 0.001) return;
     camera.position.z = nextZ;
     camera.updateProjectionMatrix();
@@ -384,6 +401,7 @@ export default function ObjectsPage() {
             ...info,
             coverUrl: item.cover ? getObjectAsset(item, item.cover) : "",
             galleryUrls: item.gallery.map((image) => getObjectAsset(item, "images", image)),
+            videoUrls: (item.videos ?? []).map((video) => getObjectAsset(item, "videos", video)),
           };
         }));
       })
@@ -424,7 +442,7 @@ export default function ObjectsPage() {
 
   const closeObjects = () => {
     setIsPopping(false);
-    window.history.back();
+    navigate("/objects");
   };
 
   const moveBubble = (event) => {
@@ -476,7 +494,7 @@ export default function ObjectsPage() {
   if (isDetail) {
     return (
       <main className="object-detail">
-        <button className="object-detail__back" type="button" onClick={() => navigate(getAlbumRoute(detailObject))}>← objects</button>
+        <button className="object-detail__back" type="button" onClick={() => navigate(getAlbumRoute(detailObject))}>← {detailObject.albumTitle}</button>
         <header className="object-detail__hero">
           <div className="object-detail__cover">{detailObject.coverUrl && <img src={detailObject.coverUrl} alt={`${detailObject.title} 대표 이미지`} />}</div>
           <div className="object-detail__summary">
@@ -488,18 +506,31 @@ export default function ObjectsPage() {
           </div>
         </header>
 
-        {detailObject.galleryUrls.length > 0 && <section className="object-detail__life" aria-label={`${detailObject.title} 상세 이미지`}>
-          <div className="object-detail__gallery">{detailObject.galleryUrls.map((image, index) => <figure key={image}><img src={image} alt={`${detailObject.title} 사용 모습 ${index + 1}`} /></figure>)}</div>
+        {(detailObject.videoUrls.length > 0 || detailObject.galleryUrls.length > 0) && <section className="object-detail__life" aria-label={`${detailObject.title} 상세 미디어`}>
+          <div className="object-detail__gallery">
+            {detailObject.videoUrls.map((video, index) => (
+              <figure className="is-wide object-detail__video" key={video}>
+                <video src={video} autoPlay loop muted controls playsInline preload="auto" aria-label={`${detailObject.title} 영상 ${index + 1}`} />
+              </figure>
+            ))}
+            {detailObject.galleryUrls.map((image, index) => {
+            const caption = detailObject.type === "postcard-pack" ? POSTCARD_CAPTIONS[index] : "";
+            return (
+              <figure key={image}>
+                <img src={image} alt={caption || `${detailObject.title} 사용 모습 ${index + 1}`} />
+                {caption && <figcaption>{caption}</figcaption>}
+              </figure>
+            );
+          })}</div>
         </section>}
       </main>
     );
   }
 
   return (
-    <main className="objects-page">
-      <h1 className="objects-page__title">objects</h1>
+    <main className={`objects-page${isAlbum ? "" : " objects-page--landing"}`}>
       <section className="objects-playground" aria-label="오브젝트 비눗방울">
-        {isAlbum && <button className="objects-playground__back" type="button" onClick={closeObjects}>← 뒤로가기</button>}
+        {isAlbum && <button className="objects-playground__back" type="button" aria-label="뒤로가기" onClick={closeObjects}>← <span>뒤로가기</span></button>}
         {albumTitle && <p className={`objects-playground__hint is-album-title${isAlbum ? "" : " is-bubble-title"}`}>{albumTitle}</p>}
         {!isAlbum ? (
           <button ref={bubbleButtonRef} className={`objects-bubble objects-bubble--collection${isPopping ? " is-popping" : ""}`} type="button" aria-label="비눗방울 터뜨리기" onClick={openBubble} onPointerMove={moveBubble} onPointerLeave={leaveBubble}>

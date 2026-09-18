@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 
 const navigationItems = [
   { label: "about", href: "/about" },
-  { label: "serises", href: "/serises" },
   { label: "essay", href: "/essay" },
   { label: "music", href: "/music" },
+  { label: "serises", href: "/serises" },
   { label: "objects", href: "/objects" },
   { label: "contact", href: "/contact" },
 ];
@@ -14,12 +14,23 @@ export default function Header({ currentPath, onNavigate }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    const handleScroll = () => {
+      const innerScroller = document.querySelector(
+        "body.has-fixed-content-scroll .home-page, body.has-fixed-content-scroll .about-page, body.has-fixed-content-scroll .music-page, body.has-fixed-content-scroll .contact-page, body.has-fixed-content-scroll .object-detail",
+      );
+      setIsScrolled(window.scrollY > 0 || (innerScroller?.scrollTop ?? 0) > 0);
+    };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    const frame = window.requestAnimationFrame(handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("scroll", handleScroll, true);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [currentPath]);
 
   useEffect(() => setIsMenuOpen(false), [currentPath]);
 
@@ -43,7 +54,7 @@ export default function Header({ currentPath, onNavigate }) {
       >
         <img
           className="site-header__logo"
-          src="/assets/logo/white.png"
+          src="/assets/logo/theme.png"
           alt="mongledum"
         />
       </a>

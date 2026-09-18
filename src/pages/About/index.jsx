@@ -3,31 +3,12 @@ import { IoVolumeHighOutline } from "react-icons/io5";
 import styled from "styled-components";
 
 const members = [
-  { name: "구진", image: "/assets/profile/jin/main_001_zoom.jpg" },
-  { name: "서음", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
-  { name: "재균", image: "/assets/profile/jeagyun/main_001_zoom.JPG" },
-  { name: "재욱", image: "/assets/profile/jaewook/main_001_zoom.jpg" },
-  { name: "형우", image: "/assets/profile/hyeongu/main_001_zoom.jpg" },
-  { name: "구헌", image: "/assets/profile/hyun/main_001_zoom.JPG" },
-];
-
-const meanings = [
-  {
-    english: "to uncover music from one another's words.",
-    korean: "서로의 문장으로부터 음악을 발굴하다.",
-  },
-  {
-    english: "We mongledummed until dawn.",
-    korean: "우리는 새벽까지 서로의 문장으로부터 음악을 발굴했다.",
-  },
-  {
-    english: "to stay with a sentence until it becomes a song.",
-    korean: "문장이 노래가 될 때까지 곁에 머무르다.",
-  },
-  {
-    english: "to believe that ordinary words can become extraordinary music.",
-    korean: "평범한 말도 음악이 될 수 있다고 믿다.",
-  },
+  { name: "박서음", english: "parkse0eum", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
+  { name: "구진", english: "Goo Jin", image: "/assets/profile/jin/main_001_zoom.jpg" },
+  { name: "구현", english: "Goo Hyun", image: "/assets/profile/hyun/main_001_zoom.JPG" },
+  { name: "박재욱", english: "Park Jaewook", image: "/assets/profile/jaewook/main_001_zoom.jpg" },
+  { name: "이재균", english: "Lee Jaegyun", image: "/assets/profile/jeagyun/main_001_zoom.JPG" },
+  { name: "전형우", english: "Jeon Hyeongwoo", image: "/assets/profile/hyeongu/main_001_zoom.jpg" },
 ];
 
 function speakMongledum(member) {
@@ -55,10 +36,10 @@ export default function AboutPage() {
     <AboutPageLayout className="about-page">
       <article className="dictionary-entry">
         <header className="dictionary-entry__header">
-          <h1>mongledum</h1>
-          <p className="dictionary-entry__part">verb</p>
+          <h1>몽글덤 <span>mongledum</span></h1>
+          <p className="dictionary-entry__part"><strong>동사</strong> verb</p>
           <div className="dictionary-entry__pronunciation">
-            <span>/ˈmɒŋɡl.dʌm/</span>
+            <span>/ˈmɒŋ.gl.dʌm/</span>
             <button
               type="button"
               aria-label="몽글덤 발음 듣기"
@@ -67,13 +48,10 @@ export default function AboutPage() {
               <IoVolumeHighOutline aria-hidden="true" />
             </button>
           </div>
-          <p className="dictionary-entry__summary">
-            서로의 언어로부터 음악을 발굴하는 행위를 뜻한다.
-          </p>
         </header>
 
         <section className="pronunciation-list" aria-labelledby="pronunciation-title">
-          <h2 id="pronunciation-title">pronunciation</h2>
+          <h2 id="pronunciation-title">발음 <span>Pronunciation</span></h2>
           <div className="pronunciation-list__items">
             <button
               className={activeMember === "all" ? "is-active" : undefined}
@@ -81,7 +59,7 @@ export default function AboutPage() {
               onClick={() => playPronunciation()}
             >
               <IoVolumeHighOutline aria-hidden="true" />
-              <span>all</span>
+              <span>ALL</span>
             </button>
 
             {members.map((member) => (
@@ -98,19 +76,19 @@ export default function AboutPage() {
                     alt={`${member.name} 프로필`}
                   />
                 </span>
-                <span>{member.name}</span>
+                <span><strong>{member.name}</strong> {member.english}</span>
               </button>
             ))}
           </div>
+          <p className="pronunciation-list__guide">
+            각자의 프로필을 눌러 여섯 가지 ‘몽글덤’의 발음을 들어보세요.<br />
+            <em>Click each profile to hear six different pronunciations of “mongledum.”</em>
+          </p>
         </section>
 
         <section className="dictionary-section dictionary-forms" aria-labelledby="forms-title">
-          <h2 id="forms-title">forms</h2>
+          <h2 id="forms-title">Forms</h2>
           <dl>
-            <div>
-              <dt>3rd person singular</dt>
-              <dd>mongledums</dd>
-            </div>
             <div>
               <dt>past tense</dt>
               <dd>mongledummed</dd>
@@ -120,47 +98,45 @@ export default function AboutPage() {
               <dd>mongledummed</dd>
             </div>
             <div>
-              <dt>gerund</dt>
+              <dt>-ing form</dt>
               <dd>mongledumming</dd>
             </div>
           </dl>
         </section>
 
         <section className="dictionary-section dictionary-meaning" aria-labelledby="meaning-title">
-          <h2 id="meaning-title">meaning</h2>
+          <h2 id="meaning-title">뜻 <span>Meaning</span></h2>
           <ol>
-            {meanings.map((meaning) => (
-              <li key={meaning.english}>
-                <div>
-                  <strong>{meaning.english}</strong>
-                  <p>{meaning.korean}</p>
-                </div>
-                <button
-                  type="button"
-                  aria-label="뜻 발음 듣기"
-                  onClick={() => playPronunciation()}
-                >
-                  <IoVolumeHighOutline aria-hidden="true" />
-                </button>
-              </li>
-            ))}
+            <li>
+              <div>
+                <strong>서로의 문장으로부터 음악을 발굴하다.</strong>
+                <p><em>to uncover music from one another’s words.</em></p>
+                <p className="dictionary-example"><em>We mongledummed until dawn.</em><br />우리는 새벽까지 서로의 문장으로부터 음악을 발굴했다.</p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>서로의 이야기를 다른 예술의 형태로 이어가며 존재들이 덤으로 불어나다.</strong>
+                <p><em>to carry one another’s stories into other forms of art, gathering more beings along the way.</em></p>
+                <p className="dictionary-example"><em>The more we mongledummed, the more beings joined the story.</em><br />우리가 몽글덤할수록 이야기에는 더 많은 존재들이 덤으로 불어났다.</p>
+              </div>
+            </li>
           </ol>
         </section>
 
         <section className="dictionary-section dictionary-usage" aria-labelledby="usage-title">
-          <h2 id="usage-title">usage</h2>
-          <p>“let&apos;s mongledum.”</p>
-          <p>“we&apos;ve been mongledumming.”</p>
-          <p>“they mongledummed together.”</p>
+          <h2 id="usage-title">용례 <span>Usage</span></h2>
+          <p><strong>“오늘 뭐 몽글덤?”</strong><br /><em>“What are we mongledumming today?”</em></p>
+          <p><strong>“이 문장에서 몽글덤.”</strong><br /><em>“mongledum from this sentence.”</em></p>
+          <p><strong>“우리 여름 내내 몽글덤.”</strong><br /><em>“We mongledummed all summer.”</em></p>
         </section>
 
         <section className="dictionary-section dictionary-etymology" aria-labelledby="etymology-title">
-          <h2 id="etymology-title">etymology</h2>
-          <p>from korean, <em>mongledum.</em></p>
-          <p>
-            first used by six musicians who believed that music could be
-            excavated from words.
-          </p>
+          <h2 id="etymology-title">유래 <span>Origin</span></h2>
+          <p><strong>2024, 한국어 Korean</strong></p>
+          <p>2024년 결성되어 대한민국 서울을 기반으로 활동하는 밴드 <strong>몽글덤</strong>의 이름에서 비롯되었다.</p>
+          <p>서로의 삶과 사유에서 문장을 꺼내어 함께 읽고, 가사와 연주를 거쳐 음악으로 발굴하는 이들의 작업 방식이 하나의 행위를 가리키는 말이 되었다. 오늘날에는 그렇게 만들어진 음악이 다시 만화와 사물, 공연 등 다른 형태의 예술로 이어지는 일까지 아울러 이른다.</p>
+          <p><em>From “Mongledum,” the name of a band formed in Seoul, South Korea, in 2024. The word came to describe their practice of uncovering music from one another’s writing, and later, the ways that music continues into other forms of art.</em></p>
         </section>
       </article>
 
@@ -174,14 +150,16 @@ const AboutPageLayout = styled.main`
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: clamp(32px, 6vw, 100px);
-    width: min(100%, 1500px);
-    min-height: calc(100svh - 45px);
-    margin: 0 auto;
+    width: 100%;
+    min-height: calc(100svh - var(--site-header-height));
+    margin: 0;
     padding: clamp(36px, 6vw, 92px) clamp(22px, 5vw, 84px);
     background: #ffffff;
   }
 
   .dictionary-entry {
+    width: min(100%, 1500px);
+    margin: 0 auto;
     padding: clamp(28px, 4vw, 54px);
     color: #15171a;
     border: 1px solid #dfe2e6;
@@ -199,16 +177,22 @@ const AboutPageLayout = styled.main`
 
   .dictionary-entry__header h1 {
     margin: 0;
-    font-size: clamp(2.8rem, 6vw, 5.8rem);
+    font-size: clamp(1.7rem, 3vw, 3.1rem);
     font-weight: 700;
     letter-spacing: -0.055em;
     line-height: 0.9;
   }
 
+  .dictionary-entry__header h1 span {
+    color: #59616a;
+    font-size: 0.48em;
+    letter-spacing: -0.035em;
+  }
+
   .dictionary-entry__part {
     margin: 18px 0 6px;
     color: #3d6f9f;
-    font-size: clamp(1.15rem, 2vw, 1.65rem);
+    font-size: clamp(0.86rem, 1.15vw, 1.1rem);
     font-weight: 700;
   }
 
@@ -252,7 +236,12 @@ const AboutPageLayout = styled.main`
     color: #3d6f9f;
     font-size: 0.92rem;
     font-weight: 700;
-    text-transform: lowercase;
+  }
+
+  .pronunciation-list h2 span,
+  .dictionary-section h2 span {
+    color: #3d6f9f;
+    font-weight: 700;
   }
 
   .pronunciation-list__items {
@@ -268,9 +257,20 @@ const AboutPageLayout = styled.main`
     padding: 0;
     color: #454b52;
     font-size: 0.68rem;
+    font-weight: 700;
     text-align: center;
     border: 0;
     background: transparent;
+  }
+
+  .pronunciation-list__items button > span:last-child { line-height: 1.35; }
+  .pronunciation-list__items button > span:last-child strong { display: block; }
+
+  .pronunciation-list__guide {
+    margin: 24px 0 0;
+    color: #555d66;
+    font-size: 0.86rem;
+    line-height: 1.7;
   }
 
   .pronunciation-list__items button:first-child,
@@ -336,6 +336,7 @@ const AboutPageLayout = styled.main`
 
   .dictionary-forms dt {
     color: #777f88;
+    font-weight: 700;
   }
 
   .dictionary-forms dd {
@@ -353,7 +354,7 @@ const AboutPageLayout = styled.main`
 
   .dictionary-meaning li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 20px;
     counter-increment: meaning-item;
   }
@@ -376,6 +377,10 @@ const AboutPageLayout = styled.main`
     font-size: 0.86rem;
     line-height: 1.55;
   }
+
+  .dictionary-meaning .dictionary-example { margin-top: 16px; color: #3f464d; }
+  .dictionary-usage p + p,
+  .dictionary-etymology p + p { margin-top: 18px; }
 
   .dictionary-usage,
   .dictionary-etymology {
@@ -447,23 +452,122 @@ const AboutPageLayout = styled.main`
 
   @media (max-width: 660px) {
     & {
-      padding: 24px 14px 52px;
+      padding: 12px 8px 36px;
     }
 
     .dictionary-entry {
-      padding: 24px 18px 32px;
+      padding: 16px 10px 24px;
+      box-shadow: 0 12px 28px rgba(35, 45, 55, 0.08);
+    }
+
+    .dictionary-entry__header h1 {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .dictionary-entry__part {
+      margin: 11px 0 4px;
+      font-size: 0.7rem;
+    }
+
+    .dictionary-entry__pronunciation {
+      gap: 7px;
+      font-size: 0.78rem;
+    }
+
+    .dictionary-entry__pronunciation button {
+      width: 28px;
+      height: 25px;
+      border-radius: 4px;
+    }
+
+    .pronunciation-list {
+      margin-top: 21px;
+    }
+
+    .pronunciation-list h2,
+    .dictionary-section h2 {
+      margin-bottom: 9px;
+      font-size: 0.7rem;
     }
 
     .pronunciation-list__items {
-      grid-template-columns: repeat(4, minmax(50px, 1fr));
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .pronunciation-list__items button {
+      gap: 4px;
+      font-size: 0.48rem;
+    }
+
+    .pronunciation-list__items button:first-child,
+    .pronunciation-list__portrait {
+      border-radius: 5px;
+    }
+
+    .pronunciation-list__items button:first-child svg {
+      font-size: 0.75rem;
+    }
+
+    .pronunciation-list__items button:not(:first-child) > span:last-child {
+      font-size: 0;
+    }
+
+    .pronunciation-list__items button > span:last-child strong {
+      font-size: 0.48rem;
+      line-height: 1.2;
+    }
+
+    .pronunciation-list__guide {
+      margin-top: 15px;
+      font-size: 0.65rem;
+      line-height: 1.55;
+    }
+
+    .dictionary-section {
+      margin-top: 22px;
+      padding-top: 16px;
     }
 
     .dictionary-forms dl {
       grid-template-columns: minmax(0, 1fr);
+      gap: 7px;
+      font-size: 0.67rem;
+    }
+
+    .dictionary-forms dl > div {
+      grid-template-columns: minmax(90px, 0.8fr) 1fr;
+      gap: 8px;
     }
 
     .dictionary-meaning li {
-      gap: 8px;
+      gap: 6px;
+    }
+
+    .dictionary-meaning ol {
+      gap: 20px;
+    }
+
+    .dictionary-meaning strong {
+      font-size: 0.74rem;
+    }
+
+    .dictionary-meaning p,
+    .dictionary-usage p,
+    .dictionary-etymology p {
+      margin-top: 4px;
+      font-size: 0.67rem;
+      line-height: 1.5;
+    }
+
+    .dictionary-meaning .dictionary-example {
+      margin-top: 10px;
+    }
+
+    .dictionary-usage p + p,
+    .dictionary-etymology p + p {
+      margin-top: 12px;
     }
   }
 `;

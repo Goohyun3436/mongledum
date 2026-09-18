@@ -1,8 +1,72 @@
+title: 0
 composition: 전형우, 이재균, 박서음
 lyrics: 박서음
 date: 2026-09-19
+url:
 youtube:
+youtube_music:
+instagram:
+melon:
+apple_music:
+spotify:
+genie:
+bugs:
+vibe:
+flo:
 ---
-임시 곡 설명입니다.
-임시 곡 설명입니다.
-임시 곡 설명입니다.
+[lyrics]
+하나만 나는 그것만을
+해보고 싶어
+하나마나 한 소리에서
+비누 향기가
+
+기다림은
+하늘까지 이어져
+노란 해가
+하얀 나비가 될 때
+너나 나나
+별수 없이
+날아오르려나
+
+i know we were butterflies
+you know, we’re passing by
+어서 빨리
+let me go, let me fly high
+the waiting says to me, “Hi, hi-ya”
+
+하나만 나는 그것만
+해보고 싶어서
+하나마나 한 소리에서
+뛰어내리네
+
+기다림은
+바다까지 이어져
+노란 달이
+하얀 비누가 될 때
+너를 두고
+어지러워
+
+나 하나만 남아
+the waiting says to me, “Hi, hi-ya”
+나 하나만 남아
+the waiting says to me, “Hi, hi-ya”
+나 하나만 남아
+the waiting says to me, “Hi, hi-ya”
+나 하나만 남아
+the waiting says to me, “Hi, hi-ya”
+나 하나만 남아
+i say to myself, “Hi, hi-ya”
+
+[credits]
+Composed by 전형우, 박서음, 이재균
+Lyrics by 박서음
+Arranged by mongledum
+
+Vocals 박서음
+Drums 전형우
+Bass 구현
+Electric Guitar 이재균
+Keyboards 박재욱
+Synthesizer 전형우, 박재욱
+MIDI Programming 전형우
+Chorus 박서음
