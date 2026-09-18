@@ -211,7 +211,6 @@ function ImageWorkDetail({ work, onBack }) {
 export default function SerisesPage() {
   const [works, setWorks] = useState([]);
   const [behindWork, setBehindWork] = useState(null);
-  const [youtubeUrl, setYoutubeUrl] = useState("");
   const [titleTrack, setTitleTrack] = useState(null);
   const [behindConfig, setBehindConfig] = useState({ password: "", youtubeUrl: "" });
   const [isBehindOpen, setIsBehindOpen] = useState(false);
@@ -234,7 +233,6 @@ export default function SerisesPage() {
     const controller = new AbortController();
     Promise.all([
       fetch(`${WORKS_ROOT}/works.json`, { signal: controller.signal }).then((response) => response.json()),
-      fetch(getContentUrl(YEAR, ALBUM, "001-물방울이 두근두근", "music.txt"), { signal: controller.signal }).then((response) => response.ok ? response.text() : "").then((source) => parseContentFile(source).youtube ?? ""),
       fetch(`${WORKS_ROOT}/behind/config.json`, { signal: controller.signal }).then((response) => response.ok ? response.json() : ({ password: "", youtubeUrl: "" })),
       fetch("/docs/files.json", { signal: controller.signal })
         .then((response) => response.json())
@@ -259,14 +257,13 @@ export default function SerisesPage() {
           if (error.name === "AbortError") throw error;
           return { titleTrack: null, comicPages: {} };
         }),
-    ]).then(([manifest, video, behind, contentManifest]) => {
+    ]).then(([manifest, behind, contentManifest]) => {
       const loadedWorks = (manifest.works ?? []).map((work) => ({
         ...work,
         pages: work.type === "cartoon" ? contentManifest.comicPages[`${YEAR}/${ALBUM}/${work.directory}`] ?? [] : undefined,
       }));
       setBehindWork(loadedWorks.find((work) => work.type === "behind") ?? null);
       setWorks(loadedWorks.filter((work) => work.type !== "behind"));
-      setYoutubeUrl(video);
       setBehindConfig(behind);
       setTitleTrack(contentManifest.titleTrack);
     }).catch((error) => { if (error.name !== "AbortError") setWorks([]); });
@@ -327,8 +324,7 @@ export default function SerisesPage() {
         if (!event.target.closest(".serises-work--decorative")) decorativeClickCountRef.current = 0;
       }}>
         {visibleWorks.map((work, index) => {
-          const youtubeId = work.type === "video" ? getYoutubeId(youtubeUrl) : "";
-          const cover = work.type === "music" ? titleTrack?.coverUrl : youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : getWorkCover(work);
+          const cover = work.type === "music" ? titleTrack?.coverUrl : getWorkCover(work);
           const title = work.decorative ? "" : work.title;
           const isSecretTrigger = work.type === "decorative";
           const isInteractive = !work.decorative || isSecretTrigger;

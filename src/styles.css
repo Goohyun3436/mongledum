@@ -2374,6 +2374,9 @@ body.is-music-page.is-music-header-scrolled::before {
   .serises-behind { inset: var(--site-header-height) 0 0; padding: 18px; }
   .serises-behind__close { top: 10px; right: 12px; }
   .serises-behind__video { width: 100%; }
+  .serises-behind { display: block; overflow-x: hidden; overflow-y: auto; padding: 72px 18px 40px; }
+  .serises-behind__lock { width: min(340px, 100%); margin: 0 auto; }
+  .serises-behind__lock button { width: 100%; min-height: 44px; margin-top: 12px; padding: 10px 14px; color: #ffffff; background: #111111; border: 1px solid #111111; text-align: center; }
   .serises-comic {
     height: calc(100vh - var(--site-header-height));
     height: calc(100svh - var(--site-header-height));
