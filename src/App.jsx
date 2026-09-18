@@ -131,9 +131,7 @@ export default function App() {
     || pathname === "/about"
     || pathname === "/essay"
     || pathname === "/music"
-    || pathname === "/contact"
-    || pathname === "/serises"
-    || pathname.startsWith("/serises/");
+    || pathname === "/serises";
   const hasFixedContentScroll = pathname === "/"
     || pathname === "/about"
     || pathname === "/music"

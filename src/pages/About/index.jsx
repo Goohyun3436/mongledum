@@ -3,9 +3,9 @@ import { IoVolumeHighOutline } from "react-icons/io5";
 import styled from "styled-components";
 
 const members = [
+  { name: "박서음", english: "parkse0eum", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
   { name: "구진", english: "Goo Jin", image: "/assets/profile/jin/main_001_zoom.jpg" },
   { name: "구현", english: "Goo Hyun", image: "/assets/profile/hyun/main_001_zoom.JPG" },
-  { name: "박서음", english: "parkse0eum", image: "/assets/profile/seoeum/main_001_zoom.JPG" },
   { name: "박재욱", english: "Park Jaewook", image: "/assets/profile/jaewook/main_001_zoom.jpg" },
   { name: "이재균", english: "Lee Jaegyun", image: "/assets/profile/jeagyun/main_001_zoom.JPG" },
   { name: "전형우", english: "Jeon Hyeongwoo", image: "/assets/profile/hyeongu/main_001_zoom.jpg" },

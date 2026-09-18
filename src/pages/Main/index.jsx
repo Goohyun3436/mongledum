@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { FaPeopleGroup } from "react-icons/fa6";
 import HomeContentSections from "../../components/HomeContentSections";
 import PoolSection from "../../components/PoolSection";
 
@@ -21,12 +20,8 @@ function HallOfFameModal({ onClose, onHideToday }) {
 
   return (
     <div className="hall-of-fame" role="presentation">
-      <section className="hall-of-fame__dialog" role="dialog" aria-modal="true" aria-labelledby="hall-of-fame-title">
+      <section className="hall-of-fame__dialog" role="dialog" aria-modal="true" aria-label="명예의 전당">
         <div className="hall-of-fame__content">
-          <p className="hall-of-fame__eyebrow">Thanks to</p>
-          <h2 id="hall-of-fame-title">명예의 전당</h2>
-          <p className="hall-of-fame__message">몽글덤의 곁에서 마음을 보태주신 모든 분께 감사드립니다.</p>
-          <a className="hall-of-fame__tumblbug" href="https://airbridge.tumblbug.com/9ls774" target="_blank" rel="noreferrer"><FaPeopleGroup aria-hidden="true" />텀블벅 ↗</a>
           <p className="hall-of-fame__names">{hallOfFameNames}</p>
         </div>
         <div className="hall-of-fame__actions">

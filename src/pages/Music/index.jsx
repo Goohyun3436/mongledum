@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { PiDiscFill, PiYoutubeLogoFill } from "react-icons/pi";
+import { FaApple, FaInstagram, FaSpotify, FaYoutube } from "react-icons/fa";
+import { FiArrowUpRight, FiMusic } from "react-icons/fi";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
+
+const MUSIC_LINK_TYPES = [
+  { key: "youtube", label: "youtube", icon: FaYoutube },
+  { key: "youtube_music", label: "youtube music", icon: FaYoutube },
+  { key: "instagram", label: "instagram", icon: FaInstagram },
+  { key: "melon", label: "melon", icon: FiMusic },
+  { key: "apple_music", label: "apple music", icon: FaApple },
+  { key: "spotify", label: "spotify", icon: FaSpotify },
+  { key: "genie", label: "genie", icon: FiMusic },
+  { key: "bugs", label: "bugs", icon: FiMusic },
+  { key: "vibe", label: "vibe", icon: FiMusic },
+  { key: "flo", label: "flo", icon: FiMusic },
+];
 
 const BOOK_VIEWS = {
   front: { angle: 14, label: "앞표지" },
@@ -188,12 +202,6 @@ function AlbumBook3D({ album }) {
         </div>
       </div>
 
-      <div className="music-book3d__controls" aria-label="앨범 자켓 방향 선택">
-        {BOOK_VIEW_ORDER.map((key) => (
-          <button type="button" aria-pressed={view === key} onClick={() => showView(key)} key={key}>{BOOK_VIEWS[key].label}</button>
-        ))}
-      </div>
-      <p className="music-book3d__hint">좌우로 밀거나 버튼을 누르면 전환됩니다.</p>
     </section>
   );
 }
@@ -287,6 +295,7 @@ export default function MusicPage() {
   const activeAlbum = albums[activeAlbumIndex];
   const tracks = activeAlbum?.tracks ?? [];
   const activeTrack = tracks[activeTrackIndex];
+  const activeTrackLinks = MUSIC_LINK_TYPES.filter(({ key }) => activeTrack?.[key]);
   const displayedDate = formatReleaseDate(activeAlbum?.release_date ?? activeTrack?.date ?? tracks.find((track) => track.date)?.date);
 
   const selectAlbum = (index) => {
@@ -314,7 +323,6 @@ export default function MusicPage() {
             {displayedDate && <p className="music-intro__subtitle">{displayedDate}</p>}
           </header>
 
-          <section className="music-track-panel" aria-label={`${activeAlbum.title} 수록곡`}>
           <div className="music-track-panel__list" role="tablist" aria-label="곡 선택">
             <button type="button" role="tab" data-label="앨범소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
               앨범소개글
@@ -326,34 +334,50 @@ export default function MusicPage() {
             ))}
           </div>
 
+          {activeTrackLinks.length > 0 && (
+            <div className="music-track-services" aria-label={`${activeTrack.title} 외부 링크`}>
+              {activeTrackLinks.map(({ key, label, icon: Icon }) => (
+                <a href={activeTrack[key]} target="_blank" rel="noreferrer" key={key}>
+                  <Icon aria-hidden="true" />
+                  <span>{label}</span>
+                  <FiArrowUpRight aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <section className="music-track-panel" aria-label={`${activeAlbum.title} 수록곡`}>
           {activeTrack ? (
             <article className="music-track-copy" key={`${activeAlbum.directory}-${activeTrack.directory}`}>
               <p className="music-track-copy__number">track. {activeTrack.index}</p>
               <div className="music-track-copy__heading">
                 <h2>{activeTrack.title}</h2>
-                {(activeTrack.url || activeTrack.youtube) && (
-                  <span className="music-track-copy__links">
-                    {activeTrack.url && <a className="music-track-copy__listen" href={activeTrack.url} target="_blank" rel="noreferrer"><PiDiscFill aria-hidden="true" />들으러 가기 ↗</a>}
-                    {activeTrack.youtube && <a className="music-track-copy__listen music-track-copy__listen--youtube" href={activeTrack.youtube} target="_blank" rel="noreferrer"><PiYoutubeLogoFill aria-hidden="true" />보러 가기 ↗</a>}
-                  </span>
-                )}
               </div>
-              <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
-              {activeTrack.credits && (
-                <section className="music-track-copy__section" aria-labelledby="track-credits-heading">
-                  <h3 id="track-credits-heading">credits</h3>
-                  <div>{activeTrack.creditParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
-                </section>
+              {(activeTrack.composition || activeTrack.lyrics) && (
+                <div className="music-track-copy__credits-summary">
+                  {activeTrack.composition && <p className="music-track-copy__credit"><span>작곡</span>{activeTrack.composition}</p>}
+                  {activeTrack.lyrics && <p className="music-track-copy__credit"><span>작사</span>{activeTrack.lyrics}</p>}
+                </div>
               )}
+              <div className="music-track-copy__description">{(activeTrack.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
               {activeTrack.lyricsText && (
                 <section className="music-track-copy__section music-track-copy__lyrics" aria-labelledby="track-lyrics-heading">
                   <h3 id="track-lyrics-heading">lyrics</h3>
                   <div>{activeTrack.lyricsParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
                 </section>
               )}
+              {activeTrack.credits && (
+                <section className="music-track-copy__section music-track-copy__credits" aria-labelledby="track-credits-heading">
+                  <h3 id="track-credits-heading">credits</h3>
+                  <div>{activeTrack.creditParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+                </section>
+              )}
             </article>
           ) : (
             <article className="music-track-copy music-album-introduction" key={`${activeAlbum.directory}-introduction`}>
+              {activeAlbum.introductionTitle && <h2>{activeAlbum.introductionTitle}</h2>}
+              <div className="music-track-copy__description">{(activeAlbum.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
               {activeAlbum.introductionAuthor && (
                 <p className="music-album-introduction__author">
                   {activeAlbum.introductionAuthorUrl ? (
@@ -361,8 +385,12 @@ export default function MusicPage() {
                   ) : activeAlbum.introductionAuthor}
                 </p>
               )}
-              {activeAlbum.introductionTitle && <h2>{activeAlbum.introductionTitle}</h2>}
-              <div className="music-track-copy__description">{(activeAlbum.paragraphs ?? []).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+              {activeAlbum.credits && (
+                <section className="music-track-copy__section music-track-copy__credits" aria-labelledby="album-credits-heading">
+                  <h3 id="album-credits-heading">credits</h3>
+                  <div>{activeAlbum.creditParagraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}</div>
+                </section>
+              )}
             </article>
           )}
 
@@ -373,8 +401,7 @@ export default function MusicPage() {
               <button type="button" onClick={() => moveTrack(1)}>다음 곡</button>
             </div>
           )}
-          </section>
-        </div>
+        </section>
       </div>
     </main>
   );

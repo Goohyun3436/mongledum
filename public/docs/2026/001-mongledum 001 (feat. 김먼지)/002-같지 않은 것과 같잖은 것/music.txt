@@ -4,7 +4,41 @@ lyrics: 박서음
 date: 2026-09-19
 url:
 youtube:
+youtube_music:
+instagram:
+melon:
+apple_music:
+spotify:
+genie:
+bugs:
+vibe:
+flo:
 ---
+[lyrics]
+햇빛이 너무 잘 드는 게
+검은 타일엔 맞지 않은데
+테이블을 놓아둘 곳도
+침대 밑은 안 되는데
+빈틈이 부족해
+
+좀 더 이쪽으로 당기면 괜찮을까
+그냥 그대로 내버려두고 떠날까
+
+헬멧을 걸어야 하는데
+자꾸 굴러떨어지는데
+한없이 푹 꺼진 소파에
+그냥저냥 끼워 넣은
+내 몸도 헐거워
+
+눈물이 나와줘야 맞는데
+하품이 겨우 대신해주네
+
+좀 더 저쪽으로 옮기면 괜찮을까
+그냥 그대로 내버려두고 떠날까
+
+다시 원래대로 되돌려 놓을 순 없나
+다시 원래대로 돌아가서 처음부터
+
 [credits]
 Composed by 구현, 박서음
 Lyrics by 박서음
@@ -17,53 +51,3 @@ Electric Guitar 이재균
 Keyboards, Synthesizer 박재욱
 MIDI Programming 구현, 박재욱
 Chorus 박서음
-
-—
-Recorded by B.A. Wheeler at East Seoul Studios
-Mixed & Mastered by Ash
-
-Liner Notes 정병욱
-
-—
-Executive Producer & Creative Director 박서음
-Music mongledum
-Comic & Illustration 김먼지
-Production & Logistics 김석영
-
-Cover Illustration 김먼지
-Cover Design 박서음
-
-Photography 김민서
-Hair 이승주, 민주 @rizze_makeup
-Makeup 남연우, 민주 @rizze_makeup
-Styling 김수민 @shop.bluekey
-
-—
-Thanks to
-
-감희경 강민재 게토얼라이브 고선 공서연 권민식 규리 규찬 기리 기타루맨 김남규 김도겸 김민서 김민서 김민정 김석영 김수민 김언 김예림 김은섭 김주리 남상혁 더라우너 도레미 도움받는 기분 듀듀 리베라스튜디오 리얼가든 미르스 민주 밍이 박경욱 박상현 박선아 박채원 백가은 북아재 서준우 서혜린 송연조 수피 숙원 슌 스리 승민 승은책방초록 신영태 심연 심채연 안수연 안우정 영실 오가람 오양진 오은경 유윤선 유진 윤영 이동현 이엔 이영숙 이영우 이용직 이은지 이츠릿 장선영 재희 전상수 정계순 정소영 정용한 정우 정윤서 정준호 정지윤 조동희 조병기 조성덕 조하연 주수연 주원 주헤 지금처럼만 지우개 지원 채병헌 천새람 최지원 최형규 태관 풀꽃 하나린 하명희 한교원 해선 현서 후원너구리 흐이지니 희찬 307hsw Barnard dnam2357 iden**** jjinseo**** kbh94**** peace2951 wld**** "???"
-
-[lyrics]
-햇빛이 너무 잘 드는 게 
-검은 타일엔 맞지 않은데
-테이블을 놓아둘 곳도
-침대 밑은 안 되는데
-빈틈이 부족해
-
-좀 더 이쪽으로 당기면 괜찮을까
-그냥 그대로 내버려두고 떠날까
- 
-헬멧을 걸어야 하는데
-자꾸 굴러떨어지는데
-한없이 푹 꺼진 소파에
-그냥저냥 끼워 넣은
-내 몸도 헐거워 
- 
-눈물이 나와줘야 맞는데
-하품이 겨우 대신해주네
- 
-좀 더 저쪽으로 옮기면 괜찮을까 
-그냥 그대로 내버려두고 떠날까
- 
-다시 원래대로 되돌려 놓을 순 없나
-다시 원래대로 돌아가서 처음부터

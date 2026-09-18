@@ -4,46 +4,16 @@ lyrics: 박서음
 date: 2026-09-19
 url:
 youtube:
+youtube_music:
+instagram:
+melon:
+apple_music:
+spotify:
+genie:
+bugs:
+vibe:
+flo:
 ---
-[credits]
-Composed by 전형우, 박서음, 이재균
-Lyrics by 박서음
-Arranged by mongledum
-
-Vocals 박서음
-Drums 전형우
-Bass 구현
-Electric Guitar 이재균
-Keyboards 박재욱
-Synthesizer 전형우, 박재욱
-MIDI Programming 전형우
-Chorus 박서음
-
-—
-Recorded by B.A. Wheeler at East Seoul Studios
-Mixed & Mastered by Ash
-
-Liner Notes 정병욱
-
-—
-Executive Producer & Creative Director 박서음
-Music mongledum
-Comic & Illustration 김먼지
-Production & Logistics 김석영
-
-Cover Illustration 김먼지
-Cover Design 박서음
-
-Photography 김민서
-Hair 이승주, 민주 @rizze_makeup
-Makeup 남연우, 민주 @rizze_makeup
-Styling 김수민 @shop.bluekey
-
-—
-Thanks to
-
-감희경 강민재 게토얼라이브 고선 공서연 권민식 규리 규찬 기리 기타루맨 김남규 김도겸 김민서 김민서 김민정 김석영 김수민 김언 김예림 김은섭 김주리 남상혁 더라우너 도레미 도움받는 기분 듀듀 리베라스튜디오 리얼가든 미르스 민주 밍이 박경욱 박상현 박선아 박채원 백가은 북아재 서준우 서혜린 송연조 수피 숙원 슌 스리 승민 승은책방초록 신영태 심연 심채연 안수연 안우정 영실 오가람 오양진 오은경 유윤선 유진 윤영 이동현 이엔 이영숙 이영우 이용직 이은지 이츠릿 장선영 재희 전상수 정계순 정소영 정용한 정우 정윤서 정준호 정지윤 조동희 조병기 조성덕 조하연 주수연 주원 주헤 지금처럼만 지우개 지원 채병헌 천새람 최지원 최형규 태관 풀꽃 하나린 하명희 한교원 해선 현서 후원너구리 흐이지니 희찬 307hsw Barnard dnam2357 iden**** jjinseo**** kbh94**** peace2951 wld**** "???"
-
 [lyrics]
 하나만 나는 그것만을
 해보고 싶어
@@ -86,3 +56,17 @@ the waiting says to me, “Hi, hi-ya”
 the waiting says to me, “Hi, hi-ya”
 나 하나만 남아
 i say to myself, “Hi, hi-ya”
+
+[credits]
+Composed by 전형우, 박서음, 이재균
+Lyrics by 박서음
+Arranged by mongledum
+
+Vocals 박서음
+Drums 전형우
+Bass 구현
+Electric Guitar 이재균
+Keyboards 박재욱
+Synthesizer 전형우, 박재욱
+MIDI Programming 전형우
+Chorus 박서음

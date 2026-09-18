@@ -4,30 +4,16 @@ lyrics: 박서음
 date: 2025-09-19
 url:
 youtube: https://youtu.be/jDTh3jdxxBw?si=blmUBHG3obdaiT_-
+youtube_music:
+instagram:
+melon:
+apple_music:
+spotify:
+genie:
+bugs:
+vibe:
+flo:
 ---
-[credits]
-Composed by 구진 goo99, 박서음 parkse0eum, 이종훈 SonicBloo, 이상훈 Lee Sanghoon
-Written by 박서음 parkse0eum
-Arranged by 몽글덤 mongledum
-
-Produced by Ash, 구진 goo99
-
-Performed by 몽글덤 mongledum
-Vocal 박서음 parkse0eum
-Chorus 박서음 parkse0eum, 구진 goo99
-Guitar 구진 goo99, 이재균 GyunJae
-Bass 이종훈 SonicBloo
-Keyboard 이상훈 Lee Sanghoon
-Drum 전형우 Jeon Hyungwoo
-
-Recorded by B.A Wheeler at East Seoul Studios
-Mixed & Mastered by B.A Wheeler at East Seoul Studios
-
-Artwork by 구진 goo99, 박서음 parkse0eum
-Photo by 김지연 feeelmz
-
-제작 지원 성동문화재단 성동음악창작소, 한국콘텐츠진흥원, 게토얼라이브
-
 [lyrics]
 난 너에게 돌아가는 사람
 
@@ -59,3 +45,18 @@ Photo by 김지연 feeelmz
 만약 우리 슬퍼진대도
 돌아갈게
 난 너를 사랑해
+
+[credits]
+Composed by 구진 goo99, 박서음 parkse0eum, 이종훈 SonicBloo, 이상훈 Lee Sanghoon
+Written by 박서음 parkse0eum
+Arranged by 몽글덤 mongledum
+
+Produced by Ash, 구진 goo99
+
+Performed by 몽글덤 mongledum
+Vocal 박서음 parkse0eum
+Chorus 박서음 parkse0eum, 구진 goo99
+Guitar 구진 goo99, 이재균 GyunJae
+Bass 이종훈 SonicBloo
+Keyboard 이상훈 Lee Sanghoon
+Drum 전형우 Jeon Hyungwoo

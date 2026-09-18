@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 
 const navigationItems = [
   { label: "about", href: "/about" },
-  { label: "serises", href: "/serises" },
   { label: "essay", href: "/essay" },
   { label: "music", href: "/music" },
+  { label: "serises", href: "/serises" },
   { label: "objects", href: "/objects" },
   { label: "contact", href: "/contact" },
 ];

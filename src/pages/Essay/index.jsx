@@ -253,12 +253,13 @@ export default function EssayPage() {
                 />
               </div>
               <div className="essay-detail__info">
+                <p className="essay-detail__topic">{activeEssay.topic || "미분류"}</p>
+                <h1>「{activeEssay.title}」</h1>
                 {activeEssay.musicTitle && (
                   <button className="essay-detail__music" type="button" onClick={openMusic}>
                     <PiDiscFill aria-hidden="true" />[{activeEssay.musicTitle}] 들으러 가기
                   </button>
                 )}
-                <h1>{activeEssay.topic || "미분류"} 「{activeEssay.title}」</h1>
                 <dl>
                   <div><dt>프로젝트</dt><dd>{activeEssay.albumTitle}</dd></div>
                   <div><dt>글쓴덤</dt><dd>{activeEssay.name}</dd></div>
