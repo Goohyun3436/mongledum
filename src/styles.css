@@ -2263,6 +2263,8 @@ body.is-music-page.is-music-header-scrolled::before {
 .serises-comic__empty { text-align: center; }
 .serises-comic__empty p { margin: 0 0 6px; }
 .serises-comic__empty small { color: #777; }
+.serises-comic__progress { width: min(320px, 70vw); height: 3px; margin: 14px auto 0; overflow: hidden; background: #d9dde0; }
+.serises-comic__progress i { display: block; height: 100%; background: #102c3a; transition: width 120ms linear; }
 .serises-comic-overview { position: absolute; inset: 0; z-index: 50; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; color: #202a33; background: #f4f7f9; }
 .serises-comic-overview__header { display: flex; min-height: 56px; padding: 0 28px; align-items: center; justify-content: space-between; gap: 24px; background: rgba(255, 255, 255, 0.94); border-bottom: 1px solid #d8dde1; }
 .serises-comic-overview__header h2 { margin: 0; font-size: 1rem; letter-spacing: -0.025em; }
@@ -2286,6 +2288,39 @@ body.is-music-page.is-music-header-scrolled::before {
 .serises-image-detail__gallery { display: grid; margin-top: 32px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .serises-image-detail__gallery img { width: 100%; max-height: none; object-fit: cover; }
 
+@media (min-width: 761px) and (max-width: 1100px) {
+  .serises-focus { height: auto; min-height: calc(100svh - var(--site-header-height)); overflow: visible; touch-action: pan-y; }
+  .serises-focus__header { position: relative; top: auto; left: auto; padding: 40px 32px 16px; }
+  .serises-focus__header img { width: min(64vw, 500px); }
+  .serises-focus__wall { height: auto; padding: 26px 32px 72px; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: 220px; gap: 40px 24px; }
+  .serises-work,
+  .serises-work--tumblbug,
+  .serises-work--essay,
+  .serises-work--object,
+  .serises-work--music,
+  .serises-work--image,
+  .serises-work--cartoon,
+  .serises-work--behind,
+  .serises-work--video,
+  .serises-work--decorative { position: relative; inset: auto; width: 100%; grid-column: auto; grid-row: auto; padding: 4%; }
+  .serises-work--tumblbug { order: 1; }
+  .serises-work--essay { order: 2; }
+  .serises-work--object { order: 3; }
+  .serises-work--music { order: 4; }
+  .serises-work--image { order: 5; }
+  .serises-work--cartoon { order: 6; grid-row: span 2; }
+  .serises-work--behind { order: 7; }
+  .serises-work--video { order: 8; }
+  .serises-work--decorative { order: 9; }
+  .serises-work__media,
+  .serises-work--image .serises-work__media,
+  .serises-work--behind .serises-work__media,
+  .serises-work--video .serises-work__media { height: 180px; align-self: center; }
+  .serises-work--music .serises-work__media,
+  .serises-work--decorative .serises-work__media { height: 210px; }
+  .serises-work--cartoon .serises-work__media { height: 400px; }
+}
+
 @media (max-width: 760px) {
   :root {
     --site-header-height: 44px;
@@ -2301,7 +2336,7 @@ body.is-music-page.is-music-header-scrolled::before {
     display: none;
   }
 
-  .serises-focus { height: auto; min-height: calc(100svh - var(--site-header-height)); overflow-y: auto; }
+  .serises-focus { height: auto; min-height: calc(100svh - var(--site-header-height)); overflow: visible; touch-action: pan-y; }
   .serises-focus__header { position: relative; top: auto; left: auto; padding: 28px 18px 10px; }
   .serises-focus__header img { width: min(86vw, 390px); }
   .serises-focus__wall { display: grid; height: auto; padding: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: 190px; gap: 26px 14px; }

@@ -14,6 +14,7 @@ async function createContentManifest() {
   const yearEntries = await readdir(docsRoot, { withFileTypes: true });
   const years = [];
   const objects = [];
+  const comicPages = {};
 
   for (const yearEntry of yearEntries.filter((entry) => entry.isDirectory() && /^\d{4}$/.test(entry.name))) {
     const albumEntries = await readdir(path.join(docsRoot, yearEntry.name), { withFileTypes: true });
@@ -94,13 +95,24 @@ async function createContentManifest() {
           videos,
         });
       }
+
+      const cartoonsPath = path.join(albumPath, "works", "cartoon");
+      const cartoonEntries = await readdir(cartoonsPath, { withFileTypes: true }).catch(() => []);
+      for (const cartoonEntry of cartoonEntries.filter((entry) => entry.isDirectory())) {
+        const pagesPath = path.join(cartoonsPath, cartoonEntry.name, "pages");
+        const pages = await readdir(pagesPath, { withFileTypes: true }).catch(() => []);
+        comicPages[`${yearEntry.name}/${albumEntry.name}/cartoon/${cartoonEntry.name}`] = pages
+          .filter((entry) => entry.isFile() && /\.(png|jpe?g|webp)$/i.test(entry.name))
+          .map((entry) => entry.name)
+          .sort((left, right) => left.localeCompare(right, "ko", { numeric: true }));
+      }
     }
 
     years.push({ year: yearEntry.name, albums: albums.sort(byIndex) });
   }
 
   years.sort((left, right) => left.year.localeCompare(right.year, "ko", { numeric: true }));
-  return JSON.stringify({ years, objects: objects.sort((left, right) => left.id.localeCompare(right.id, "ko", { numeric: true })) }, null, 2);
+  return JSON.stringify({ years, objects: objects.sort((left, right) => left.id.localeCompare(right.id, "ko", { numeric: true })), comicPages }, null, 2);
 }
 
 function contentManifestPlugin() {

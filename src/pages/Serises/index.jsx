@@ -59,6 +59,33 @@ async function discoverComicPages(work, signal) {
   return discovered;
 }
 
+async function preloadComicPages(urls, signal, onProgress) {
+  let nextIndex = 0;
+  let completed = 0;
+  const loadImage = (url) => new Promise((resolve) => {
+    const image = new Image();
+    const finish = () => {
+      image.onload = null;
+      image.onerror = null;
+      resolve();
+    };
+    image.onload = finish;
+    image.onerror = finish;
+    image.src = url;
+  });
+  const worker = async () => {
+    while (!signal.aborted) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= urls.length) return;
+      await loadImage(urls[index]);
+      completed += 1;
+      onProgress(completed, urls.length);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(8, urls.length) }, worker));
+}
+
 const ComicPage = forwardRef(function ComicPage({ src, number }, ref) {
   return <div className="serises-comic__page" ref={ref} data-density="soft">{src && <img src={src} alt={`만화 ${number}페이지`} draggable="false" />}</div>;
 });
@@ -70,12 +97,17 @@ function ComicReader({ work, onBack }) {
   const [page, setPage] = useState(0);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [targetPage, setTargetPage] = useState(null);
+  const [loadProgress, setLoadProgress] = useState({ loaded: 0, total: 0 });
 
   useEffect(() => {
     const controller = new AbortController();
-    discoverComicPages(work, controller.signal)
-      .then((urls) => {
-        urls.forEach((url) => { const image = new Image(); image.src = url; });
+    const listedPages = (work.pages ?? []).map((file) => `${getWorkAssetRoot(work)}/pages/${encodeURIComponent(file)}`);
+    const loadPages = listedPages.length > 0 ? Promise.resolve(listedPages) : discoverComicPages(work, controller.signal);
+    loadPages
+      .then(async (urls) => {
+        setLoadProgress({ loaded: 0, total: urls.length });
+        await preloadComicPages(urls, controller.signal, (loaded, total) => setLoadProgress({ loaded, total }));
+        if (controller.signal.aborted) return;
         setPages(urls);
       })
       .catch((error) => { if (error.name !== "AbortError") setPages([]); });
@@ -120,7 +152,10 @@ function ComicReader({ work, onBack }) {
             <button className="serises-comic__overview-open" type="button" onClick={() => setIsOverviewOpen(true)}>전체보기</button>
           </div>
         </div>
-      ) : <div className="serises-comic__empty"><p>만화를 불러오는 중...</p></div>}
+      ) : <div className="serises-comic__empty">
+        <p>만화를 불러오는 중...{loadProgress.total > 0 && ` ${Math.round((loadProgress.loaded / loadProgress.total) * 100)}%`}</p>
+        {loadProgress.total > 0 && <div className="serises-comic__progress" role="progressbar" aria-label="만화 불러오기" aria-valuemin="0" aria-valuemax={loadProgress.total} aria-valuenow={loadProgress.loaded}><i style={{ width: `${(loadProgress.loaded / loadProgress.total) * 100}%` }} /></div>}
+      </div>}
       {isOverviewOpen && (
         <section className="serises-comic-overview" aria-label="만화 전체 페이지">
           <header className="serises-comic-overview__header">
@@ -175,6 +210,7 @@ function ImageWorkDetail({ work, onBack }) {
 
 export default function SerisesPage() {
   const [works, setWorks] = useState([]);
+  const [behindWork, setBehindWork] = useState(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [titleTrack, setTitleTrack] = useState(null);
   const [behindConfig, setBehindConfig] = useState({ password: "", youtubeUrl: "" });
@@ -187,6 +223,12 @@ export default function SerisesPage() {
   const routeParts = decodeURIComponent(window.location.pathname).split("/").filter(Boolean);
   const activeType = routeParts[4] ?? "";
   const activeDirectoryName = routeParts[5] ?? "";
+
+  useEffect(() => {
+    if (activeType || activeDirectoryName) return;
+    decorativeClickCountRef.current = 0;
+    setIsBehindRevealed(false);
+  }, [activeType, activeDirectoryName]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -208,17 +250,25 @@ export default function SerisesPage() {
               coverUrl: getContentUrl(YEAR, ALBUM, item.directory, item.cover || "cover.png"),
             };
           }));
-          return tracks.find((track) => track.isTitle) ?? null;
+          return {
+            titleTrack: tracks.find((track) => track.isTitle) ?? null,
+            comicPages: manifest.comicPages ?? {},
+          };
         })
         .catch((error) => {
           if (error.name === "AbortError") throw error;
-          return null;
+          return { titleTrack: null, comicPages: {} };
         }),
-    ]).then(([manifest, video, behind, selectedTitleTrack]) => {
-      setWorks(manifest.works ?? []);
+    ]).then(([manifest, video, behind, contentManifest]) => {
+      const loadedWorks = (manifest.works ?? []).map((work) => ({
+        ...work,
+        pages: work.type === "cartoon" ? contentManifest.comicPages[`${YEAR}/${ALBUM}/${work.directory}`] ?? [] : undefined,
+      }));
+      setBehindWork(loadedWorks.find((work) => work.type === "behind") ?? null);
+      setWorks(loadedWorks.filter((work) => work.type !== "behind"));
       setYoutubeUrl(video);
       setBehindConfig(behind);
-      setTitleTrack(selectedTitleTrack);
+      setTitleTrack(contentManifest.titleTrack);
     }).catch((error) => { if (error.name !== "AbortError") setWorks([]); });
     return () => controller.abort();
   }, []);
@@ -266,6 +316,8 @@ export default function SerisesPage() {
     setIsBehindRevealed(true);
   };
 
+  const visibleWorks = isBehindRevealed && behindWork ? [...works, behindWork] : works;
+
   return (
     <main className="serises-focus">
       <header className="serises-focus__header">
@@ -274,11 +326,10 @@ export default function SerisesPage() {
       <section className="serises-focus__wall" aria-label="mongledum 001 작업물" onClickCapture={(event) => {
         if (!event.target.closest(".serises-work--decorative")) decorativeClickCountRef.current = 0;
       }}>
-        {works.map((work, index) => {
-          if (work.type === "behind" && !isBehindRevealed) return null;
+        {visibleWorks.map((work, index) => {
           const youtubeId = work.type === "video" ? getYoutubeId(youtubeUrl) : "";
           const cover = work.type === "music" ? titleTrack?.coverUrl : youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : getWorkCover(work);
-          const title = work.type === "music" || work.decorative ? "" : work.title;
+          const title = work.decorative ? "" : work.title;
           const isSecretTrigger = work.type === "decorative";
           const isInteractive = !work.decorative || isSecretTrigger;
           const WorkTag = isInteractive ? "button" : "div";
