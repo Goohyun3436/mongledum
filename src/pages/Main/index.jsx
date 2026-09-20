@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import HomeContentSections from "../../components/HomeContentSections";
 import PoolSection from "../../components/PoolSection";
 
@@ -55,6 +55,7 @@ const scoreNotes = [
 
 export default function MainPage() {
   const [isHallOfFameOpen, setIsHallOfFameOpen] = useState(false);
+  const pageRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -63,6 +64,12 @@ export default function MainPage() {
       setIsHallOfFameOpen(true);
     }
   }, []);
+
+  useLayoutEffect(() => {
+    if (!isHallOfFameOpen) return;
+    window.scrollTo(0, 0);
+    if (pageRef.current) pageRef.current.scrollTop = 0;
+  }, [isHallOfFameOpen]);
 
   const hideHallOfFameToday = () => {
     try {
@@ -80,7 +87,7 @@ export default function MainPage() {
   };
 
   return (
-    <main className="home-page">
+    <main ref={pageRef} className="home-page">
       {isHallOfFameOpen && <HallOfFameModal onClose={() => setIsHallOfFameOpen(false)} onHideToday={hideHallOfFameToday} />}
       <section className="home-page__hero">
         <div className="home-stage">

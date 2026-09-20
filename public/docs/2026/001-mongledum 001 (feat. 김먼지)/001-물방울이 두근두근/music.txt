@@ -5,15 +5,15 @@ arrangement: mongledum
 date: 2026-09-19
 url:
 youtube:
-youtube_music:
+youtube_music: https://music.youtube.com/watch?v=z3tMN3BdLuo
 instagram:
-melon:
+melon: https://www.melon.com/song/detail.htm?songId=603146054
 apple_music:
-spotify:
-genie:
-bugs:
-vibe:
-flo:
+spotify: https://open.spotify.com/track/55ikW8CYvez64PYlZfN97j
+genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907817
+bugs: https://music.bugs.co.kr/track/34072537
+vibe: https://vibe.naver.com/track/107699390
+flo: https://www.music-flo.com/detail/track/608111649/details
 ---
 [lyrics]
 우리 시작해볼까
@@ -24,7 +24,7 @@ flo:
 두 귀를 젖은 햇빛 아래 풀어두고서
 두근거리는 물방울
 너머로 흘러
-부드러운 숨
+부드러운 숨 속에
 작은 방을 짓고
 밀려오는 파도는
 나른한 이불이 되어
@@ -32,17 +32,18 @@ flo:
 우리 둘만의 바닷속으로
 (흘러가요)
 시간도 우릴 찾을 수 없이
-깊어진 이곳에선
+깊어진 이곳에서
 잃어버린 줄 알았던
 내 어린 여름날의 소망은
 너의 향기로 돌아와 있어
 
 온몸을 젖은 햇빛 아래 풀어두고서
-두근거리며 너의 귓가를 맴돌아
+두근거리며
+너의 귓가를 맴돌아
 부드러운 어깨를
 감싸줄 수 있게
 밀려가는 파도는
-또 다시 돌아올테니
+또다시 돌아올 테니
 
 가까이 나의 마음에 누워
 (흘러내려)

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FaApple, FaInstagram, FaSpotify, FaYoutube } from "react-icons/fa";
-import { FiArrowUpRight, FiMusic } from "react-icons/fi";
+import { FiArrowUpRight, FiChevronLeft, FiChevronRight, FiMusic } from "react-icons/fi";
 import { getContentUrl, parseContentFile } from "../../utils/contentFiles";
 
 const MUSIC_LINK_TYPES = [
@@ -212,6 +212,8 @@ export default function MusicPage() {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [status, setStatus] = useState("loading");
   const [isAlbumHeaderScrolled, setIsAlbumHeaderScrolled] = useState(false);
+  const [trackMenuEdges, setTrackMenuEdges] = useState({ left: false, right: false });
+  const trackMenuRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.add("is-music-page");
@@ -298,11 +300,34 @@ export default function MusicPage() {
   const activeTrackLinks = MUSIC_LINK_TYPES.filter(({ key }) => activeTrack?.[key]);
   const displayedDate = formatReleaseDate(activeAlbum?.release_date ?? activeTrack?.date ?? tracks.find((track) => track.date)?.date);
 
+  useEffect(() => {
+    const menu = trackMenuRef.current;
+    if (!menu) return undefined;
+    menu.scrollLeft = 0;
+    const updateEdges = () => setTrackMenuEdges({
+      left: menu.scrollLeft > 2,
+      right: menu.scrollLeft + menu.clientWidth < menu.scrollWidth - 2,
+    });
+    updateEdges();
+    menu.addEventListener("scroll", updateEdges, { passive: true });
+    const resizeObserver = new ResizeObserver(updateEdges);
+    resizeObserver.observe(menu);
+    return () => {
+      menu.removeEventListener("scroll", updateEdges);
+      resizeObserver.disconnect();
+    };
+  }, [activeAlbumIndex, tracks.length]);
+
   const selectAlbum = (index) => {
     setActiveAlbumIndex(index);
     setActiveTrackIndex(-1);
   };
   const moveTrack = (direction) => setActiveTrackIndex((current) => (current + direction + tracks.length) % tracks.length);
+  const scrollTrackMenu = (direction) => {
+    const menu = trackMenuRef.current;
+    if (!menu) return;
+    menu.scrollBy({ left: direction * Math.max(120, menu.clientWidth * 0.65), behavior: "smooth" });
+  };
 
   if (status === "loading") return <main className="music-page"><p className="music-page__status">음악을 펼치는 중...</p></main>;
   if (status === "error" || !activeAlbum || tracks.length === 0) return <main className="music-page"><p className="music-page__status">음악을 불러오지 못했습니다.</p></main>;
@@ -323,15 +348,19 @@ export default function MusicPage() {
             {displayedDate && <p className="music-intro__subtitle">{displayedDate}</p>}
           </header>
 
-          <div className="music-track-panel__list" role="tablist" aria-label="곡 선택">
-            <button type="button" role="tab" data-label="앨범 소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
-              앨범 소개글
-            </button>
-            {tracks.map((track, index) => (
-              <button type="button" role="tab" data-label={`${track.index} ${track.title}`} aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
-                <span>{track.index}</span>{track.title}
+          <div className="music-track-menu">
+            <div ref={trackMenuRef} className="music-track-panel__list" role="tablist" aria-label="곡 선택">
+              <button type="button" role="tab" data-label="앨범 소개글" aria-selected={activeTrackIndex === -1} className={activeTrackIndex === -1 ? "is-active" : ""} onClick={() => setActiveTrackIndex(-1)}>
+                앨범 소개글
               </button>
-            ))}
+              {tracks.map((track, index) => (
+                <button type="button" role="tab" data-label={`${track.index} ${track.title}`} aria-selected={index === activeTrackIndex} className={index === activeTrackIndex ? "is-active" : ""} onClick={() => setActiveTrackIndex(index)} key={track.directory}>
+                  <span>{track.index}</span>{track.title}
+                </button>
+              ))}
+            </div>
+            {trackMenuEdges.left && <button className="music-track-menu__edge music-track-menu__edge--left" type="button" aria-label="이전 곡 메뉴 보기" onClick={() => scrollTrackMenu(-1)}><FiChevronLeft aria-hidden="true" /></button>}
+            {trackMenuEdges.right && <button className="music-track-menu__edge music-track-menu__edge--right" type="button" aria-label="다음 곡 메뉴 보기" onClick={() => scrollTrackMenu(1)}><FiChevronRight aria-hidden="true" /></button>}
           </div>
 
           {activeTrackLinks.length > 0 && (

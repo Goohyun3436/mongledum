@@ -5,20 +5,21 @@ arrangement: mongledum
 date: 2026-09-19
 url:
 youtube:
-youtube_music:
+youtube_music: https://music.youtube.com/watch?v=1Y6i-C0EfMI
 instagram:
-melon:
+melon: https://www.melon.com/song/detail.htm?songId=603146056
 apple_music:
-spotify:
-genie:
-bugs:
-vibe:
-flo:
+spotify: https://open.spotify.com/track/1D8JGm0VTCDwVjIladhFJu
+genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907819
+bugs: https://music.bugs.co.kr/track/34072539
+vibe: https://vibe.naver.com/track/107699393
+flo: https://www.music-flo.com/detail/track/608111651/details
 ---
 [lyrics]
 하나만 나는 그것만을
 해보고 싶어
-하나마나 한 소리에서
+
+하나 마나 한 소리에서
 비누 향기가
 
 기다림은
@@ -37,7 +38,8 @@ the waiting says to me, “Hi, hi-ya”
 
 하나만 나는 그것만
 해보고 싶어서
-하나마나 한 소리에서
+
+하나 마나 한 소리에서
 뛰어내리네
 
 기다림은
@@ -56,7 +58,7 @@ the waiting says to me, “Hi, hi-ya”
 나 하나만 남아
 the waiting says to me, “Hi, hi-ya”
 나 하나만 남아
-i say to myself, “Hi, hi-ya”
+I say to myself, “Hi, hi-ya”
 
 [credits]
 Composed by 전형우, 박서음, 이재균

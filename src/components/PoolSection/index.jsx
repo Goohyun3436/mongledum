@@ -22,7 +22,7 @@ export default function PoolSection() {
           src="/assets/cursor/flying-fish.png"
           alt="수영장 밖으로 나온 날치"
         />
-        <span>{"<그 순간에는 내가 있을게> 중편 만화"}</span>
+        <span>{"<그 순간에는 내가 있을게> 장편 만화"}</span>
       </a>
     </section>
   );

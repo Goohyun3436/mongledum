@@ -5,28 +5,30 @@ arrangement: mongledum
 date: 2026-09-19
 url:
 youtube:
-youtube_music:
+youtube_music: https://music.youtube.com/watch?v=btCyNTGGqOk
 instagram:
-melon:
+melon: https://www.melon.com/song/detail.htm?songId=603146055
 apple_music:
-spotify:
-genie:
-bugs:
-vibe:
-flo:
+spotify: https://open.spotify.com/track/0U9ZjHbKRwdOQrB55SPAWp
+genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907818
+bugs: https://music.bugs.co.kr/track/34072538
+vibe: https://vibe.naver.com/track/107699391
+flo: https://www.music-flo.com/detail/track/608111650/details
 ---
 [lyrics]
 햇빛이 너무 잘 드는 게
 검은 타일엔 맞지 않은데
-테이블을 놓아둘 곳도
+
+테이블을 놓아둬야 할 곳도
 침대 밑은 안 되는데
 빈틈이 부족해
 
-좀 더 이쪽으로 당기면 괜찮을까
-그냥 그대로 내버려두고 떠날까
+이쪽으로 좀 더 당기면 괜찮을까
+그냥 저대로 내버려두고 떠날까
 
 헬멧을 걸어야 하는데
 자꾸 굴러떨어지는데
+
 한없이 푹 꺼진 소파에
 그냥저냥 끼워 넣은
 내 몸도 헐거워
@@ -34,8 +36,8 @@ flo:
 눈물이 나와줘야 맞는데
 하품이 겨우 대신해주네
 
-좀 더 저쪽으로 옮기면 괜찮을까
-그냥 그대로 내버려두고 떠날까
+저쪽으로 좀 더 옮기면 괜찮을까
+그냥 저대로 내버려두고 떠날까
 
 다시 원래대로 되돌려 놓을 순 없나
 다시 원래대로 돌아가서 처음부터

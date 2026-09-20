@@ -5,15 +5,15 @@ arrangement: mongledum
 date: 2026-09-19
 url:
 youtube:
-youtube_music:
+youtube_music: https://music.youtube.com/watch?v=xbPSB4KkpBI
 instagram:
-melon:
+melon: https://www.melon.com/song/detail.htm?songId=603146057
 apple_music:
-spotify:
-genie:
-bugs:
-vibe:
-flo:
+spotify: https://open.spotify.com/track/6EPaPy8OMHQvmFCmdIFeCU
+genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907820
+bugs: https://music.bugs.co.kr/track/34072540
+vibe: https://vibe.naver.com/track/107699395
+flo: https://www.music-flo.com/detail/track/608111652/details
 ---
 [lyrics]
 눈 덮인 그림자 아래로
