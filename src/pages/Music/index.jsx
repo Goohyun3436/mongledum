@@ -297,7 +297,8 @@ export default function MusicPage() {
   const activeAlbum = albums[activeAlbumIndex];
   const tracks = activeAlbum?.tracks ?? [];
   const activeTrack = tracks[activeTrackIndex];
-  const activeTrackLinks = MUSIC_LINK_TYPES.filter(({ key }) => activeTrack?.[key]);
+  const activeMusicItem = activeTrack ?? activeAlbum;
+  const activeTrackLinks = MUSIC_LINK_TYPES.filter(({ key }) => activeMusicItem?.[key]);
   const displayedDate = formatReleaseDate(activeAlbum?.release_date ?? activeTrack?.date ?? tracks.find((track) => track.date)?.date);
 
   useEffect(() => {
@@ -364,9 +365,9 @@ export default function MusicPage() {
           </div>
 
           {activeTrackLinks.length > 0 && (
-            <div className="music-track-services" aria-label={`${activeTrack.title} 외부 링크`}>
+            <div className="music-track-services" aria-label={`${activeTrack?.title ?? activeAlbum.title} 외부 링크`}>
               {activeTrackLinks.map(({ key, label, icon: Icon }) => (
-                <a href={activeTrack[key]} target="_blank" rel="noreferrer" key={key}>
+                <a href={activeMusicItem[key]} target="_blank" rel="noreferrer" key={key}>
                   <Icon aria-hidden="true" />
                   <span>{label}</span>
                   <FiArrowUpRight aria-hidden="true" />

@@ -2,6 +2,14 @@ release_date: 2026-09-19
 title: 여섯 입 속의 네 문장
 author: 대중음악평론가 정병욱(Byungwook Chung)
 author_url: https://www.instagram.com/byungwookchung?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==
+bugs: https://music.bugs.co.kr/album/20841560
+genie: https://www.genie.co.kr/detail/albumInfo?axnm=88166683
+flo: https://www.music-flo.com/detail/album/463382134/albumtrack
+vibe: https://vibe.naver.com/album/38639168
+melon: https://www.melon.com/album/detail.htm?albumId=14565566
+spotify: https://open.spotify.com/album/38dV2gq5F5ms3dbYmAofSC
+apple_music: https://music.apple.com/kr/album/mongledum-001-ep/6809733839
+youtube_music: https://music.youtube.com/playlist?list=OLAK5uy_lZffzbv0z7lVzuB-navO33vjD0ydtFdvI&si=Nk_yws06UQ9PDdpv
 ---
 독창적인 결과물은 남다른 과정을 거쳐 완성된다. 신진 밴드 몽글덤의 노래 만들기는 누군가의 작곡에 앞서 서로의 삶과 문장을 읽는 일에서 시작된다. 멤버들이 자신의 삶과 사유에서 문장을 끌어내면, 보컬 박서음이 이를 가사로 옮기고, 멤버들은 다시 그 가사를 편곡과 연주를 거쳐 모두의 소리로 바꾼다. 한 사람의 이야기를 번역과 재번역을 거쳐 한 팀의 노래로 만드는 방식이다. 2025년 ‘올여름’을 주제로 나눈 글에서 데뷔 싱글 [인간은 별안간]을 피워냈던 이들은, 첫 EP [mongledum 001 (feat. 김먼지)]에서 네 곡의 이야기를 펼치고 이를 다른 예술로 이어가는 방식까지 확장했다.
 

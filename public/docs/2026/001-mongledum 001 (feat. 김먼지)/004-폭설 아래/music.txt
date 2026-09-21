@@ -8,7 +8,7 @@ youtube:
 youtube_music: https://music.youtube.com/watch?v=xbPSB4KkpBI
 instagram:
 melon: https://www.melon.com/song/detail.htm?songId=603146057
-apple_music:
+apple_music: https://music.apple.com/kr/song/%ED%8F%AD%EC%84%A4-%EC%95%84%EB%9E%98/6809734095
 spotify: https://open.spotify.com/track/6EPaPy8OMHQvmFCmdIFeCU
 genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907820
 bugs: https://music.bugs.co.kr/track/34072540

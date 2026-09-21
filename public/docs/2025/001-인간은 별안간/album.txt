@@ -1,6 +1,14 @@
 release_date: 2025-09-19
 title: 올여름
 author: 박서음
+youtube: https://www.youtube.com/watch?v=7B2TdQTgzAs
+melon: https://www.melon.com/album/detail.htm?albumId=12124929
+apple_music: https://music.apple.com/kr/album/eternal-sunshine-single/1838861126
+spotify: https://open.spotify.com/album/5idGPo8JGlHX6u9RVaollf
+genie: https://www.genie.co.kr/detail/albumInfo?axnm=86734191
+bugs: https://music.bugs.co.kr/album/20756764
+vibe: https://vibe.naver.com/album/35272429
+flo: https://www.music-flo.com/detail/album/443438412/albumtrack
 ---
 안녕하세요 놀이터에서 놀고 있던 우리는 몽글덤이에요.
 

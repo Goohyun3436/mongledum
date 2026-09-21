@@ -8,7 +8,7 @@ youtube:
 youtube_music: https://music.youtube.com/watch?v=1Y6i-C0EfMI
 instagram:
 melon: https://www.melon.com/song/detail.htm?songId=603146056
-apple_music:
+apple_music: https://music.apple.com/kr/song/diib/6809734093
 spotify: https://open.spotify.com/track/1D8JGm0VTCDwVjIladhFJu
 genie: https://www.genie.co.kr/detail/songInfo?xgnm=116907819
 bugs: https://music.bugs.co.kr/track/34072539
